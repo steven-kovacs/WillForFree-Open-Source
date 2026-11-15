@@ -1,0 +1,9 @@
+node_modules/
+.env
+.env.*
+!.env.example
+.firebase/
+.firebaserc
+*.log
+public/vendor/*.min.js
+public/forms/*.pdf

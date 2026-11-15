@@ -1,0 +1,151 @@
+// Reading guides for the selected jurisdiction. A regional source takes precedence over a national guide.
+const familyGuides = {
+  "CA-AB": "https://www.alberta.ca/wills-in-alberta",
+  "CA-BC": "https://www2.gov.bc.ca/gov/content/family-social-supports/seniors/financial-legal-matters/wills-and-estate-planning",
+  "CA-MB": "https://gov.mb.ca/familylaw/relationships/wills.html",
+  "CA-NB": "https://www.courtsnb-coursnb.ca/content/cour/en/probate-court/content/faq.html",
+  "CA-NL": "https://publiclegalinfo.com/legal-info/wills-and-estates/wills/",
+  "CA-NS": "https://courts.ns.ca/courts/probate-court",
+  "CA-NT": "https://www.justice.gov.nt.ca/en/files/estate-administration/Questions%20and%20Answers%20about%20Wills.pdf",
+  "CA-NU": "https://www.gov.nu.ca/sites/default/files/publications/2023-08/Nunavut%20Will%20Guide.pdf",
+  "CA-ON": "https://www.ontario.ca/page/estate-planning-and-wills",
+  "CA-PE": "https://legalinfopei.ca/information/resource/wills",
+  "CA-QC": "https://www.quebec.ca/en/justice-and-civil-status/wills-estate/wills/forms-will",
+  "CA-SK": "https://www.saskatchewan.ca/residents/justice-crime-and-the-law/answering-legal-questions/wills/making-a-will",
+  "CA-YT": "https://yukon.ca/en/wills-and-estates",
+
+  "US-AL": "https://www.aces.edu/blog/topics/business-community-urban/understanding-the-basics-of-estate-planning/",
+  "US-AK": "https://www.courts.alaska.gov/shc/probate/probate-wills.htm",
+  "US-AZ": "https://azcourthelp.org/faq/probate-mental-health/565-valid-will",
+  "US-AR": "https://a.arlawhelp.org/wills-and-estates/introduction",
+  "US-CA": "https://selfhelp.courts.ca.gov/wills-estates-probate/legal-documents",
+  "US-CO": "https://www.coloradojudicial.gov/self-help/open-estate",
+  "US-CT": "https://www.ctprobate.gov/trusts-estates/trusts-estates-user-guides",
+  "US-DE": "https://delcode.delaware.gov/title12/c002/sc01/",
+  "US-DC": "https://www.dccourts.gov/superior-court/superior-court-divisions/probate-division/estates",
+  "US-FL": "https://www.floridabar.org/public/consumer/pamphlet011/",
+  "US-GA": "https://georgia.gov/write-will",
+  "US-HI": "https://www.hawaii.edu/uhelp/pdf/2024_TheEssentialElderLawHandbook_web.pdf",
+  "US-ID": "https://courtselfhelp.idaho.gov/docs/publications/WP-5.pdf",
+  "US-IL": "https://www.isba.org/public/guide/estateplanning",
+  "US-IN": "https://indianalegalhelp.org/probate-frequently-asked-questions/",
+  "US-IA": "https://www.iowacourts.gov/faq/probateestates-and-wills",
+  "US-KS": "https://www.kansaslegalservices.org/node/362/do-i-need-will",
+  "US-KY": "https://www.kyjustice.org/how-to-help-yourself/probate/materials",
+  "US-LA": "https://www.lsba.org/documents/PublicResources/LSBAWillBrochure.pdf",
+  "US-ME": "https://legislature.maine.gov/statutes/18-C/title18-Csec2-517.html",
+  "US-MD": "https://www.registers.maryland.gov/main/faq.html",
+  "US-MA": "https://www.mass.gov/info-details/massachusetts-law-about-wills-and-estates",
+  "US-MI": "https://michiganlegalhelp.org/resources/wills-and-life-planning/making-will-michigan",
+  "US-MN": "https://www.ag.state.mn.us/Consumer/Handbooks/Probate/CH1.asp",
+  "US-MS": "https://extension.msstate.edu/blogs/extension-for-real-life/do-i-need-estate-plan-and-will",
+  "US-MO": "https://www.lsmo.org/page/468/wills",
+  "US-MT": "https://extension-store.montana.edu/montguides/dying-without-a-will-in-montana",
+  "US-NE": "https://nebraskajudicial.gov/self-help/estates",
+  "US-NV": "https://selfhelp.nvcourts.gov/self-help/probate/overview",
+  "US-NH": "https://www.courts.nh.gov/sites/g/files/ehbemt471/files/documents/2021-06/administeringanestatebookletforecourt.pdf",
+  "US-NJ": "https://www.lsnjlaw.org/legal-topics/seniors/wills-trusts/pages/wills-and-estates-aspx",
+  "US-NM": "https://accesstojustice.nmcourts.gov/forms-files/probate/",
+  "US-NY": "https://www.nycourts.gov/help/when-someone-dies/when-there-no-will",
+  "US-NC": "https://www.nccourts.gov/help-topics/wills-and-estates/estates",
+  "US-ND": "https://www.ndcourts.gov/legal-self-help/informal-probate",
+  "US-OH": "https://www.ohiobar.org/public-resources/commonly-asked-law-questions-results/law-facts/law-facts-wills/",
+  "US-OK": "https://www.okbar.org/wills-and-trusts/",
+  "US-OR": "https://www.osbar.org/public/legalinfo/1116_YourWill.htm",
+  "US-PA": "https://www.legis.state.pa.us/wu01/li/li/ct/htm/20/20.htm",
+  "US-RI": "https://www.eastgreenwichri.gov/DocumentCenter/View/4750/What-should-I-know-about-Probate-PDF",
+  "US-SC": "https://sclegal.org/everyone-needs-a-will/",
+  "US-SD": "https://atg.sd.gov/victim/seniors/estateplanning.aspx",
+  "US-TN": "https://www.help4tn.org/senior-services/legal-information/planning-ahead/wills",
+  "US-TX": "https://guides.sll.texas.gov/wills-and-directives",
+  "US-UT": "https://www.utcourts.gov/en/self-help/case-categories/probate.html",
+  "US-VT": "https://www.vtcourts.gov/probate/estates-and-wills",
+  "US-VA": "https://vsb.org/LG/Site/news/pubs/wills-va.aspx",
+  "US-WA": "https://www.dshs.wa.gov/legal-planning",
+  "US-WV": "https://legalaidwv.org/legal-information/wills-basic-questions-and-answers/",
+  "US-WI": "https://aging.extension.wisc.edu/files/2025/03/Estate-Planning-Guide.pdf",
+  "US-WY": "https://www.wyocourts.gov/legal-help-by-topic/estate-planning/",
+
+  "GB-ENG": "https://www.gov.uk/make-will/writing-your-will",
+  "GB-WLS": "https://www.gov.uk/make-will/writing-your-will",
+  "GB-SCT": "https://www.mygov.scot/create-will",
+  "GB-NIR": "https://www.nidirect.gov.uk/articles/making-will",
+  "AU-ACT": "https://www.ptg.act.gov.au/wills/making-a-will",
+  "AU-NSW": "https://www.nsw.gov.au/family-and-relationships/planning-for-end-of-life/learn-about-wills",
+  "AU-NT": "https://nt.gov.au/law/bdm/make-a-will",
+  "AU-QLD": "https://www.pt.qld.gov.au/wills-powers-of-attorney-estates/wills/about-wills",
+  "AU-SA": "https://www.sa.gov.au/topics/family-and-community/planning-ahead/making-a-will",
+  "AU-TAS": "https://www.publictrustee.tas.gov.au/wills/wills-faqs/",
+  "AU-VIC": "https://www.legalaid.vic.gov.au/your-will",
+  "AU-WA": "https://www.wa.gov.au/service/justice/civil-law/make-will-public-trustee",
+
+  IE: "https://www.lawsociety.ie/public/Legal-guides/Wills--Probate/making-a-will",
+  DK: "https://www.borger.dk/oekonomi-skat-su/oekonomi-i-familien/gaver-og-arv/testamente",
+  NO: "https://www.domstol.no/en/testament/how-do-you-write-a-will/",
+  CH: "https://www.ch.ch/en/family-and-partnership/inheritance/wills-and-contracts-of-succession/",
+  IS: "https://island.is/en/wills",
+  EE: "https://parimine.notar.ee/en/estate-planning/wills-succession-contracts-gifts/",
+  HR: "https://gov.hr/en/last-will-and-testament/764",
+  NZ: "https://www.govt.nz/browse/family-and-whanau/death-and-bereavement/what-to-organise-before-you-die/",
+  SG: "https://www.moneysense.gov.sg/legacy-planning/will/",
+};
+const successionGuides = new Set(["NL","SE","FI","DE","AT","BE","LU","MT","PT","CZ","PL","SK"]);
+const euLanguages = new Set(["en","fr","es","de","it","nl","da","sv","fi","pt","et","cs","pl","hr","sk","mt"]);
+
+const businessGuides = {
+  CA: "https://www.canada.ca/en/revenue-agency/services/tax/businesses/small-businesses-self-employed-income/setting-your-business.html",
+  US: "https://www.irs.gov/businesses/small-businesses-self-employed/business-structures",
+  GB: "https://www.gov.uk/set-up-business",
+  IE: "https://cro.ie/registration/",
+  NL: "https://business.gov.nl/running-your-business/legal-forms-and-governance/choose-a-legal-structure/",
+  DK: "https://virksomhedsguiden.dk/content/ydelser/faa-overblik-over-selskabsformer/2d4a89bb-ea89-4982-bbfe-a38abcf699af/",
+  SE: "https://verksamt.se/en/setting-up/choose-business-type",
+  NO: "https://info.altinn.no/en/start-and-run-business/planning-starting/choosing-legal-structure/",
+  FI: "https://www.suomi.fi/company/starting-a-business/forms-of-enterprise/guide/choosing-the-form-of-business/comparing-company-forms",
+  DE: "https://www.existenzgruendungsportal.de/Navigation/DE/Gruendungswissen/Rechtsformen/rechtsformen",
+  AT: "https://www.wko.at/wirtschaftsrecht/unternehmensgruendung-rechtsform",
+  CH: "https://www.kmu.admin.ch/en/legal-structure-choosing-the-right-legal-structure",
+  BE: "https://business.belgium.be/start-a-business/before-you-start/choose-a-legal-form-for-your-business",
+  LU: "https://guichet.public.lu/en/entreprises/creation-developpement/projet-entreprise/definition/forme-juridique.html",
+  IS: "https://island.is/en/starting-a-business",
+  MT: "https://www.businessfirst.com.mt/registration-of-a-business/",
+  PT: "https://justica.gov.pt/Como-criar-uma-empresa-online/Tipo-de-empresa",
+  EE: "https://www.eesti.ee/en/artikkel/doing-business/establishing-a-company/comparison-of-each-form-of-business",
+  CZ: "https://portal.gov.cz/en/informace/general-description-of-forms-of-business-legal-entities-INF-218",
+  PL: "https://biznes.gov.pl/pl/portal/00120",
+  HR: "https://gov.hr/en/registration-and-starting-a-business-in-croatia/2447",
+  SK: "https://www.slovensko.sk/en/life-situation/life-situation/_setting-up-a-company",
+  AU: "https://business.gov.au/planning/business-plans/develop-your-succession-plan",
+  NZ: "https://www.business.govt.nz/strategy-and-performance/choosing-the-right-business-structure",
+  SG: "https://www.acra.gov.sg/register/business/choosing-business-structure/",
+};
+
+// A link alongside each local example supports that point, rather than just the mechanics of signing.
+const localExamples = {
+  "CA-NS": {
+    text: "In Nova Scotia, the person who cares for a child may need separate authority to manage an inheritance. If you leave money to a child, think about who should look after it for them.",
+    label: "Children and inheritance",
+    href: "https://novascotia.ca/just/pto/faq_ct.asp",
+  },
+  "CA-NB": {
+    text: "In New Brunswick, a parent can use a will to name a guardian in certain circumstances. A surviving parent’s right to care for the child can still take priority.",
+    label: "Choosing a guardian",
+    href: "https://laws.gnb.ca/en/document/cs/2011-c.167",
+  },
+  "CA-PE": {
+    text: "On Prince Edward Island, if a child inherits money or property, someone can ask the court to appoint a guardian to manage it. Think about who would care for the child and who would look after their inheritance.",
+    label: "Children and inheritance",
+    href: "https://www.princeedwardisland.ca/en/legislation/probate-act",
+  },
+};
+
+export function guideResources(place, language) {
+  const {key, country} = place;
+  let family = familyGuides[key];
+  if (successionGuides.has(country)) {
+    const edition = euLanguages.has(language) ? language : "en";
+    family = "https://e-justice.europa.eu/topics/family-matters-inheritance/inheritance/succession/" + country.toLowerCase() + "_" + edition;
+  }
+  if (key === "CA-NB" && language === "fr") family = "https://www.courtsnb-coursnb.ca/content/cour/fr/successions/content/faq.html";
+  return {family, business: businessGuides[country], example: localExamples[key]};
+}

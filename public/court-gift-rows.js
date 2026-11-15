@@ -1,0 +1,43 @@
+// Named boxes in printed row order. Spelling and spaces belong to the original PDFs.
+export const texasGiftRows = {
+  "tx-married-children": [
+    ["3.3 Describe items in detail", "3.3 First  Middle  Last  Suffix Jr Sr etc.)"],
+    ["3.3 Describe items in detail 2", "3.3 First  Middle  Last  Suffix Jr Sr etc.) 2"],
+    ["3.3 Describe items in detail 3", "3.3 First  Middle  Last  Suffix Jr Sr etc.) 3"],
+    ["3.3 Describe items in detail 4", "3.3 First  Middle  Last  Suffix Jr Sr etc.) 4"],
+    ["3.3 Describe items in detail 5", "3.3 First  Middle  Last  Suffix Jr Sr etc.) 5"],
+    ["3.3 Describe items in detail 6", "3.3 First  Middle  Last  Suffix Jr Sr etc.) 6"],
+    ["3.3 Describe items in detail 7", "3.3 First  Middle  Last  Suffix Jr Sr etc.) 7"],
+    ["3.3 Describe items in detail 8", "3.3 First  Middle  Last  Suffix Jr Sr etc.) 8"],
+  ],
+  "tx-married-no-children": [
+    ["3.3 Describe items in detail", "First  Middle  Last  Suffix Jr Sr etc"],
+    ["3.3 Describe items in detail 2", "First  Middle  Last  Suffix"],
+    ["3.3 Describe items in detail 3", "First  Middle  Last  Suffix_2"],
+    ["3.3 Describe items in detail 4", "First  Middle  Last  Suffix_3"],
+    ["3.3 Describe items in detail 5", "First  Middle  Last  Suffix_4"],
+    ["3.3 Describe items in detail 6", "First  Middle  Last  Suffix_5"],
+    ["3.3 Describe items in detail 7", "First  Middle  Last  Suffix_6"],
+    ["3.3 Describe items in detail 8", "First  Middle  Last  Suffix_7"],
+  ],
+  "tx-single-children": [
+    ["3.3 Describe items in detail", "3.3 First  Middle  Last  Suffix Jr Sr etc"],
+    ["3.3 Describe items in detail 2", "3.3 First  Middle  Last  Suffix Jr Sr etc 2"],
+    ["3.3 Describe items in detail 3", "3.3 First  Middle  Last  Suffix Jr Sr etc 3"],
+    ["3.3 Describe items in detail 4", "3.3 First  Middle  Last  Suffix 4"],
+    ["3.3 Describe items in detail 5", "3.3 First  Middle  Last  Suffix 5"],
+    ["3.3 Describe items in detail 6", "3.3 First  Middle  Last  Suffix 6"],
+    ["3.3 Describe items in detail 7", "3.3 First  Middle  Last  Suffix 7"],
+    ["3.3 Describe items in detail 8", "3.3 First  Middle  Last  Suffix 8"],
+  ],
+  "tx-single-no-children": [
+    ["3.3 Describe items in detail", "3.3 First  Middle  Last  Suffix Jr Sr etc"],
+    ["3.3 Describe items in detail 2", "3.3 First  Middle  Last  Suffix"],
+    ["3.3 Describe items in detail 3", "3.3 First  Middle  Last  Suffix 2"],
+    ["3.3 Describe items in detail 4", "3.3 First  Middle  Last  Suffix 3"],
+    ["3.3 Describe items in detail 5", "3.3 First  Middle  Last  Suffix 4"],
+    ["3.3 Describe items in detail 6", "3.3 First  Middle  Last  Suffix 5"],
+    ["3.3 Describe items in detail 7", "3.3 First  Middle  Last  Suffix 6"],
+    ["3.3 Describe items in detai8l", "First  Middle  Last  Suffix_7"],
+  ],
+};

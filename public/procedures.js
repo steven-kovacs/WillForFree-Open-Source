@@ -1,0 +1,105 @@
+// An operator may publish these seven general forms separately from the interview.
+// This is a conservative product selection, not a finding that publishing a form is exempt everywhere.
+export const fixedStates = new Set(["US-AZ", "US-CO", "US-FL", "US-KY", "US-MN", "US-NC", "US-OH"]);
+export const depositCountries = new Set(["MT", "NL", "PT"]);
+export const courtVenue = {
+  "US-CA":"For this California form, sign in California. Its signature line names California as the place of signing.",
+  "US-TX":"For this Texas form, sign in Texas with both witnesses and a Texas notary present together.",
+};
+// Delivery after death can depend on notice, a request or who holds the original.
+export const custodySources = {
+  "US-AK":"https://www.akleg.gov/statutesPDF/Title-13.pdf",
+  "US-AZ":"https://www.azleg.gov/ars/14/02516.htm",
+  "US-CA":"https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?sectionNum=8200.&lawCode=PROB",
+  "US-CO":"https://olls.info/crs/crs2026-title-15.htm",
+  "US-CT":"https://prdext2.cga.ct.gov/2025/pub/chap_802b.htm#sec_45a-282",
+  "US-DC":"https://www.dccourts.gov/superior-court/superior-court-divisions/probate-division/filing-a-will",
+  "US-DE":"https://delcode.delaware.gov/title12/c013/",
+  "US-FL":"https://www.flsenate.gov/Laws/Statutes/2026/732.901",
+  "US-IA":"https://www.legis.iowa.gov/docs/code/2026/633.285.pdf",
+  "US-KS":"https://www.kslegislature.gov/b2025_26/laws/059_000_0000_chapter/059_006_0000_article/059_006_0021_section/059_006_0021_k/",
+  "US-MD":"https://registers.maryland.gov/main/publications/AdministrationBooklet2025.pdf",
+  "US-ME":"https://legislature.maine.gov/statutes/18-C/title18-Csec2-515.html",
+  "US-MI":"https://www.legislature.mi.gov/Laws/MCL?objectName=MCL-700-2516",
+  "US-MN":"https://www.revisor.mn.gov/statutes/cite/524.2-516",
+  "US-MO":"https://revisor.mo.gov/main/OneSection.aspx?section=473.043",
+  "US-MT":"https://mca.legmt.gov/bills/mca/title_0720/chapter_0020/part_0050/section_0360/0720-0020-0050-0360.html",
+  "US-NH":"https://gc.nh.gov/rsa/html/lvi/552/552-mrg.htm",
+  "US-NV":"https://www.leg.state.nv.us/NRS/NRS-136.html#NRS136Sec050",
+  "US-OR":"https://www.oregonlegislature.gov/bills_laws/ors/ors112.html",
+  "US-RI":"https://webserver.rilegislature.gov/Statutes/TITLE33/33-7/33-7-5.htm",
+  "US-SD":"https://sdlegislature.gov/Statutes/29A-2-516",
+  "US-TX":"https://tcss.legis.texas.gov/resources/ES/htm/ES.252.htm#252.201",
+  "US-VT":"https://legislature.vermont.gov/statutes/section/14/003/00103",
+  "US-WA":"https://app.leg.wa.gov/rcw/default.aspx?cite=11.20.010",
+  "US-WV":"https://code.wvlegislature.gov/41-5-1/",
+  CH:"https://www.fedlex.admin.ch/eli/cc/24/233_245_233/fr#art_556",
+  DE:"https://www.gesetze-im-internet.de/bgb/__2259.html",
+  EE:"https://www.riigiteataja.ee/et/akt/P%C3%A4rS#para26",
+  PL:"https://dziennikustaw.gov.pl/D2026000046801.pdf",
+};
+export const procedureTitle = {
+  NL: "Private will for deposit with a Dutch civil-law notary",
+  PT: "International will for signing in Portugal",
+  MT: "Secret will for formal delivery in Malta",
+};
+export const procedureIntro = {
+  NL: "Prepare your private will here. You will sign it, sign each numbered page, and personally deposit it with a Dutch civil-law notary. The appointment and custody deed are essential. The notary may charge a fee.",
+  PT: "Prepare an international will here, even for property entirely in Portugal. You will need a Portuguese notary and two eligible witnesses together for the signing. The notary may charge a fee.",
+  MT: "Prepare a secret will here, then sign, seal and formally deliver the original in person through the Maltese notarial or court procedure. The receiving office may charge a fee.",
+};
+export const procedures = {
+  NL: [
+    "Arrange a deposit under Dutch Civil Code Book 4, articles 94 and 95, with a civil-law notary. Explain the language of the document and the custody deed; arrange an interpreter if the notary requires one. You must personally be able to read this will.",
+    "Review the complete printed original and agree with the notary where and when to sign. Sign at the end of the will. If the will has more than one page, enter the page numbers in order on the lines provided and put your full signature on every page.",
+    "Personally hand your original to the notary. Declare that it contains your will and that you met the requirements for signatures and page numbering. You and the notary sign the separate deed of custody that the notary prepares. The original stays with the notary. Signing at home alone does not complete the deposit.",
+  ],
+  PT: [
+    "Tell a Portuguese notary in advance that you intend to use the international-will procedure under the Washington Convention (not an ordinary closed will). Arrange two eligible independent witnesses and, if needed, a qualified interpreter. A domestic estate can use this form. The international will may be written in any language.",
+    "Take one full printed original. With both witnesses and the authorized notary together, personally declare that this document is your will and that you know its contents. They do not have to know the gifts. For this kit, leave all signatures until this meeting.",
+    "In their presence, sign each numbered sheet and sign at the end. Both witnesses and the notary then sign at the end while you are present. The notary writes the date of their signature at the end, prepares the prescribed separate certificate, keeps one copy and gives you another. Discuss safekeeping and the official record with the notary.",
+  ],
+  MT: [
+    "Before signing, arrange delivery of a secret will and check the language, identification and envelope requirements with a Maltese notary or the Registrar of the Court of Voluntary Jurisdiction. This route is for someone who can personally read, sign and express their wishes without an interpreter. You can request English for the notarial act.",
+    "Read all the provisions and personally sign at the very end. Close and seal the will or its envelope. Leave the outside clear for the official act. Take it yourself; sending the PDF or keeping the sealed envelope at home does not complete the will.",
+    "Personally declare to the receiving notary, or to the registrar in the presence of a judge or magistrate, that the sealed document contains your will. The official handles the separate delivery record. With a notary, the notary explains your right to witnesses and records your choice. Do not arrange a substitute home ceremony.",
+    "The legal date of this secret will is the date of delivery to the official. Obtain and keep your evidence of delivery and tell a trusted person which court or notary received it.",
+  ],
+};
+export const extraSources = {
+  BE: ["https://www.ejustice.just.fgov.be/eli/loi/2022/01/19/2022B30600/justel"],
+  SG: ["https://sso.agc.gov.sg/SL-Supp/S720-2024/Published/20240916?DocDate=20240916", "https://www.judiciary.gov.sg/services/e-platforms/probate-eservice"],
+  "CA-QC": ["https://www.quebec.ca/en/justice-et-etat-civil/testament-succession/succession/settlement/succession-will/probating"],
+  NL: ["https://wetten.overheid.nl/BWBR0002761/#Boek4_Titeldeel4_Afdeling4_Artikel95","https://www.knb.nl/ons-beroep/bedrijfsvoering/tolken-taal-akte/"],
+  PT: ["https://www.unidroit.org/instruments/international-will/","https://www.unidroit.org/instruments/international-will/status/","https://diariodarepublica.pt/dr/detalhe/acordao/08a244-2008-89341275","https://diariodarepublica.pt/dr/legislacao-consolidada/decreto-lei/1966-34509075"],
+  MT: ["https://legislation.mt/eli/cap/16/eng/pdf","https://legislation.mt/eli/cap/55/eng/pdf","https://legislation.mt/eli/cap/12/eng/pdf"],
+  "GB-ENG":["https://www.gov.uk/make-will/make-sure-your-will-is-legal","https://www.legislation.gov.uk/ukpga/1975/63/section/1"],
+  "GB-WLS":["https://www.gov.uk/make-will/make-sure-your-will-is-legal","https://www.legislation.gov.uk/ukpga/1975/63/section/1"],
+  SK:["https://e-justice.europa.eu/topics/family-matters-inheritance/inheritance/succession/sk_en"],
+  CZ:["https://obcanskyzakonik.justice.cz/images/pdf/Civil-Code.pdf"],
+  NZ:["https://www.justice.govt.nz/family/challenge-a-will/apply-to-challenge-a-will/","https://www.legislation.govt.nz/act/public/1949/0033/latest/DLM258709.html"],
+  PL:["https://eli.gov.pl/eli/DU/2026/795/ogl"],
+  NO:["https://lovdata.no/dokument/LTI/lov/2019-06-14-21"],
+  IS:["https://www.althingi.is/lagas/nuna/1962008.html"],
+  DK:["https://www.retsinformation.dk/eli/lta/2021/1347/pdf"],
+  EE:["https://www.riigiteataja.ee/en/akt/528022023004"],
+  "CA-PE":["https://www.princeedwardisland.ca/sites/default/files/1707/S-12-Survivorship%20Act.pdf"],
+  "CA-SK":["https://pubsaskdev.blob.core.windows.net/pubsask-prod/1423/S67-1.pdf"],
+  "CA-NB":["https://laws.gnb.ca/en/document/cs/2012%2C%20c.116"],
+  "CA-BC":["https://www.bclaws.gov.bc.ca/civix/document/id/complete/statreg/09013_01#section10"],
+  "US-MI":["https://legislature.mi.gov/Laws/MCL?objectName=MCL-700-2702"],
+  "US-ME":["https://legislature.maine.gov/statutes/18-C/title18-Csec2-702.html"],
+  "US-CA":["https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?sectionNum=6211.&lawCode=PROB"],
+  "US-NY":["https://www.nysenate.gov/legislation/laws/EPT/2-1.6"],
+  "US-VT":["https://legislature.vermont.gov/statutes/section/14/042/00337"],
+  "US-MD":["https://mgaleg.maryland.gov/2026RS/chapters_noln/Ch_508_sb0250T.pdf"],
+  "AU-NSW":["https://legislation.nsw.gov.au/view/html/inforce/current/act-2006-080#sec.35"],
+  "AU-QLD":["https://www.legislation.qld.gov.au/view/html/inforce/current/act-1981-069#sec.33B"],
+  "AU-TAS":["https://www.legislation.tas.gov.au/view/whole/html/inforce/current/act-2008-058","https://www.legislation.tas.gov.au/view/whole/html/inforce/current/act-1912-007"],
+  "AU-ACT":["https://www.legislation.act.gov.au/a/1969-15/"],
+  "AU-NT":["https://legislation.nt.gov.au/en/Legislation/FAMILY-PROVISION-ACT-1970"],
+  "AU-WA":["https://legislation.wa.gov.au/legislation/statutes.nsf/law_a382.html"],
+  "AU-SA":["https://lsc.sa.gov.au/handbook/ch36s01s06s03.php"],
+  "US-LA":["https://legis.la.gov/Legis/Law.aspx?d=108900","https://www.legis.la.gov/legis/Law.aspx?d=111560"],
+  "CA-ON":["https://www.ontario.ca/laws/statute/90f03","https://www.ontario.ca/laws/statute/92s30","https://www.ontario.ca/page/estate-planning-and-wills"],
+};

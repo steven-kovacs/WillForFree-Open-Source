@@ -1,0 +1,295 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#fbf8ee" />
+    <meta
+      name="description"
+      content="Make a free will kit for your home jurisdiction. No card, no email gate, no donation request, no paid download."
+    />
+    <meta name="robots" content="index,follow" />
+    <title>WillForFree — A little chat about your will</title>
+    
+    <link rel="preload" href="/fonts/wff-reddit-latin-900.v2.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/wff-reddit-latin-700.v2.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/wff-reddit-latin-500.v2.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/wff-reddit-latin-400.v2.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="stylesheet" href="/styles.css?v=community-1" />
+    <link rel="stylesheet" href="/information.css?v=community-1" />
+    <link rel="modulepreload" href="/app.js" />
+    <script src="/home-entry.js"></script>
+    <script type="module" src="/app.js"></script>
+    <script type="module" src="/language-menu.js"></script>
+    <script type="module" src="/contact.js"></script>
+  </head>
+  <body>
+    <a class="skip" href="#main">Skip to the chat</a>
+    <div class="site-frame">
+      <header class="mast">
+        <a class="brand" href="/" aria-label="WillForFree home"
+          ><strong>WillForFree</strong></a>
+        <nav class="home-nav" aria-label="Main navigation">
+          <a href="/free-and-private/" class="mast-privacy">Is this private?</a>
+          <a href="/fine-print/" class="fine-link"
+            >Fine print
+            <svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true">
+              <path d="M4 12 12 4M5 4h7v7" /></svg
+          ></a>
+          <a class="contact-icon" href="mailto:info@willforfree.com" data-contact="support" aria-label="Contact WillForFree" aria-haspopup="dialog" title="Contact WillForFree"><svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="2.5" y="4.5" width="19" height="15" rx="3"/><path d="m3.5 6 7.3 5.7a2 2 0 0 0 2.4 0L20.5 6"/></svg></a>
+        </nav>
+      </header>
+      <p id="info-status" role="status" hidden></p>
+      <main id="main">
+        <div class="slow-home" role="status">
+          <p>Loading the will chat…</p>
+          <a class="inline-link" href="/why-do-i-need-a-will/">Read the guide while you wait</a>
+        </div>
+        <section id="welcome" class="welcome" aria-labelledby="hero-title">
+          <button
+            id="place-chip"
+            type="button"
+            class="hero-meta"
+            aria-haspopup="dialog"
+          >
+            Choose your location ▾
+          </button>
+          <div class="hero-titlewrap">
+            <h1 id="hero-title">
+              A little chat<span class="hero-period">.</span><br />About your
+              <span class="hand-underline"
+                >will<svg
+                  viewBox="0 0 210 23"
+                  aria-hidden="true"
+                  preserveAspectRatio="none"
+                >
+                  <path d="M5 14Q71 2 204 8M14 20Q84 9 176 12" /></svg></span
+              >.
+            </h1>
+          </div>
+          <p class="hero-lead">
+            A little conversation. A free will kit to keep.
+          </p>
+          <p class="promises">No card, no email gate, no donation request, no paid download.</p>
+          <div class="edges" aria-hidden="true">
+            
+            <svg class="paper-fly" viewBox="0 0 120 70">
+              <path
+                d="M5 60c6-14 33-9 49-18s8-19-2-16-2 20 22 12c10-4 18-10 28-19"
+                stroke-dasharray="4 6"
+              />
+              <path d="m85 11 28-6-12 24-3-12-13-6zm13 6 15-12" />
+            </svg>
+            
+            <svg class="spark" viewBox="0 0 64 64">
+              <path
+                d="M25 4c1 15 4 20 16 22-12 2-16 7-18 20-1-13-4-18-16-21 12-1 16-6 18-21Z"
+              />
+              <path d="m51 35 1 9 7 3-8 1-3 8-1-8-7-2 8-2Z" />
+            </svg>
+          </div>
+          <div class="hero-chat">
+            <form class="first-box" id="start-form">
+              <label for="opening">How can I help you get started?</label>
+              <div class="first-row">
+                <textarea
+                  id="opening"
+                  rows="1"
+                  maxlength="240"
+                  aria-describedby="opening-length"
+                  placeholder="I'd like to make a will…"
+                  autocomplete="off"
+                  autocorrect="off"
+                  spellcheck="false"
+                ></textarea
+                ><button class="send" type="submit" aria-label="Start the chat">
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M12 19V5m-6 6 6-6 6 6" />
+                  </svg>
+                </button>
+              </div>
+              <span id="opening-length" class="length-hint" role="status" hidden></span>
+            </form>
+            <div class="starter-row">
+              <button class="starter" data-start="start" type="button">
+                Let’s start <span aria-hidden="true">↗</span></button
+              ><button class="starter" data-start="kids" aria-controls="home-guide" aria-haspopup="dialog" type="button">
+                I have kids <span aria-hidden="true">↗</span></button
+              ><button class="starter" data-start="help" aria-controls="home-guide" aria-haspopup="dialog" type="button">
+                How does it work? <span aria-hidden="true">↗</span>
+              </button>
+            </div>
+            <p id="clear-status" role="status" hidden></p>
+            <aside class="home-education" aria-labelledby="learn-about-wills">
+              <h2 id="learn-about-wills"><a href="/why-do-i-need-a-will/">Why do I need a will? <span aria-hidden="true">↗</span></a></h2>
+              <p>You can say who should inherit a keepsake or your savings.</p>
+            </aside>
+          </div>
+        </section>
+        <section
+          id="conversation"
+          class="conversation"
+          hidden
+          aria-labelledby="conv-title"
+        >
+          <div class="thread-top">
+            <button type="button" id="back-home" class="text-btn">← Home</button
+            ><span class="thread-loc"
+              ><span class="ink-dot"></span> <span id="thread-place"></span
+            ></span>
+          </div>
+          <div class="thread-title">
+            <p class="edition-note" id="edition-note" hidden></p>
+            <div class="document-notice" id="document-notice" hidden>
+              <p id="method-note" class="method-note"></p>
+              <button type="button" id="notice-trigger" class="notice-trigger" aria-haspopup="dialog"></button>
+            </div>
+            <p class="overline" id="chapter">01 / Getting started</p>
+            <h1 id="conv-title">Your will, in little steps.</h1>
+          </div>
+          <div class="journey" id="journey">
+            <div class="journey-label"><span id="journey-name"></span><span id="journey-count"></span></div>
+            <progress id="journey-meter" max="100" value="0" aria-labelledby="journey-name journey-count"></progress>
+          </div>
+          <div class="thread-body">
+            <div class="chat-page" id="chat-page">
+              <div id="chat-scroll" tabindex="0" aria-label="Chat history" role="region">
+          <div
+            id="messages"
+            role="log"
+            aria-label="Chat messages"
+            aria-live="polite"
+            aria-relevant="additions"
+          ></div>
+              </div>
+          <div class="answers-panel" id="answers-panel">
+            <div class="answer-hint"><span id="reply-hint"></span><button type="button" id="more-choices" class="text-btn" hidden>More choices ↓</button></div>
+          <div
+            class="actions"
+            id="quick"
+            role="group"
+            aria-label="Suggested answers"
+          ></div>
+          </div>
+          <form class="reply-box" id="reply-form">
+            <label class="sr" for="reply">Your answer</label
+            ><textarea
+              id="reply"
+              rows="1"
+              maxlength="240"
+              aria-describedby="reply-length"
+              placeholder="Type your answer…"
+              autocomplete="off"
+              autocorrect="off"
+              spellcheck="false"
+            ></textarea
+            ><button class="send" type="submit" aria-label="Send answer">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M12 19V5m-6 6 6-6 6 6" />
+              </svg>
+            </button>
+            <span id="reply-length" class="length-hint" role="status" hidden></span>
+          </form>
+            </div>
+          <section
+            id="review"
+            hidden
+            aria-label="Review your will kit"
+          ></section>
+          <section
+            id="complete"
+            hidden
+            aria-label="Download your will kit"
+          ></section>
+          </div>
+          <div class="thread-tools">
+            <button id="undo" type="button" class="text-btn" hidden>
+              ← Change last answer</button
+            ><button id="browse-help" type="button" class="text-btn" hidden>Help topics</button
+            ><button id="restart" type="button" class="text-btn">
+              Start over
+            </button>
+          </div>
+        </section>
+        <noscript
+          ><p class="noscript">
+            This chat needs JavaScript. Read the
+            <a href="/fine-print/">fine print</a> for local resources.
+          </p></noscript
+        >
+      </main>
+      <footer class="foot">
+        <p>© 2026 WillForFree. All rights reserved.</p>
+        <nav class="footer-nav" aria-label="Footer"><a href="/partners/">Sponsors</a><a href="/free-and-private/">Free &amp; private</a><a href="/fine-print/">Legal &amp; privacy</a></nav>
+      </footer>
+    </div>
+    <dialog id="home-guide" class="home-guide" aria-labelledby="home-guide-title">
+      <h2 id="home-guide-title" tabindex="-1"></h2>
+      <div id="home-guide-copy"></div>
+      <div class="dialog-buttons">
+        <button type="button" id="home-guide-close" class="outline-btn">Close</button>
+        <button type="button" id="home-guide-start" class="primary-btn">Start my will</button>
+      </div>
+    </dialog>
+    <dialog id="place-dialog" aria-labelledby="place-title" aria-describedby="place-help">
+      <form id="place-form">
+        <h2 id="place-title">Where is your permanent home?</h2>
+        <p id="place-help" aria-live="polite"></p>
+        <label for="country">Country</label
+        ><select id="country" required>
+          <option value="">Choose a country</option>
+        </select>
+        <div id="region-field" hidden>
+          <label for="region">Province, state or part of the country</label
+          ><select id="region" required disabled></select>
+        </div>
+        <div class="dialog-buttons">
+          <button class="outline-btn" type="button" id="cancel-place">
+            Cancel</button
+          ><button class="primary-btn" type="submit" id="use-place" disabled>
+            Use this location
+          </button>
+        </div>
+      </form>
+    </dialog>
+    <dialog id="notice-dialog" aria-labelledby="notice-title">
+      <h2 id="notice-title">About this document</h2>
+      <p id="notice-full"></p>
+      <button id="notice-close" class="primary-btn" type="button">Back to chat</button>
+    </dialog>
+    <dialog id="sponsor-dialog" aria-labelledby="sponsor-title" aria-describedby="sponsor-description">
+      <header class="sponsor-top">
+        <span class="sponsor-label"><span class="sponsor-dot"></span> <span id="partner-label">Advertisement</span></span>
+        <button id="dismiss-sponsor" class="sponsor-close" type="button" aria-label="Close sponsor offer">×</button>
+      </header>
+      <div class="sponsor-story">
+        <p class="partner-credit" id="partner-credit" data-verbatim></p>
+        <h2 id="sponsor-title">An offer from our sponsor.</h2>
+        <p id="sponsor-description" data-verbatim></p>
+      </div>
+      <div class="sponsor-delivery">
+        <p>Your kit is free. You can download it right here.</p>
+        <div class="sponsor-actions">
+          <button type="button" class="primary-btn" id="save-zip" aria-describedby="download-responsibility" autofocus>Download ZIP <span aria-hidden="true">↓</span></button>
+          <p class="download-notice">
+            <span id="download-responsibility"></span>
+            <a href="/fine-print/#responsibility" target="_blank" rel="noopener noreferrer">Responsibility and legal terms<span class="sr"> (opens in a new tab)</span></a>
+          </p>
+          <a class="outline-btn" id="partner-visit" target="_blank" rel="noopener noreferrer sponsored" referrerpolicy="no-referrer">Visit sponsor</a>
+        </div>
+        <p id="zip-status" role="status"></p>
+      </div>
+    </dialog>
+    <dialog id="reset-dialog" aria-labelledby="reset-title">
+      <h2 id="reset-title">Start over?</h2>
+      <p>This removes your messages and answers from this tab. Files you already downloaded stay on your device.</p>
+      <div class="dialog-buttons">
+        <button type="button" id="keep" class="outline-btn">
+          Keep this chat</button
+        ><button type="button" id="clear" class="primary-btn">
+          Clear chat and start over
+        </button>
+      </div>
+    </dialog>
+  </body>
+</html>

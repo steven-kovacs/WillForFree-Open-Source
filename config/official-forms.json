@@ -1,0 +1,52 @@
+[
+  {
+    "name": "ca-statutory",
+    "url": "https://selfhelp.courts.ca.gov/sites/default/files/2026-02/6240-Statutory-will-form.pdf",
+    "sha256": "91c235c421e1de9604b35fb6eeaf7a51c4e49615be34436612cfd589076345b2"
+  },
+  {
+    "name": "tx-single-children",
+    "url": "https://www.txcourts.gov/media/1456662/will-unmarried-w-children-english.pdf",
+    "sha256": "8f7cf212b5d75eb4292b45c1b2dba255c9cf941e50f71f406da0abdbfd9cd7e9"
+  },
+  {
+    "name": "tx-married-children",
+    "url": "https://www.txcourts.gov/media/1456664/will-married-w-children-english.pdf",
+    "sha256": "fa6aaf4c2c55398201156a404a073ab0ac1b28edebc5ac586348d02af5ad0b0f"
+  },
+  {
+    "name": "tx-single-no-children",
+    "url": "https://www.txcourts.gov/media/1456663/will-unmarried-w-no-children-english.pdf",
+    "sha256": "4c17ccd5f66f4ba9bc14b2e7c855fcc74ba45f03604c5c2b0a08e94190f53bc7"
+  },
+  {
+    "name": "tx-married-no-children",
+    "url": "https://www.txcourts.gov/media/1456661/will-married-w-no-children-english.pdf",
+    "sha256": "1dbefddc607cbff908922041c7c22ea9fc25ed77c92f9ff4a98d925e58c68116"
+  },
+  {
+    "name": "me-statutory",
+    "url": "https://legislature.maine.gov/statutes/18-C/title18-Csec2-517.pdf",
+    "sha256": "57c9cc730af8cb7c7dcf2d17dfc5ba0d7282e21c0223ab325fc6a7d9061a8517"
+  },
+  {
+    "name": "tx-single-children-es",
+    "url": "https://www.txcourts.gov/media/1456660/will-unmarried-w-children-bilingual.pdf",
+    "sha256": "c05dc5ded1f80bdb317dcd438756f6163f1f109215faca86b509861effd6e16e"
+  },
+  {
+    "name": "tx-married-children-es",
+    "url": "https://www.txcourts.gov/media/1456653/will-married-w-children-bilingual.pdf",
+    "sha256": "d922e886be76f736b73e065d7fb5e43080f1f4895dfc1e09c210fa2b07c6aed8"
+  },
+  {
+    "name": "tx-single-no-children-es",
+    "url": "https://www.txcourts.gov/media/1456658/will-unmarried-w-no-children-bilingual.pdf",
+    "sha256": "996b90569e1f77ea4e400361846895ceab39af14fc1e51d8382076b074976e21"
+  },
+  {
+    "name": "tx-married-no-children-es",
+    "url": "https://www.txcourts.gov/media/1456659/will-married-w-no-children-bilingual.pdf",
+    "sha256": "ab2c51cfafadec4e583df3d7b9322ed7d8c3156f0279c721bbddd9cc569a0073"
+  }
+]

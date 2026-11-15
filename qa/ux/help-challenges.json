@@ -1,0 +1,211 @@
+{
+  "en": {
+    "witness": "Can my partner witness my signature",
+    "expenses": "Can my executor claim mileage for the trips to clear out my flat?",
+    "tax": "Will the estate owe tax if my sister inherits the cottage?",
+    "notaryCost": "What will the notary charge me to finish this?",
+    "foreign": "Can this will cover the apartment I own in another country?",
+    "unsupported": "How do I grow basil indoors?",
+    "uncertainty": "Yes?",
+    "pressure": "My brother is forcing me to sign this against my wishes.",
+    "name": "Will Rowan"
+  },
+  "fr": {
+    "witness": "Ma sœur peut-elle signer comme témoin",
+    "expenses": "La succession peut-elle rembourser les frais de déplacement de ma liquidatrice ?",
+    "tax": "Mes enfants devront-ils payer des droits de succession ?",
+    "notaryCost": "Combien va me coûter le rendez-vous chez le notaire ?",
+    "foreign": "Ce testament peut-il couvrir ma maison à l’étranger ?",
+    "unsupported": "Comment conserver le basilic frais plus longtemps ?",
+    "uncertainty": "Oui ?",
+    "pressure": "Mon frère me force à signer ce testament contre mon gré.",
+    "name": "Camille Dufresne"
+  },
+  "es": {
+    "witness": "Quién puede firmar como testigo de mi testamento",
+    "expenses": "¿Se le pueden reembolsar al albacea los gastos de desplazamiento?",
+    "tax": "¿Mis hijas tendrán que pagar impuestos por la herencia?",
+    "notaryCost": "¿Cuánto cobra el notario por este trámite?",
+    "foreign": "¿Puedo incluir el piso que tengo en otro país?",
+    "unsupported": "¿Cómo quito una mancha de café de una camisa?",
+    "uncertainty": "¿Sí?",
+    "pressure": "Mi pareja me obliga a firmar este testamento aunque no quiero.",
+    "name": "Mar Soler"
+  },
+  "de": {
+    "witness": "Wer darf meine Unterschrift bezeugen",
+    "expenses": "Kann mein Testamentsvollstrecker die Fahrtkosten aus dem Nachlass erstattet bekommen?",
+    "tax": "Muss meine Nichte auf das geerbte Haus Erbschaftsteuer zahlen?",
+    "notaryCost": "Was kostet der Termin beim Notar?",
+    "foreign": "Gilt dieses Testament auch für meine Wohnung im Ausland?",
+    "unsupported": "Wie entferne ich Kalk aus dem Wasserkocher?",
+    "uncertainty": "Ja?",
+    "pressure": "Meine Schwester zwingt mich, dieses Testament zu unterschreiben.",
+    "name": "Kim Linden"
+  },
+  "it": {
+    "witness": "Chi può fare da testimone quando firmo il testamento",
+    "expenses": "L’esecutrice testamentaria può farsi rimborsare le spese di viaggio?",
+    "tax": "Chi eredita l’appartamento deve pagare l’imposta di successione?",
+    "notaryCost": "Quanto mi costerà l’appuntamento dal notaio?",
+    "foreign": "Posso includere la casa che ho all’estero?",
+    "unsupported": "Quanto tempo deve lievitare l’impasto della pizza?",
+    "uncertainty": "Sì?",
+    "pressure": "Mio fratello mi costringe a firmare contro la mia volontà.",
+    "name": "Ada Riva"
+  },
+  "nl": {
+    "witness": "Mag mijn buurvrouw getuige zijn als ik mijn testament onderteken",
+    "expenses": "Kan de executeur de reiskosten uit de nalatenschap vergoed krijgen?",
+    "tax": "Moet mijn zoon erfbelasting betalen over het huis?",
+    "notaryCost": "Wat kost een afspraak bij de notaris om dit af te ronden?",
+    "foreign": "Valt mijn vakantiehuis in het buitenland ook onder dit testament?",
+    "unsupported": "Hoe krijg ik een koffievlek uit mijn trui?",
+    "uncertainty": "Ja?",
+    "pressure": "Mijn partner dwingt me om dit testament te ondertekenen.",
+    "name": "Floor van Dalen"
+  },
+  "da": {
+    "witness": "Må min nabo være vidne til mit testamente",
+    "expenses": "Kan bobestyreren få dækket sine kørselsudgifter af boet?",
+    "tax": "Skal min niece betale boafgift af arven?",
+    "notaryCost": "Hvad skal jeg betale for mødet med notaren?",
+    "foreign": "Gælder testamentet også for min bolig i udlandet?",
+    "unsupported": "Hvordan fjerner jeg kalk fra min elkedel?",
+    "uncertainty": "Ja?",
+    "pressure": "Min bror tvinger mig til at skrive under på det her testamente.",
+    "name": "Maja Lind"
+  },
+  "sv": {
+    "witness": "Vem får bevittna min underskrift",
+    "expenses": "Kan den som sköter dödsboet få milersättning för resorna?",
+    "tax": "Kommer min syster att behöva betala skatt på arvet?",
+    "notaryCost": "Vad kostar besöket hos en notarius publicus?",
+    "foreign": "Gäller mitt testamente också lägenheten jag äger utomlands?",
+    "unsupported": "Hur får jag bort en kaffefläck från en skjorta?",
+    "uncertainty": "Ja?",
+    "pressure": "Min sambo tvingar mig att skriva under testamentet.",
+    "name": "Liv Ström"
+  },
+  "nb": {
+    "witness": "Hvem kan være vitne når jeg skriver under testamentet",
+    "expenses": "Kan den som gjør opp dødsboet få dekket kjøreutgiftene sine?",
+    "tax": "Må nevøen min betale skatt på arven?",
+    "notaryCost": "Må jeg betale et gebyr hos notarius publicus?",
+    "foreign": "Kan jeg ta med hytta jeg eier i utlandet i dette testamentet?",
+    "unsupported": "Hvordan får jeg surdeigsbrødet til å heve bedre?",
+    "uncertainty": "Ja?",
+    "pressure": "Søsteren min tvinger meg til å skrive under testamentet.",
+    "name": "Siv Lunde"
+  },
+  "fi": {
+    "witness": "Kuka voi toimia testamenttini todistajana",
+    "expenses": "Voiko testamentin toimeenpanija saada kuolinpesältä kilometrikorvausta?",
+    "tax": "Joutuuko sisareni maksamaan perintöveroa asunnosta?",
+    "notaryCost": "Paljonko notaarin tapaaminen maksaa?",
+    "foreign": "Voinko sisällyttää testamenttiin ulkomailla omistamani asunnon?",
+    "unsupported": "Miten saan kahvitahran pois paidasta?",
+    "uncertainty": "Kyllä?",
+    "pressure": "Veljeni pakottaa minut allekirjoittamaan testamentin vastoin tahtoani.",
+    "name": "Aino Lehto"
+  },
+  "is": {
+    "witness": "Hver má votta undirskrift mína á erfðaskránni",
+    "expenses": "Getur sá sem sér um dánarbúið fengið aksturskostnað endurgreiddan?",
+    "tax": "Þarf systir mín að greiða erfðafjárskatt af húsinu?",
+    "notaryCost": "Hvað kostar að fá undirskriftina staðfesta hjá lögbókanda?",
+    "foreign": "Get ég látið íbúðina mína erlendis falla undir þessa erfðaskrá?",
+    "unsupported": "Hvernig næ ég kaffibletti úr skyrtu?",
+    "uncertainty": "Já?",
+    "pressure": "Bróðir minn neyðir mig til að skrifa undir erfðaskrána.",
+    "name": "Edda Jónsdóttir"
+  },
+  "pt": {
+    "witness": "Quem pode ser testemunha quando eu assinar o testamento",
+    "expenses": "O testamenteiro pode pedir o reembolso das despesas de deslocação?",
+    "tax": "A minha filha vai ter de pagar imposto sobre a herança?",
+    "notaryCost": "Quanto me vai cobrar o notário para concluir este ato?",
+    "foreign": "Posso incluir a casa que tenho noutro país?",
+    "unsupported": "Como tiro uma nódoa de café da camisa?",
+    "uncertainty": "Sim?",
+    "pressure": "O meu irmão está a obrigar-me a assinar este testamento.",
+    "name": "Inês Seabra"
+  },
+  "et": {
+    "witness": "Kes võib olla mu testamendi tunnistajaks",
+    "expenses": "Kas testamenditäitjale saab tema sõidukulud pärandvara arvelt hüvitada?",
+    "tax": "Kas mu poeg peab pärandatud korteri eest maksu maksma?",
+    "notaryCost": "Kui palju maksab notari juures käimine?",
+    "foreign": "Kas võin testamendis nimetada ka oma välismaal asuva maja?",
+    "unsupported": "Kuidas kohviplekki särgilt välja saada?",
+    "uncertainty": "Jah?",
+    "pressure": "Mu vend sunnib mind testamendile alla kirjutama.",
+    "name": "Kärt Tamm"
+  },
+  "cs": {
+    "witness": "Kdo může dosvědčit můj podpis na závěti",
+    "expenses": "Může si vykonavatel závěti nechat z pozůstalosti proplatit cestovní výdaje?",
+    "tax": "Bude moje dcera kvůli zděděnému bytu platit nějakou daň?",
+    "notaryCost": "Kolik mi notář naúčtuje za tu schůzku?",
+    "foreign": "Můžu do závěti zahrnout i chalupu v zahraničí?",
+    "unsupported": "Jak dostanu skvrnu od kávy z košile?",
+    "uncertainty": "Ano?",
+    "pressure": "Bratr mě nutí podepsat závěť proti mé vůli.",
+    "name": "Jana Lišková"
+  },
+  "pl": {
+    "witness": "Kto może być świadkiem przy podpisywaniu mojego testamentu",
+    "expenses": "Czy wykonawca testamentu może dostać zwrot kosztów dojazdu z majątku spadkowego?",
+    "tax": "Czy mój syn będzie musiał zapłacić podatek od odziedziczonego mieszkania?",
+    "notaryCost": "Ile notariusz policzy za tę czynność?",
+    "foreign": "Czy mogę w tym testamencie ująć także mieszkanie za granicą?",
+    "unsupported": "Jak sprać plamę z kawy z koszuli?",
+    "uncertainty": "Tak?",
+    "pressure": "Mój partner zmusza mnie do podpisania testamentu.",
+    "name": "Maja Wrona"
+  },
+  "hr": {
+    "witness": "Tko može biti svjedok pri potpisivanju moje oporuke",
+    "expenses": "Mogu li se izvršitelju oporuke iz ostavine nadoknaditi putni troškovi?",
+    "tax": "Hoće li moja nećakinja morati platiti porez na nasljedstvo?",
+    "notaryCost": "Koliko će mi javni bilježnik naplatiti ovjeru?",
+    "foreign": "Mogu li u oporuku uključiti i stan u inozemstvu?",
+    "unsupported": "Kako da uklonim mrlju od kave s košulje?",
+    "uncertainty": "Da?",
+    "pressure": "Brat me prisiljava da potpišem ovu oporuku.",
+    "name": "Maja Jurić"
+  },
+  "sk": {
+    "witness": "Kto môže byť svedkom pri podpise môjho závetu",
+    "expenses": "Dajú sa pri vybavovaní dedičstva preplatiť cestovné náklady?",
+    "tax": "Bude musieť dcéra zaplatiť daň za zdedený byt?",
+    "notaryCost": "Koľko zaplatím za stretnutie s notárom?",
+    "foreign": "Môžem do závetu zahrnúť aj byt v zahraničí?",
+    "unsupported": "Ako dostanem škvrnu od kávy z košele?",
+    "uncertainty": "Áno?",
+    "pressure": "Brat ma núti podpísať závet proti mojej vôli.",
+    "name": "Nina Hrušková"
+  },
+  "mt": {
+    "witness": "Min jista’ jkun xhud meta niffirma t-testment",
+    "expenses": "L-eżekutur tat-testment jista’ jitlob li jitħallsulu l-ispejjeż tal-ivvjaġġar?",
+    "tax": "Binti jkollha tħallas taxxa fuq id-dar li tiret?",
+    "notaryCost": "Kemm jiswa appuntament man-nutar?",
+    "foreign": "Nista’ ninkludi fit-testment appartament li għandi f’pajjiż ieħor?",
+    "unsupported": "Kif inneħħi tebgħa tal-kafè minn fuq qmis?",
+    "uncertainty": "Iva?",
+    "pressure": "Ħija qed jisforzani niffirma t-testment, u jien ma rridx.",
+    "name": "Mira Vella"
+  },
+  "zh-Hans": {
+    "witness": "我签遗嘱时可以请邻居作见证吗",
+    "expenses": "遗嘱执行人替遗产办事的交通费可以报销吗？",
+    "tax": "我女儿继承这套房，要交遗产税吗？",
+    "notaryCost": "去公证处办手续还要另外付费吗？",
+    "foreign": "我在国外的房子也能写进这份遗嘱吗？",
+    "unsupported": "咖啡洒在白衬衫上怎么洗掉？",
+    "uncertainty": "是？",
+    "pressure": "我丈夫逼我签这份遗嘱，我不愿意。",
+    "name": "何雨桐"
+  }
+}

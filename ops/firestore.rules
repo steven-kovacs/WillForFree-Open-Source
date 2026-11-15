@@ -1,0 +1,66 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null && request.auth.token.firebase.sign_in_provider == 'password';
+    }
+    function currentMember(data) {
+      return data.active == true && request.auth.token.auth_time >= data.get('validAfter', 0);
+    }
+    function belongsTo(org) {
+      let member = get(/databases/$(database)/documents/partnerMembers/$(request.auth.uid)).data;
+      return currentMember(member) && member.partner == org;
+    }
+    match /contactInbox/{id} {
+      function validMessage() {
+        let m = request.resource.data;
+        return m.keys().hasAll(['kind','email','organization','message','createdAt'])
+          && m.keys().hasOnly(['kind','email','organization','message','createdAt'])
+          && id.matches('^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$')
+          && m.createdAt == request.time
+          && m.email is string && m.email.size() <= 254
+          && m.email.matches('^[^\\s@<>,;:"\\\\\\p{Cc}]+@[A-Za-z0-9.-]+[.][A-Za-z]{2,63}$')
+          && m.message is string && m.message.size() <= 1800 && m.message.matches('(?s).*\\S.*')
+          && m.organization is string && m.organization.size() <= 120
+          && ((m.kind == 'support' && m.organization == '')
+            || (m.kind == 'sponsor' && m.organization.matches('^[^\\r\\n]*\\S[^\\r\\n]*$')));
+      }
+      allow create: if signedIn() && request.auth.uid == 'willforfree-contact-writer' && validMessage();
+    }
+    match /partnerMembers/{uid} {
+      allow get: if signedIn() && request.auth.uid == uid && currentMember(resource.data);
+    }
+    match /partnerReports/{org} {
+      allow get: if signedIn() && belongsTo(org);
+    }
+    function total(id) { return /databases/$(database)/documents/partnerTotals/$(id); }
+    function cursor(id) { return /databases/$(database)/documents/partnerCursors/$(id); }
+    function receipt(id, rid) { return /databases/$(database)/documents/partnerReceipts/$(id)/entries/$(rid); }
+    function openWindow(id) {
+      let window = get(/databases/$(database)/documents/partnerWindows/$(id)).data;
+      return window.enabled == true && request.time >= window.start && request.time < window.end
+        && getAfter(total(id)).data.downloads <= window.maxDownloads;
+    }
+    function incremented(id) {
+      return getAfter(total(id)).data.downloads == get(total(id)).data.downloads + 1;
+    }
+    function freshReceipt(id, rid) {
+      return rid is string && rid.matches('^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$')
+        && !exists(receipt(id, rid)) && existsAfter(receipt(id, rid));
+    }
+    match /partnerTotals/{id} {
+      allow get: if signedIn() && belongsTo(resource.data.partner);
+      allow update: if request.resource.data.diff(resource.data).affectedKeys().hasOnly(['downloads'])
+        && request.resource.data.downloads is int && request.resource.data.downloads == resource.data.downloads + 1 && openWindow(id)
+        && freshReceipt(id, getAfter(cursor(id)).data.receipt);
+    }
+    match /partnerCursors/{id} {
+      allow update: if request.resource.data.keys().hasOnly(['receipt'])
+        && freshReceipt(id, request.resource.data.receipt) && incremented(id) && openWindow(id);
+    }
+    match /partnerReceipts/{id}/entries/{rid} {
+      allow create: if request.resource.data.keys().hasOnly(['accepted']) && request.resource.data.accepted == true
+        && getAfter(cursor(id)).data.receipt == rid && freshReceipt(id, rid) && incremented(id) && openWindow(id);
+    }
+  }
+}

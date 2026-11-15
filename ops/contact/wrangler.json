@@ -1,0 +1,17 @@
+{
+  "name": "your-contact-worker",
+  "main": "worker.mjs",
+  "compatibility_date": "2026-11-15",
+  "workers_dev": true,
+  "preview_urls": false,
+  "observability": {
+    "enabled": false
+  },
+  "vars": {
+    "CONTACT_ORIGINS": "https://www.example.org,http://127.0.0.1:4179",
+    "TURNSTILE_SITE_KEY": "",
+    "FIREBASE_PROJECT": "your-project-id",
+    "FIREBASE_API_KEY": "",
+    "WRITER_EMAIL": "contact-writer@example.invalid"
+  }
+}
