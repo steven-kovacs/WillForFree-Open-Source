@@ -6,6 +6,11 @@ export const courtVenue = {
   "US-CA":"For this California form, sign in California. Its signature line names California as the place of signing.",
   "US-TX":"For this Texas form, sign in Texas with both witnesses and a Texas notary present together.",
 };
+export const maineSpouseAmount = "In section 2.4, choice B promises a fixed amount to your spouse, but this copy has no space for the amount. If you want choice B, ask the probate court for a form with an amount field or get local advice before signing.";
+export const californiaCommunityShare = "Your will can pass your own property and your share of community property. Your spouse or registered domestic partner keeps their own share.";
+export const californiaBond = "Even if you sign the bond waiver, the court can require a bond if your executor lives outside California or for other good cause.";
+export const texasFamilyHome = "This Texas will passes your separate property and your share of community property. A surviving spouse can keep using the family home, and a court can allow a guardian to use it for minor children.";
+export const texasUnsignedChoice = "If you sign both choices in section 2.2 or leave both unsigned, choice 1 applies if your spouse survives you by 30 days.";
 // Delivery after death can depend on notice, a request or who holds the original.
 export const custodySources = {
   "US-AK":"https://www.akleg.gov/statutesPDF/Title-13.pdf",
@@ -17,6 +22,7 @@ export const custodySources = {
   "US-DE":"https://delcode.delaware.gov/title12/c013/",
   "US-FL":"https://www.flsenate.gov/Laws/Statutes/2026/732.901",
   "US-IA":"https://www.legis.iowa.gov/docs/code/2026/633.285.pdf",
+  "US-IL":"https://www.ilga.gov/documents/legislation/ilcs/documents/075500050K6-1.htm",
   "US-KS":"https://www.kslegislature.gov/b2025_26/laws/059_000_0000_chapter/059_006_0000_article/059_006_0021_section/059_006_0021_k/",
   "US-MD":"https://registers.maryland.gov/main/publications/AdministrationBooklet2025.pdf",
   "US-ME":"https://legislature.maine.gov/statutes/18-C/title18-Csec2-515.html",
@@ -58,6 +64,7 @@ export const procedures = {
     "Tell a Portuguese notary in advance that you intend to use the international-will procedure under the Washington Convention (not an ordinary closed will). Arrange two eligible independent witnesses and, if needed, a qualified interpreter. A domestic estate can use this form. The international will may be written in any language.",
     "Take one full printed original. With both witnesses and the authorized notary together, personally declare that this document is your will and that you know its contents. They do not have to know the gifts. For this kit, leave all signatures until this meeting.",
     "In their presence, sign each numbered sheet and sign at the end. Both witnesses and the notary then sign at the end while you are present. The notary writes the date of their signature at the end, prepares the prescribed separate certificate, keeps one copy and gives you another. Discuss safekeeping and the official record with the notary.",
+    "Choose two witnesses who understand Portuguese and are not married to each other. The notary checks their eligibility, approves the international will, arranges registration of the approval and attaches the Convention certificate to the will.",
   ],
   MT: [
     "Before signing, arrange delivery of a secret will and check the language, identification and envelope requirements with a Maltese notary or the Registrar of the Court of Voluntary Jurisdiction. This route is for someone who can personally read, sign and express their wishes without an interpreter. You can request English for the notarial act.",
@@ -67,11 +74,16 @@ export const procedures = {
   ],
 };
 export const extraSources = {
+  AT: ["https://www.ris.bka.gv.at/NormDokument.wxe?Abfrage=Bundesnormen&Gesetzesnummer=10001622&Paragraf=677"],
+  DE: ["https://www.gesetze-im-internet.de/bgb/__2097.html"],
+  FI: ["https://www.finlex.fi/fi/lainsaadanto/1965/40", "https://www.valtiokonttori.fi/palvelut/perinto-ja-testamenttiasiat/"],
+  SE: ["https://www.kammarkollegiet.se/vara-tjanster/allmanna-arvsfonden/nar-det-finns-ett-testamente"],
+  "GB-SCT": ["https://www.legislation.gov.uk/ukpga/1995/7/section/3"],
   BE: ["https://www.ejustice.just.fgov.be/eli/loi/2022/01/19/2022B30600/justel"],
   SG: ["https://sso.agc.gov.sg/SL-Supp/S720-2024/Published/20240916?DocDate=20240916", "https://www.judiciary.gov.sg/services/e-platforms/probate-eservice"],
-  "CA-QC": ["https://www.quebec.ca/en/justice-et-etat-civil/testament-succession/succession/settlement/succession-will/probating"],
+  "CA-QC": ["https://www.quebec.ca/en/justice-et-etat-civil/testament-succession/succession/settlement/succession-will/probating","https://www.quebec.ca/justice-et-etat-civil/testament-succession/succession/a-faire/recherche-testament"],
   NL: ["https://wetten.overheid.nl/BWBR0002761/#Boek4_Titeldeel4_Afdeling4_Artikel95","https://www.knb.nl/ons-beroep/bedrijfsvoering/tolken-taal-akte/"],
-  PT: ["https://www.unidroit.org/instruments/international-will/","https://www.unidroit.org/instruments/international-will/status/","https://diariodarepublica.pt/dr/detalhe/acordao/08a244-2008-89341275","https://diariodarepublica.pt/dr/legislacao-consolidada/decreto-lei/1966-34509075"],
+  PT: ["https://www.unidroit.org/instruments/international-will/","https://www.unidroit.org/instruments/international-will/status/","https://diariodarepublica.pt/dr/detalhe/decreto-lei/177-1979-383392","https://diariodarepublica.pt/dr/legislacao-consolidada/decreto-lei/1995-34509175","https://diariodarepublica.pt/dr/legislacao-consolidada/decreto-lei/1966-34509075"],
   MT: ["https://legislation.mt/eli/cap/16/eng/pdf","https://legislation.mt/eli/cap/55/eng/pdf","https://legislation.mt/eli/cap/12/eng/pdf"],
   "GB-ENG":["https://www.gov.uk/make-will/make-sure-your-will-is-legal","https://www.legislation.gov.uk/ukpga/1975/63/section/1"],
   "GB-WLS":["https://www.gov.uk/make-will/make-sure-your-will-is-legal","https://www.legislation.gov.uk/ukpga/1975/63/section/1"],
@@ -85,18 +97,19 @@ export const extraSources = {
   EE:["https://www.riigiteataja.ee/en/akt/528022023004"],
   "CA-PE":["https://www.princeedwardisland.ca/sites/default/files/1707/S-12-Survivorship%20Act.pdf"],
   "CA-SK":["https://pubsaskdev.blob.core.windows.net/pubsask-prod/1423/S67-1.pdf"],
-  "CA-NB":["https://laws.gnb.ca/en/document/cs/2012%2C%20c.116"],
+  "CA-NB":["https://laws.gnb.ca/en/document/cs/2012%2C%20c.116","https://www2.gnb.ca/content/dam/gnb/Departments/ag-pg/PDF/ActsLois/2025/Chap-43.pdf"],
   "CA-BC":["https://www.bclaws.gov.bc.ca/civix/document/id/complete/statreg/09013_01#section10"],
   "US-MI":["https://legislature.mi.gov/Laws/MCL?objectName=MCL-700-2702"],
   "US-ME":["https://legislature.maine.gov/statutes/18-C/title18-Csec2-702.html"],
-  "US-CA":["https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?sectionNum=6211.&lawCode=PROB"],
-  "US-NY":["https://www.nysenate.gov/legislation/laws/EPT/2-1.6"],
+  "US-CA":["https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?sectionNum=6211.&lawCode=PROB","https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?sectionNum=6224.&lawCode=PROB","https://courts.ca.gov/cms/rules/index/seven/rule7_201","https://courts.ca.gov/cms/rules/index/seven/rule7_652"],
+  "US-NY":["https://www.nysenate.gov/legislation/laws/EPT/2-1.6","https://www.nysenate.gov/legislation/laws/CVP/2101"],
+  "US-TX":["https://tcss.legis.texas.gov/resources/ES/htm/ES.102.htm"],
   "US-VT":["https://legislature.vermont.gov/statutes/section/14/042/00337"],
   "US-MD":["https://mgaleg.maryland.gov/2026RS/chapters_noln/Ch_508_sb0250T.pdf"],
   "AU-NSW":["https://legislation.nsw.gov.au/view/html/inforce/current/act-2006-080#sec.35"],
   "AU-QLD":["https://www.legislation.qld.gov.au/view/html/inforce/current/act-1981-069#sec.33B"],
   "AU-TAS":["https://www.legislation.tas.gov.au/view/whole/html/inforce/current/act-2008-058","https://www.legislation.tas.gov.au/view/whole/html/inforce/current/act-1912-007"],
-  "AU-ACT":["https://www.legislation.act.gov.au/a/1969-15/"],
+  "AU-ACT":["https://www.legislation.act.gov.au/a/1969-15/","https://www.legislation.act.gov.au/a/1929-18/"],
   "AU-NT":["https://legislation.nt.gov.au/en/Legislation/FAMILY-PROVISION-ACT-1970"],
   "AU-WA":["https://legislation.wa.gov.au/legislation/statutes.nsf/law_a382.html"],
   "AU-SA":["https://lsc.sa.gov.au/handbook/ch36s01s06s03.php"],

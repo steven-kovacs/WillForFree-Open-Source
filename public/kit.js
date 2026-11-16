@@ -1,6 +1,6 @@
 import { kitFileName, duringKit, currentLanguage, display, editionNotice, sentence, wording } from "./locale.js";
 import { loadTexasForms } from "./publisher-forms.js";
-import { custodySources, procedureTitle, extraSources } from "./procedures.js";
+import { californiaBond, californiaCommunityShare, custodySources, procedureTitle, extraSources, texasFamilyHome, texasUnsignedChoice } from "./procedures.js";
 import { executionProfile } from "./markets.js";
 import { downloadNotice } from "./download-notice.js";
 import {latinPdfText} from "./characters.js";
@@ -564,6 +564,7 @@ async function buildKit(incoming, offer) {
   if (editionNotice(p)) steps.unshift(editionNotice(p));
   if (!notesOnly && p.route !== "official") steps.unshift(sentence("Use this procedure in {0}. If you plan to sign elsewhere, check the rules there before signing.", wording(p.name)));
   if (!notesOnly && p.country === "SG" && currentLanguage() !== "en") next.push("If your executor applies for probate in Singapore with a will written in another language, the court generally requires an English translation certified by a court interpreter or verified by a qualified translator’s affidavit. The simplified online Probate eService accepts only wills written in English.");
+  if (!notesOnly && p.key === "US-NY" && currentLanguage() !== "en") next.push("For probate in New York, submit the original will. If it is written in another language, provide an English translation and the translator’s affidavit stating their qualifications and confirming the translation is accurate.");
   if (!notesOnly && p.key === "CA-QC" && !["en","fr"].includes(currentLanguage())) next.push("To have this will verified in Québec, first have it translated into French or English by a translator recognized by Québec’s professional order of translators (OTTIAQ).");
   if (unresolved) steps.unshift("There is an unresolved request. This is a planning kit, not a will. Resolve the request with a local estates professional before signing anything.");
   if (includeBusinessGuide) steps.unshift(sentence("{0} and check that the gifts in this will match what you want for the part you own.", wording(sentence("{0}{1}", wording(blankBusinessGuide(p) ? "If you own a business, read " : "Read "), wording(businessFile)))));
@@ -572,10 +573,12 @@ async function buildKit(incoming, offer) {
     steps.unshift(
       "This software is not a substitute for the advice of an attorney.",
     );
+    if (a.marriage === "Married, spouse living" || a.descendants === "I have children or grandchildren") steps.push(texasFamilyHome);
     if (a.txChoice)
       steps.push(
         texasResidueChoices,
         sentence("For section 2.2 you chose {0}. In the signing ceremony sign exactly that option and cross out the other choice as the court form directs.", wording(a.txChoice)),
+        texasUnsignedChoice,
       );
     const deferred=a.txSpecific !== "Use section 2 for everything" || courtDeferred(a);
     if (gifts.length) steps.push(sentence("Section 3.3 contains {0} chat {1} Match each item or amount with the person on that same line.", gifts.length, wording(gifts.length===1?"gift on the first line.":"gifts in printed order.")));
@@ -588,12 +591,14 @@ async function buildKit(incoming, offer) {
       );
   }
   if (!notesOnly && p.key === "US-CA") {
+    steps.push(californiaCommunityShare);
     if (courtSpouseInherits(p, a)) steps.push("If your spouse or registered domestic partner survives you, that person owns what is left outright.");
     steps.push(
       a.caBond === "Sign the box to waive bond"
         ? "You chose to waive the executor’s bond. Sign the box in paragraph 9 at execution."
         : "You chose to leave the paragraph 9 bond waiver unsigned. A bond may be required.",
     );
+    if (a.caBond === "Sign the box to waive bond") steps.push(californiaBond);
     const deferred=a.caExtras !== "Use my balance choice for everything" || courtDeferred(a);
     if (gifts.length) steps.push("Check each cash amount against its named recipient in paragraph 4. For every cash gift, sign the box next to it. Leave unused cash-gift boxes unsigned.");
     steps.push(deferred
@@ -601,7 +606,7 @@ async function buildKit(incoming, offer) {
       : gifts.length ? "Leave the optional residence and personal effects sections 2 and 3 unsigned."
       : "You chose no separate residence, personal effects or cash gifts. Leave the optional gift sections 2, 3 and 4 unsigned.");
     steps.unshift(
-      sentence("Your paragraph 5 balance choice is {0}. On the printed will, sign exactly that one corresponding box as well as the signature at the end. If no box or more than one is signed, the form says your assets pass as if you made no will.", wording(a.caBalance.startsWith("1") ? sentence("{0} · {1}", "1", wording(friendlyValue(a.caBalance))) : a.caBalance)),
+      sentence("Your paragraph 5 balance choice is {0}. Sign only that box and sign at the end. If you sign no box or more than one in paragraph 5, California intestacy law governs the balance. Valid separate gifts in paragraphs 2 through 4 can still take effect.", wording(a.caBalance.startsWith("1") ? sentence("{0} · {1}", "1", wording(friendlyValue(a.caBalance))) : a.caBalance)),
     );
   }
   const label = notesOnly

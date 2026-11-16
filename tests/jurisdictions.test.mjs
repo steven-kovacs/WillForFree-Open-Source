@@ -12,6 +12,33 @@ import {supportsGifts,giftCurrency} from "../public/extras.js";
 import {documentUse} from "../public/release.js";
 import {readFile} from "node:fs/promises";
 const home=(country,region="")=>({country,region});
+test("a living heir's renunciation needs a fresh choice and an express disposition in the affected editions", () => {
+  for (const country of ["CZ","DE","EE","PT"]) {
+    const state = fixture(home(country));
+    const p = profile(state.place);
+    const q = questions(p, state.answers).find(q => q.id === "heirRenunciation");
+    assert.match(interviewCards(q, p)[0].title, /outlives you but refuses/);
+    assert.equal(readAnswer(q, "No or unsure").stop, true);
+    assert.deepEqual(validateState(state, true), state);
+    assert.match(sections(p, state.answers).flat().join(" "), /renounces the inheritance, that share passes under intestacy law/);
+    delete state.answers.heirRenunciation;
+    assert.deepEqual(validateState(state, false, true).answers, state.answers);
+    assert.throws(() => validateState(state, true), /complete the remaining questions/);
+    assert.doesNotMatch(sections(p, state.answers).flat().join(" "), /renounces the inheritance/);
+  }
+  const sole = fixture(home("SK"));
+  assert.equal(sole.answers.heirRenunciation, undefined);
+});
+test("unpaid Austrian care is screened even when the carer is not a named beneficiary", () => {
+  const state = fixture(home("AT"));
+  const p = profile(state.place);
+  const q = questions(p, state.answers).find(q => q.id === "austrianCare");
+  assert.match(interviewCards(q, p)[0].title, /care someone close to you provided/);
+  assert.equal(readAnswer(q, "No or unsure").stop, true);
+  delete state.answers.austrianCare;
+  assert.deepEqual(validateState(state, false, true).answers, state.answers);
+  assert.throws(() => validateState(state, true), /complete the remaining questions/);
+});
 test("fixed will forms cannot be tailored by answers; official appointments require fresh consent",async()=>{
  for(const state of ["AZ","CO","FL","KY","MN","NC","OH"]){
  const p=profile(home("US",state));
@@ -185,6 +212,48 @@ test("fixed and statutory forms explain their own survival timing and keep witne
   assert.match(after(profile(home("US","WA"))).join(" "),/30 days.*40 days/);
   assert.match(after(profile(home("NZ"))).join(" "),/before the ceremony/);
   assert.doesNotMatch(after(profile(home("CA","ON"))).join(" "),/Marriage can revoke/);
+});
+
+test("Maine and Texas explain the effect of the publisher's blanks before the visitor signs",()=>{
+  const maine = {...profile(home("US","ME")),route:"statutory"};
+  assert.match(signing(maine).join(" "),/choice B.*no space for the amount/i);
+  const choiceInstructions = signing(maine).find(line=>line.startsWith("Initial only one box."));
+  assert.match(choiceInstructions,/initial A and sign.*initial C and sign/);
+  assert.doesNotMatch(choiceInstructions,/choice B|A or B/i);
+  assert.match(helpFor("gifts",maine),/ask the probate court for a form with an amount field/);
+  assert.match(helpFor("witness",maine),/two independent witnesses/);
+  const texas = profile(home("US","TX"));
+  const state = fixture(home("US","TX"),{txChoice:"Choice 2 · Children first"});
+  const list = questions(texas,state.answers);
+  const lines = id => interviewCards(list.find(q=>q.id===id),texas,state.answers)[0].lines.join(" ");
+  assert.match(lines("txChoice"),/sign both choices.*leave both unsigned.*choice 1.*30 days/);
+  assert.match(lines("giftFit"),/surviving spouse can keep using the family home/);
+  assert.match(helpFor("home",texas),/your share of community property/);
+  assert.doesNotMatch(helpFor("home",{...texas,route:"planning"}),/community property/);
+  assert.match(after(profile(home("US","IL"))).join(" "),/clerk of the proper county immediately/);
+  const california = profile(home("US","CA"));
+  const choices = questions(california,{});
+  assert.match(interviewCards(choices.find(q=>q.id==="caBond"),california,{})[0].lines.join(" "),/court can require a bond.*good cause/);
+  assert.match(interviewCards(choices.find(q=>q.id==="caBalance"),california,{})[0].lines.join(" "),/domestic partner keeps their own share/);
+});
+
+test("the court-form reading confirmation identifies the current signed language at the point of choice",async t=>{
+  t.mock.method(globalThis,"fetch",async path=>Response.json(JSON.parse(await readFile(new URL("../public"+path,import.meta.url),"utf8"))));
+  const courtCard = region => {
+    const p = profile(home("US",region));
+    const q = questions(p,{}).find(query=>query.id==="formFinish");
+    return interviewCards(q,p,{})[0].lines;
+  };
+  try {
+    await setLanguage("fr",{remember:false});
+    assert.match(courtCard("CA")[0],/official form is in English/);
+    assert.match(courtCard("TX")[0],/official form is in English/);
+    await setLanguage("es",{remember:false});
+    assert.match(courtCard("TX")[0],/bilingual in English and Spanish/);
+    assert.match(courtCard("CA")[0],/official form is in English/);
+  } finally {
+    await setLanguage("en",{remember:false});
+  }
 });
 
 test("a failed late scope check can keep all gifts and long family notes without becoming a will",()=>{

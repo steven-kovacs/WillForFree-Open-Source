@@ -17,6 +17,7 @@ import {guideResources} from "./guide-sources.js";
 import { setupLocationGuidance } from "./will-guide.js";
 import { downloadNotice } from "./download-notice.js";
 import { completionSummary } from "./legal-locations.js";
+import { maineSpouseAmount } from "./procedures.js";
 import {
   questions,
   readAnswer,
@@ -520,7 +521,7 @@ function start(raw="",source="typed") {
     if(current.route==="fixed"){finish();return;}
     if(current.key==="US-ME") {
       stage="route"; displayDocumentUse(); formVisible(false);paintStage();review.hidden=false;review.className="helper-card";
-      review.replaceChildren(el("h2","Choose your Maine will"),el("p","The official form includes options for a spouse, children and a guardian. The chat option leaves what’s left to one adult, with a backup."));const actions=el("div",undefined,"helper-actions");
+      review.replaceChildren(el("h2","Choose your Maine will"),el("p","The official form includes options for a spouse, children and a guardian. The chat option leaves what’s left to one adult, with a backup."),el("p",maineSpouseAmount));const actions=el("div",undefined,"helper-actions");
       actions.append(button("Use the Maine statutory will",async()=>{const token=generation,next=await placeForSession(place,"statutory");if(token!==generation || await missingForm(next,token) || token!==generation)return;data.purpose="statutory";current=next;finish();},"primary-btn"),button("Make a simple will in chat",()=>{message("assistant",shortIntro(current));ask();displayDocumentUse();},"outline-btn"));review.append(actions);
       browseHelp(review,true);historyAt(review,true);stageTitle(current.label);startOf(review);return;
     }

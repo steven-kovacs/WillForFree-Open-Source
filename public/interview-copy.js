@@ -1,5 +1,6 @@
-import { sentence, translatedList, wording } from "./locale.js";
+import { editionNotice, sentence, translatedList, wording } from "./locale.js";
 import { californiaSpouseChoice, offersSurvival, survivalHelp, texasResidueChoices } from "./survival.js";
+import { californiaBond, californiaCommunityShare, texasFamilyHome, texasUnsignedChoice } from "./procedures.js";
 import { businessHelp, ownsBusiness } from "./business.js";
 import { item, cash, giftList, giftText, personal, adviceOption, finishForm, finishNotes, differentTerms, giftCurrency, keepForAdvice, cancelAdvice } from "./extras.js";
 
@@ -150,6 +151,8 @@ export function interviewCards(q,p,a={}, legacyChecks=[]) {
     case "okCourtOrder": return [check(q.prompt, [])];
     case "australianClaims": return [check(sentence("Is your estate entirely covered by the law in {0}?", wording(p.name)),["There’s no claim involving a former or separated partner, stepchild, household member, someone who depended on you or someone you had a close personal relationship with."],"Yes","No")];
     case "australianParents":
+    case "austrianCare":
+    case "heirRenunciation":
     case "saFamilyCare":
     case "canadianFailedGifts":
     case "slovakHeir": return [check(q.prompt,[],"Yes","No")];
@@ -159,23 +162,23 @@ export function interviewCards(q,p,a={}, legacyChecks=[]) {
     case "surviveThirty": return [check("Should each person have to live 30 days after you to inherit?",["This includes your backup. For example, if someone dies two days after you, the will treats them as having died first.","Their separate gift goes back into what’s left. Your backup gets what’s left only if they also live 30 days after you."],"Yes, use 30 days","I want different timing")];
     case "marriage": return one(q,"Which describes your relationship status today?");
     case "descendants": return one(q,"Do you have children or grandchildren?",["Include adopted children and grandchildren through a child who died. If your only living descendants are great-grandchildren or a later generation, choose “I’m not sure”."]);
-    case "giftFit": return [check(sentence("Do you want your property and money to go to {0}?", wording(a.marriage==="Married, spouse living" ? (a.descendants==="I have children or grandchildren"?"your spouse, children or grandchildren":"your spouse"):"your children or grandchildren")),["That’s who this Texas court form is designed for."],"Yes","No")];
-    case "caBalance": return [card("Who should get what’s left after debts and other gifts?",[survivalHelp(p),"On the printed form, you’ll sign one box for this choice."],q.values.map((v,i)=>option(v,[californiaSpouseChoice,"My children and later generations","One person","Two to four people"][i])))];
+    case "giftFit": return [check(sentence("Do you want your property and money to go to {0}?", wording(a.marriage==="Married, spouse living" ? (a.descendants==="I have children or grandchildren"?"your spouse, children or grandchildren":"your spouse"):"your children or grandchildren")),["That’s who this Texas court form is designed for.",texasFamilyHome],"Yes","No")];
+    case "caBalance": return [card("Who should get what’s left after debts and other gifts?",[survivalHelp(p),californiaCommunityShare,"On the printed form, you’ll sign one box for this choice."],q.values.map((v,i)=>option(v,[californiaSpouseChoice,"My children and later generations","One person","Two to four people"][i])))];
     case "multiple": return one(q,"Who should share equally?",["Enter two to four different full names, separated by commas."]);
     case "caRegistered": return [check("Are you married to this person or registered as domestic partners with California’s Secretary of State?",[],"Yes","No")];
     case "caDescendants": return [check("Do you have children, grandchildren or later generations you want to inherit this way?",[],"Yes","No")];
     case "custodian": return one(q,"Who should look after property for a young beneficiary?",["This person is called a custodian on the California form. Enter their full name or skip this."]);
     case "custodyAge": return one(q,"When should that person receive their property?",["Choose an age between 18 and 25."]);
     case "txLiving": return one(q,"Are all your children living, and do you have between one and seven children?",["If so, you can list them here. Otherwise, fill in the family details on the court form."]);
-    case "formFinish": return [check("Will you read the whole court form and follow its signing instructions?",["You can make choices here or fill in the remaining optional sections yourself on the form."],"Yes","No")];
+    case "formFinish": return [check("Will you read the whole court form and follow its signing instructions?",[editionNotice(p),"You can make choices here or fill in the remaining optional sections yourself on the form."].filter(Boolean),"Yes","No")];
     case "caExtras": return one(q,"Would you like to fill in any other gift boxes on the printed form?",["For now, your home, personal belongings and money can go to the people you already chose. You can still add up to five cash gifts in this chat."]);
     case "txSpecific": return one(q,"Would you like to fill in other gift boxes on the Texas form?",["You can use your choice in section 2 for everything. You can still add up to eight gifts here."]);
-    case "caBond": return one(q,"Do you want your executor to be excused from posting a bond?",["A bond is a financial safeguard. To waive it, you sign the box in paragraph 9. If you don’t want to waive it, leave that box unsigned."]);
+    case "caBond": return one(q,"Do you want your executor to be excused from posting a bond?",["A bond is a financial safeguard. To waive it, you sign the box in paragraph 9. If you don’t want to waive it, leave that box unsigned.",californiaBond]);
     case "alsoKnown": return one(q,"What other name do you regularly use, if any?",["Enter it here, or skip this."]);
     case "txAlternates": return one(q, q.prompt);
     case "txAdditional": return one(q,sentence("Should anyone share equally with {0}?", a.recipient || wording("the person you named")));
     case "txOthers": return one(q,"Who else should share equally?",["Enter up to seven other full names, separated by commas. The people on the list who survive you share equally."]);
-    case "txChoice": return one(q,"Who should get what’s left after debts and other gifts?",[texasResidueChoices]);
+    case "txChoice": return one(q,"Who should get what’s left after debts and other gifts?",[texasResidueChoices,texasUnsignedChoice]);
     case "appointment": return [check("Would you like to write down your plans?",[p.route==="professional"?"You can take these answers to a local will appointment.":"Your download will contain your answers as notes. It won’t include a will to sign."],"Yes, write my plans","No")];
     case "wishes": return one(q,"What would you like to remember or ask someone about?",["For example, a gift you have in mind or a question about your family. Leave out passwords and account numbers."]);
     case "noteCheck": return one(q,"Are these just messages, or did you mean to make a gift?",["A message doesn’t change who inherits. If you meant to add a gift or a condition here, we’ll keep it in a notes kit for you to follow up on."]);

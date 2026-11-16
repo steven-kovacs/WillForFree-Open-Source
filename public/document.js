@@ -1,6 +1,6 @@
 import { sentence, wording } from "./locale.js";
-import { canadianGiftClause, offersSurvival, periodClause, periodGuide, survivalHelp } from "./survival.js";
-import { courtVenue, procedures } from "./procedures.js";
+import { canadianGiftClause, expressSubstitution, offersSurvival, periodClause, periodGuide, survivalHelp } from "./survival.js";
+import { courtVenue, maineSpouseAmount, procedures } from "./procedures.js";
 import { formatValue, hasFamilyGift } from "./will.js";
 
 import { item, giftCurrency, giftList, supportsGifts, needsAdvice } from "./extras.js";
@@ -104,6 +104,8 @@ function willClauses(p, a, currency) {
         " if they survive me. If neither survives me, it passes under the law of intestacy.",
     ]);
   }
+  if (expressSubstitution.has(p.key) && a.heirRenunciation === "Yes, all apply")
+    clauses.push(["Backup beneficiary", "I appoint my substitute heir only if my first heir does not actually survive me. If my first heir survives me but renounces the inheritance, that share passes under intestacy law, subject to the other gifts in this will."]);
   return clauses;
 }
 // Render complete clauses in the selected language. All estate information is substituted
@@ -141,7 +143,8 @@ export function signing(p) {
   if (p.route === "statutory" && p.key === "US-ME") return [
     "The enclosed publication contains Maine Revised Statutes Title 18-C section 2-517 and the complete Maine Statutory Will. Print all five pages. Read the notices and the full form; choose it only if its provisions express your wishes. The text and republication notice are unchanged from the Revisor of Statutes.",
     "Fill the blanks in your own handwriting or with a typewriter. Do not add, remove or change the printed words. Mark through unused sections as the form directs. You may use the sections for a spouse, children, distributions and a guardian or conservator where appropriate. Each person needs a separate will.",
-    "In section 2.4, write your initials in one box only (A, B or C). For A or B, sign after the clause you chose. For C, sign after each distribution you make. Also sign wherever else the form requires your signature. Your final signature does not give effect to an unsigned provision. Check the names and your choices before signing with the witnesses.",
+    maineSpouseAmount,
+    "Initial only one box. For choice A in section 2.4, initial A and sign after its clause. For choice C, initial C and sign after each distribution you make. Also sign wherever else the form requires your signature. Your final signature does not give effect to an unsigned provision. Check the names and your choices before signing with the witnesses.",
     "Personally execute the form in the presence of two independent witnesses. Have them sign its witness declaration during the same sitting while you and both witnesses are present. The optional self-proving acknowledgment must be completed before an officer authorized to take acknowledgments; leave it for that ceremony. A notary is not a substitute for either signing witness.",
     survivalHelp(p),
   ];
@@ -234,6 +237,7 @@ export function signing(p) {
     return [
       "Print and read the will. Scotland’s self-proving procedure uses one suitable independent witness. For this kit choose an unrelated adult aged 21 or over who receives nothing under the will.",
       "Sign each sheet, signing at the bottom of the final page while your witness watches. The witness signs the last page and records their full name, address, place and date. Review mygov.scot’s procedure before signing.",
+      scottishWitnessIdentity,
     ];
   const steps = [
     "Print one complete copy, check every page and every name, and arrange an in-person signing. Use the same physical document throughout.",
@@ -296,13 +300,27 @@ export function originalCustody(p) {
 // Marriage can revoke the selected domestic will in these editions. Exceptions
 // and the effect of formalizing a partnership differ between jurisdictions.
 const marriageReview = new Set(["GB-NIR","IE","NZ","SG","CA-MB","CA-NL","CA-NS","CA-NT","CA-NU","CA-PE"]);
+export const scottishWitnessIdentity = "The witness must know who you are or have credible information about your identity when you sign.";
+// Section numbers refer to the local Act linked in the kit. WA has a different probate-access procedure.
+const inspectionSections = {ACT:"126", NSW:"54", NT:"54", QLD:"33Z", SA:"48", TAS:"63", VIC:"50"};
 const custodyDirections = {
+  "CA-QC":"After death, search the will registers of both the Barreau du Québec and the Chambre des notaires du Québec, even if you have the original. Obtain both search certificates.",
+  FI:"After death, a beneficiary must serve the statutory heirs with a certified copy in a verifiable way. If there are no statutory heirs, serve the Finnish State Treasury.",
+  SE:"After death, give each statutory heir a certified copy unless they have approved the will. If the Swedish Inheritance Fund is the statutory heir, serve Kammarkollegiet.",
+  NO:"At least one beneficiary must notify the district court of their claim in writing within six months of learning both of the death and of the will’s contents. Section 65 provides exceptions if the court or a person who would otherwise inherit that share learns of the will in time.",
   "US-CA":"Unless a probate petition was filed earlier, within 30 days of learning of the death the holder must deliver the original to the proper county superior court clerk and a copy to the named executor if locatable, otherwise to a locatable named beneficiary.",
   "US-CO":"The holder must lodge the original with the probate court in the Colorado county where the maker lived or was domiciled within ten days after death, or as soon afterwards as the holder learns of the death.",
   "US-FL":"Within ten days of learning of the death, the holder must lodge the original with the proper court clerk. Give the clerk the maker’s date of death or the last four digits of their Social Security number.",
+  "US-IL":"In Illinois, the person holding the will must file it with the clerk of the proper county immediately after the maker’s death.",
   "US-WA":"Within 30 days of learning of the death, the holder must deliver the original to the proper court or the named executor. An executor holding it must deliver it to the court within 40 days of learning of the death.",
 };
+export function estateNotice(p) {
+  if (p.country === "AU" && inspectionSections[p.region])
+    return sentence("After death, eligible people can ask to see or obtain a copy of the will. The holder must follow the access rules in section {0}.", inspectionSections[p.region]);
+  return custodyDirections[p.key];
+}
 export function after(p) {
+  const notice = estateNotice(p);
   return [
     ...(offersSurvival(p) ? [periodGuide] : []),
     ...(p.country === "US" && offersSurvival(p) ? ["If a named beneficiary dies too soon, their children and other descendants do not replace them for that gift. A descendant may still inherit through a gift made in their own name or under intestacy law."] : []),
@@ -313,7 +331,8 @@ export function after(p) {
         ]
       : []),
     originalCustody(p),
-    ...(custodyDirections[p.key] ? [custodyDirections[p.key]] : []),
+    ...(notice ? [notice] : []),
+    ...(p.key === "CA-NB" ? ["In New Brunswick, review your will before marrying. If the will and the later marriage both predate December 1, 2026, the estate can pass under intestacy law. Sections 15.1 and 16 of the Wills Act set out exceptions and a court remedy."] : []),
     ...(p.country === "AU" || marriageReview.has(p.key) ? ["If you plan to marry or formalize a partnership, review this will before the ceremony. Marriage can revoke it under local law."] : []),
     ...(["GB-ENG","GB-WLS"].includes(p.key) ? ["Revisit your will before marrying or forming a civil partnership. Those events normally revoke an existing will in England and Wales, with limited exceptions."] : []),
     ...(["GB-ENG","GB-WLS"].includes(p.key) ? ["If you appointed a guardian, the appointment normally takes effect only when no parent with parental responsibility survives under the circumstances covered here. A trustee manages the inheritance separately."] : []),

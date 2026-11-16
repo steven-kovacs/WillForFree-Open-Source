@@ -1,4 +1,4 @@
-import {canadianGiftChoice, courtOutrightChoice, courtSpouseInherits, offersSurvival} from "./survival.js";
+import {canadianGiftChoice, courtOutrightChoice, courtSpouseInherits, expressSubstitution, offersSurvival} from "./survival.js";
 // Append these checks AFTER previous questions. An old 'yes' can never answer a new rule.
 export function currentChecks(p, a, check) {
   if (["planning","fixed"].includes(p.route)) return [];
@@ -41,5 +41,7 @@ export function currentChecks(p, a, check) {
   if (p.key === "AU-SA") qs.push(y("saFamilyCare","Family provision","Have you ruled out a claim by a parent, sibling or stepchild who cared for or supported you, or a stepchild whose own or other parent’s assets helped build your estate?"));
   if (p.country === "CA" && p.region !== "QC") qs.push(y("canadianFailedGifts", "If a beneficiary dies too soon", canadianGiftChoice));
   if (courtSpouseInherits(p, a)) qs.push(y("courtOutright", "Who gets what’s left", courtOutrightChoice));
+  if (p.key === "AT") qs.push(y("austrianCare", "People who may have a claim", "Can you rule out a claim for substantial care someone close to you provided for at least six months in the past three years without full compensation?"));
+  if (expressSubstitution.has(p.key)) qs.push(y("heirRenunciation", "Backup beneficiary", "If your first heir outlives you but refuses the inheritance, do you want that share to pass under intestacy law, even if your named backup is alive?"));
   return qs;
 }

@@ -2,11 +2,12 @@ import {help} from "./flow.js";
 import {fold, questionSubjects} from "./help-language.js";
 import {currentLanguage, display, editionNotice, sentence, translatedList, wording} from "./locale.js";
 import {completionSummary} from "./legal-locations.js";
-import {signing, ordinaryWitnesses, originalCustody} from "./document.js";
+import {estateNotice, signing, ordinaryWitnesses, originalCustody, scottishWitnessIdentity} from "./document.js";
 import {survivalHelp} from "./survival.js";
 import {businessHelp, businessWords} from "./business.js";
 import {supportsGifts} from "./extras.js";
 import {markets,regions} from "./markets.js";
+import {maineSpouseAmount, texasFamilyHome} from "./procedures.js";
 
 export const guidance = {
   blankEdition:"The blank will is in English. The signing guide is in your chosen language. Use the form only if you understand the entire will.",
@@ -61,6 +62,8 @@ export function helpFor(subject,p,{execution,household,descendants,maineChoice=f
   if(subject==="privacy")return help.privacy;
   if(subject==="expenseTax")return translatedList([guidance.expenses,guidance.tax]," ");
   if(subject==="home" && notes)return guidance.notesOnly;
+  if(!notes && p.key==="US-TX" && (subject==="home" || subject==="familyRights"))
+    return translatedList([texasFamilyHome,subject==="home" ? guidance.home : guidance.familyRights]," ");
   if(subject==="outside")return translatedList(["A joint owner or someone named on an account, pension or insurance policy may receive it separately. Property held in a trust may also pass separately.",guidance.outside]," ");
   if(subject==="personal" && ["fixed","statutory"].includes(p.route))return help.notes;
   if(subject==="process")return notes?"This path lets you write down your plans and download them to take to an appointment.":help.process;
@@ -68,8 +71,8 @@ export function helpFor(subject,p,{execution,household,descendants,maineChoice=f
   if(subject==="age")return translatedList([sentence("Is {0} your permanent home, and are you at least {1}?",wording(p.name),p.minimum),"Use the place you consider your permanent home, even if you’re visiting somewhere else. The age shown is the minimum for this service."]," ");
   if(subject==="gifts") {
     if(notes)return "This kit records plans, including gifts you want to discuss locally.";
-    if(maineChoice)return guidance.maine;
-    if(p.route==="statutory")return signing(p)[1];
+    if(maineChoice)return translatedList([guidance.maine,maineSpouseAmount]," ");
+    if(p.route==="statutory")return translatedList([signing(p)[1],maineSpouseAmount]," ");
     if(p.key==="US-CA")return "You can name people or charities for cash gifts, one gift at a time.";
     return supportsGifts(p)?"You can give keepsakes or money to named adults, one gift at a time.":"This will form doesn’t have a place for separate gifts.";
   }
@@ -85,6 +88,8 @@ export function helpFor(subject,p,{execution,household,descendants,maineChoice=f
   }
   if(subject==="survival")return survivalHelp(p);
   if(subject==="custody")return originalCustody(p);
+  if(subject==="probate" && !notes && estateNotice(p))
+    return translatedList([guidance.probate, estateNotice(p)], " ");
   if(subject==="existing")return guidance.previous;
   if(subject==="signing" || subject==="witness") {
     if(p.handOption && !execution && p.route==="paper"){
@@ -95,9 +100,10 @@ export function helpFor(subject,p,{execution,household,descendants,maineChoice=f
     const rules=signing(p);
     if(p.route==="deposit")return completionSummary(p);
     if(p.route==="handwriting")return p.key==="CA-ON"?rules[1]:p.key==="US-LA"?rules[3]:completionSummary(p);
-    if(p.route==="statutory")return rules[3];
+    if(p.route==="statutory")return rules[4];
     if(p.route==="official")return completionSummary(p);
-    if(p.key==="GB-SCT" || ["GB-ENG","GB-WLS"].includes(p.key))return rules[0];
+    if(p.key==="GB-SCT")return translatedList([rules[0], scottishWitnessIdentity]," ");
+    if(["GB-ENG","GB-WLS"].includes(p.key))return rules[0];
     if(p.country==="EE")return completionSummary(p);
     return p.route === "fixed" ? ordinaryWitnesses : rules[1];
   }
