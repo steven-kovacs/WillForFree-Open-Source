@@ -230,7 +230,7 @@ test("Maine and Texas explain the effect of the publisher's blanks before the vi
   assert.match(lines("giftFit"),/surviving spouse can keep using the family home/);
   assert.match(helpFor("home",texas),/your share of community property/);
   assert.doesNotMatch(helpFor("home",{...texas,route:"planning"}),/community property/);
-  assert.match(after(profile(home("US","IL"))).join(" "),/clerk of the proper county immediately/);
+  assert.match(after(profile(home("US","IL"))).join(" "),/clerk of the circuit court in the proper county immediately/);
   const california = profile(home("US","CA"));
   const choices = questions(california,{});
   assert.match(interviewCards(choices.find(q=>q.id==="caBond"),california,{})[0].lines.join(" "),/court can require a bond.*good cause/);

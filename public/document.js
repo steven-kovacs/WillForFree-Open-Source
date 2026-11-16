@@ -311,7 +311,7 @@ const custodyDirections = {
   "US-CA":"Unless a probate petition was filed earlier, within 30 days of learning of the death the holder must deliver the original to the proper county superior court clerk and a copy to the named executor if locatable, otherwise to a locatable named beneficiary.",
   "US-CO":"The holder must lodge the original with the probate court in the Colorado county where the maker lived or was domiciled within ten days after death, or as soon afterwards as the holder learns of the death.",
   "US-FL":"Within ten days of learning of the death, the holder must lodge the original with the proper court clerk. Give the clerk the maker’s date of death or the last four digits of their Social Security number.",
-  "US-IL":"In Illinois, the person holding the will must file it with the clerk of the proper county immediately after the maker’s death.",
+  "US-IL":"In Illinois, the person holding the will must file it with the clerk of the circuit court in the proper county immediately after the maker’s death.",
   "US-WA":"Within 30 days of learning of the death, the holder must deliver the original to the proper court or the named executor. An executor holding it must deliver it to the court within 40 days of learning of the death.",
 };
 export function estateNotice(p) {
