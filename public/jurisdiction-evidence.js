@@ -4,49 +4,49 @@ export const evidence = Object.freeze(
   "CA-AB": {
     "source": "https://www.alberta.ca/wills-in-alberta",
     "rule": "A formal will is signed before two witnesses, who then sign in the maker’s presence.",
-    "caveat": "Local provisions for minor gifts, supervision, alternate guardians, other parents and court appointment have not been verified for a generated family will.",
+    "caveat": "Local provisions for gifts to minors, supervision, alternate guardians, other parents and court appointment have not been verified for a generated family will.",
     "handRule": "Entire document in the maker’s handwriting and personally signed; no attesting witness."
   },
   "CA-BC": {
     "source": "https://www.bclaws.gov.bc.ca/civix/document/id/complete/statreg/09013_01",
     "rule": "Maker signs at the end or acknowledges the signature before two witnesses together. Both sign in the maker’s presence.",
-    "caveat": "Local provisions for minor gifts, supervision, alternate guardians, other parents and court appointment have not been verified for a generated family will. WESA ss.36, 37, 40. Maker generally 16+; witnesses 19+. Active-service exception under s.38 is limited. A product age floor must be labelled separately.",
+    "caveat": "Local provisions for gifts to minors, supervision, alternate guardians, other parents and court appointment have not been verified for a generated family will. WESA ss.36, 37, 40. Maker generally 16+; witnesses 19+. Active-service exception under s.38 is limited. A product age floor must be labelled separately.",
     "handRule": "No general handwritten-only route. WESA s.58 allows a court to cure deficient execution in an individual case."
   },
   "CA-MB": {
     "source": "https://web2.gov.mb.ca/laws/statutes/ccsm/w150.php",
     "rule": "Maker signs at the end or acknowledges the signature before two witnesses together. Both sign in the maker’s presence.",
-    "caveat": "Local provisions for minor gifts, supervision, alternate guardians, other parents and court appointment have not been verified for a generated family will.",
+    "caveat": "Local provisions for gifts to minors, supervision, alternate guardians, other parents and court appointment have not been verified for a generated family will.",
     "handRule": "Entirely handwritten and personally signed at the end under s.6; no witness."
   },
   "CA-NB": {
     "source": "https://laws.gnb.ca/en/document/cs/W-9",
     "rule": "Maker signs at the end or acknowledges the signature before two witnesses together. Both sign in the maker’s presence.",
-    "caveat": "Local provisions for minor gifts, supervision, alternate guardians, other parents and court appointment have not been verified for a generated family will. Through November 30, 2026, s.8 generally requires age 19 with marriage, service and mariner exceptions. The 2025 amending Act is proclaimed effective December 1, 2026: new s.2.1 applies to wills made from that date and sets a capable-maker minimum of 16. New witness-qualification, proxy, common-law partner, revocation and family provisions and transition rules must then be reviewed.",
+    "caveat": "This kit is for people aged 19 or older who sign personally. Until December 1, 2026, section 8 generally requires age 19 with exceptions. From that date, section 2.1 allows a capable maker aged 16 or older and section 10.1 requires capable witnesses aged at least 19. Section 22 applies to deaths from that date even for an earlier will. Section 15.02 preserves the former marriage rule for a will and subsequent marriage both before commencement and sets transitional conditions for relationship breakdown.",
     "handRule": "Entire document in the maker’s handwriting and personally signed; no attesting witness."
   },
   "CA-NL": {
     "source": "https://www.assembly.nl.ca/legislation/sr/statutes/w10.htm",
     "rule": "Maker signs before at least two witnesses. Both sign in the maker’s presence. For a maker who cannot write, the will must first be read to or by them in the witnesses’ presence.",
-    "caveat": "Local provisions for minor gifts, supervision, alternate guardians, other parents and court appointment have not been verified for a generated family will. Wills Act ss.2–3: minimum 17; the product floor of 19 is narrower. Do not assume that a mark or proxy is its simple route.",
+    "caveat": "Local provisions for gifts to minors, supervision, alternate guardians, other parents and court appointment have not been verified for a generated family will. Wills Act ss.2–3: minimum 17; the product floor of 19 is narrower. Do not assume that a mark or proxy is its simple route.",
     "handRule": "Entire document in the maker’s handwriting and personally signed; no attesting witness."
   },
   "CA-NS": {
     "source": "https://nslegislature.ca/sites/default/files/legc/statutes/wills.pdf",
     "rule": "Maker signs at the end or acknowledges the signature before two witnesses together. Both sign in the maker’s presence.",
-    "caveat": "Local provisions for minor gifts, supervision, alternate guardians, other parents and court appointment have not been verified for a generated family will.",
+    "caveat": "Local provisions for gifts to minors, supervision, alternate guardians, other parents and court appointment have not been verified for a generated family will.",
     "handRule": "Entire document in the maker’s handwriting and personally signed; no attesting witness."
   },
   "CA-NT": {
-    "source": "https://www.justice.gov.nt.ca/en/files/legislation/wills/wills.a.pdf",
+    "source": "https://gnwt.ca/resources/wills-act",
     "rule": "Maker signs at the end or acknowledges the signature before two witnesses together. Both sign in the maker’s presence.",
-    "caveat": "Local provisions for minor gifts, supervision, alternate guardians, other parents and court appointment have not been verified for a generated family will. Wills Act s.5. Government guide tells both witnesses to sign in one another’s presence as well; use that ceremony. Official statute link from site redirected; statute text read in OpenNWT reproduction.",
+    "caveat": "Local provisions for a generated family will have not been verified. Section 5 distinguishes the witnessed and wholly handwritten methods. The territorial guide asks the two witnesses to sign in one another’s presence as well. Section 22 describes the intestate share of a child born after their father dies if his will makes no provision for the child.",
     "handRule": "Entire document in the maker’s handwriting and personally signed; no attesting witness."
   },
   "CA-NU": {
-    "source": "https://www.nunavutlegislation.ca/en/file-download/download/public/2367",
+    "source": "https://www.nunavutlegislation.ca/en/consolidated-law/wills-act-consolidation",
     "rule": "Maker signs or acknowledges before two who are together. Both sign or acknowledge their own signatures in the maker’s presence. They need not witness one another signing.",
-    "caveat": "Local provisions for minor gifts, supervision, alternate guardians, other parents and court appointment have not been verified for a generated family will. Nunavut Wills Act ss.5 and 5.1, amending Act S.Nu. 2005 c.6. Clear testamentary intention can address position of signature.",
+    "caveat": "Sections 5 and 5.1 as enacted in 2005 distinguish the witnessed and holograph methods. Section 22, amended by S.Nu. 2025 c.23 s.41, protects a child born after a parent's death who is unprovided for in the will. The court fixes the child's intestate share. Family will provisions for minors and guardians remain outside this simple route.",
     "handRule": "Entirely in the maker’s own writing and personally signed. Own writing includes footwriting and mouthwriting; no witnesses."
   },
   "CA-ON": {
@@ -58,13 +58,13 @@ export const evidence = Object.freeze(
   "CA-PE": {
     "source": "https://www.princeedwardisland.ca/sites/default/files/legislation/p-21-probate_act.pdf",
     "rule": "Maker signs at the foot or end, or acknowledges the signature before two witnesses together. Witnesses sign in the presence of the maker AND of each other.",
-    "caveat": "Local provisions for minor gifts, supervision, alternate guardians, other parents and court appointment have not been verified for a generated family will. Probate Act ss.59–60, 62, 70; consolidated PDF current to March 30, 2026.",
+    "caveat": "Local provisions for gifts to minors, supervision, alternate guardians, other parents and court appointment have not been verified for a generated family will. Probate Act ss.59–60, 62, 70; consolidated PDF current to March 30, 2026.",
     "handRule": "No ordinary witness-free handwriting route identified. Probate Act s.70 provides discretionary substantial-compliance relief for a signed instrument; s.62 provides a limited service/seaman exception."
   },
   "CA-QC": {
     "source": "https://www.quebec.ca/en/justice-and-civil-status/wills-estate/wills/forms-will/will-witnesses",
     "rule": "Maker declares the document to be their will before two qualified adults, then signs or acknowledges a prior signature. Both witnesses sign in the maker’s presence. For a computer-produced or third-party-written will all three initial or sign each page lacking their signature.",
-    "caveat": "Local provisions for minor gifts, supervision, alternate guardians, other parents and court appointment have not been verified for a generated family will. Civil Code arts.726–728. For physical or reading disability see arts.729–731. Notarial will is a separate route.",
+    "caveat": "Local provisions for gifts to minors, supervision, alternate guardians, other parents and court appointment have not been verified for a generated family will. Civil Code arts.726–728. For physical or reading disability see arts.729–731. Notarial will is a separate route.",
     "handRule": "Civil Code art.726: wholly written and signed by the maker without technical means. No witness. Witnessed and holograph forms ordinarily require verification after death."
   },
   "CA-SK": {
@@ -74,100 +74,100 @@ export const evidence = Object.freeze(
     "handRule": "Entirely in the maker’s own handwriting, personally signed. Provincial guidance also instructs the maker to date it."
   },
   "CA-YT": {
-    "source": "https://laws.yukon.ca/cms/images/LEGISLATION/PRINCIPAL/2002/2002-0230/2002-0230_1.pdf",
-    "rule": "Maker signs at the end or acknowledges the signature before two witnesses together. Both sign in the maker’s presence.",
-    "caveat": "Yukon government identifies naming a guardian and trustee for children under 19. Appointment effect and minor-trust powers still require local confirmation. Yukon requires separation between the person signing for the maker and the witnesses. Check other witness qualifications.",
+    "source": "https://laws.yukon.ca/cms/images/LEGISLATION/PRINCIPAL/2002/2002-0230/2002-0230_2.pdf",
+    "rule": "For this paper method, personally sign at the end in front of two witnesses who are present together. Both witnesses then sign the same will in your presence.",
+    "caveat": "Yukon government identifies naming a guardian and trustee for children under 19. Appointment effect and minor-trust powers still require local confirmation. Yukon requires separation between the person signing for the maker and the witnesses. Check other witness qualifications. Section 21 protects the share of an unprovided-for posthumous child. Its English and French texts use different words for the deceased parent.",
     "handRule": "Entire document in the maker’s handwriting and personally signed; no attesting witness."
   },
   "US-AL": {
     "source": "https://alison.legislature.state.al.us/code-of-alabama?section=43-8-131",
     "rule": "Maker signs. Two people each witness the signing or the maker’s acknowledgment of signature or will and each signs.",
-    "caveat": "Local provisions for minor gifts, supervision, alternate guardians, other parents and court appointment have not been verified for a generated family will. Testamentary capacity starts at 18 under §43-8-130; general age of majority is not the execution rule."
+    "caveat": "Local provisions for gifts to minors, supervision, alternate guardians, other parents and court appointment have not been verified for a generated family will. Testamentary capacity starts at 18 under §43-8-130; general age of majority is not the execution rule."
   },
   "US-AK": {
     "source": "https://www.akleg.gov/statutesPDF/Title-13.pdf",
     "rule": "Maker signs. Two people each witness the signing or the maker’s acknowledgment of the signature or will, then each signs within a reasonable time.",
-    "caveat": "Local provisions for minor gifts, supervision, alternate guardians, other parents and court appointment have not been verified for a generated family will. For cross-border property or nonresident issues see the choice-of-law conditions of AS 13.06.068 expressly referenced in §13.12.502."
+    "caveat": "Local provisions for gifts to minors, supervision, alternate guardians, other parents and court appointment have not been verified for a generated family will. For cross-border property or nonresident issues see the choice-of-law conditions of AS 13.06.068 expressly referenced in §13.12.502."
   },
   "US-AZ": {
     "source": "https://www.azleg.gov/ars/14/02502.htm",
     "rule": "Maker signs. Two people each witness the signing or the maker’s acknowledgment of the signature or will, then each signs within a reasonable time.",
-    "caveat": "Local provisions for minor gifts, supervision, alternate guardians, other parents and court appointment have not been verified for a generated family will."
+    "caveat": "Local provisions for gifts to minors, supervision, alternate guardians, other parents and court appointment have not been verified for a generated family will."
   },
   "US-AR": {
     "source": "https://www.arcourts.gov/sites/default/files/Probate%20Benchbook%202022.pdf#page=8",
     "rule": "Maker declares the document a will and signs at its end or acknowledges the signature with at least two witnesses present. Both witnesses sign at the maker’s request and in the maker’s presence.",
-    "caveat": "Local provisions for minor gifts, supervision, alternate guardians, other parents and court appointment have not been verified for a generated family will. Additional identifying statements apply when signing by mark or by another person."
+    "caveat": "Local provisions for gifts to minors, supervision, alternate guardians, other parents and court appointment have not been verified for a generated family will. Additional identifying statements apply when signing by mark or by another person."
   },
   "US-CA": {
     "source": "https://selfhelp.courts.ca.gov/sites/default/files/2026-02/6240-Statutory-will-form.pdf",
     "rule": "Under Probate Code §6110 two witnesses together see signing or hear acknowledgment of signature or will; both understand it is the maker’s will and sign during the maker’s lifetime. Use the statutory form’s own two-witness ceremony.",
-    "caveat": "Official Probate Code §6240 form includes guardian and minor-property custodian choices. The precise printed instructions and fixed gift choices control; eligibility for a given family requires checking."
+    "caveat": "Official Probate Code §6240 form includes choices for a child’s guardian and for the person managing a beneficiary’s property. The precise printed instructions and fixed gift choices control; eligibility for a given family requires checking."
   },
   "US-CO": {
     "source": "https://olls.info/crs/crs2026-title-15.htm",
     "rule": "Maker signs. Two people each witness the signing or the maker’s acknowledgment of the signature or will, then each signs within a reasonable time. Alternatively the maker may acknowledge the paper will before a notary or other person authorized to take acknowledgments. Witnesses can sign before or after the maker’s death under §15-11-502.",
-    "caveat": "Local provisions for minor gifts, supervision, alternate guardians, other parents and court appointment have not been verified for a generated family will."
+    "caveat": "Local provisions for gifts to minors, supervision, alternate guardians, other parents and court appointment have not been verified for a generated family will."
   },
   "US-CT": {
     "source": "https://www.cga.ct.gov/current/pub/chap_802a.htm#sec_45a-251",
     "rule": "Maker subscribes the writing. Two witnesses attest and each subscribes in the maker’s presence.",
-    "caveat": "Local provisions for minor gifts, supervision, alternate guardians, other parents and court appointment have not been verified for a generated family will."
+    "caveat": "Local provisions for gifts to minors, supervision, alternate guardians, other parents and court appointment have not been verified for a generated family will."
   },
   "US-DE": {
     "source": "https://delcode.delaware.gov/title12/c002/sc01/index.html",
     "rule": "Maker signs. Two or more credible witnesses attest and subscribe in the maker’s presence, subject to §1306.",
-    "caveat": "Local provisions for minor gifts, supervision, alternate guardians, other parents and court appointment have not been verified for a generated family will."
+    "caveat": "Local provisions for gifts to minors, supervision, alternate guardians, other parents and court appointment have not been verified for a generated family will."
   },
   "US-DC": {
     "source": "https://code.dccouncil.gov/us/dc/council/code/sections/18-103",
     "rule": "Maker signs. At least two competent witnesses attest and subscribe in the maker’s presence.",
-    "caveat": "Local provisions for minor gifts, supervision, alternate guardians, other parents and court appointment have not been verified for a generated family will."
+    "caveat": "Local provisions for gifts to minors, supervision, alternate guardians, other parents and court appointment have not been verified for a generated family will."
   },
   "US-FL": {
     "source": "https://www.leg.state.fl.us/statutes/index.cfm?App_mode=Display_Statute&URL=0700-0799/0732/Sections/0732.502.html",
     "rule": "Maker signs at the end or acknowledges prior signing before the two attesting witnesses. They sign before the maker and one another.",
-    "caveat": "Local provisions for minor gifts, supervision, alternate guardians, other parents and court appointment have not been verified for a generated family will."
+    "caveat": "Local provisions for gifts to minors, supervision, alternate guardians, other parents and court appointment have not been verified for a generated family will."
   },
   "US-GA": {
     "source": "https://www.legis.ga.gov/api/document/docs/default-source/joint-features-document-library/t52-t53-%28v40%29-pdf.pdf",
     "rule": "Maker signs. At least two competent witnesses attest and subscribe in the maker’s presence. Each witness must attest personally; a witness may use a mark.",
-    "caveat": "Local provisions for minor gifts, supervision, alternate guardians, other parents and court appointment have not been verified for a generated family will."
+    "caveat": "Local provisions for gifts to minors, supervision, alternate guardians, other parents and court appointment have not been verified for a generated family will."
   },
   "US-HI": {
     "source": "https://data.capitol.hawaii.gov/hrscurrent/Vol12_Ch0501-0588/HRS0560/HRS_0560-0002-0502.htm",
     "rule": "Maker signs. Two people each witness the signing or the maker’s acknowledgment of the signature or will, then each signs within a reasonable time.",
-    "caveat": "Local provisions for minor gifts, supervision, alternate guardians, other parents and court appointment have not been verified for a generated family will."
+    "caveat": "Local provisions for gifts to minors, supervision, alternate guardians, other parents and court appointment have not been verified for a generated family will."
   },
   "US-ID": {
     "source": "https://legislature.idaho.gov/statutesrules/idstat/Title15/T15CH2/SECT15-2-502/",
     "rule": "Maker signs. Two people each witness the signing or the maker’s acknowledgment of signature or will and each signs.",
-    "caveat": "Local provisions for minor gifts, supervision, alternate guardians, other parents and court appointment have not been verified for a generated family will."
+    "caveat": "Local provisions for gifts to minors, supervision, alternate guardians, other parents and court appointment have not been verified for a generated family will."
   },
   "US-IL": {
     "source": "https://www.ilga.gov/legislation/ilcs/fulltext?DocName=075500050K4-3",
     "rule": "Maker signs. At least two competent witnesses attest and subscribe in the maker’s presence.",
-    "caveat": "Local provisions for minor gifts, supervision, alternate guardians, other parents and court appointment have not been verified for a generated family will."
+    "caveat": "Local provisions for gifts to minors, supervision, alternate guardians, other parents and court appointment have not been verified for a generated family will."
   },
   "US-IN": {
     "source": "https://iga.in.gov/laws/current/ic/titles/29/",
     "rule": "Maker signifies that the document is their will to both witnesses, and signs or acknowledges before both. Witnesses sign in the maker’s presence and one another’s presence on the ordinary original.",
-    "caveat": "Local provisions for minor gifts, supervision, alternate guardians, other parents and court appointment have not been verified for a generated family will. §29-1-5-3(b) covers personal signing on one paper original. Subsection (g) can make the will self-proved if the witness signatures follow a clause containing the substance required by §3.1. Under §§3(c)–(e) counterparts introduce supervision, assembly and affidavit requirements; do not reuse the ordinary ceremony."
+    "caveat": "Local provisions for gifts to minors, supervision, alternate guardians, other parents and court appointment have not been verified for a generated family will. §29-1-5-3(b) covers personal signing on one paper original. Subsection (g) can make the will self-proved if the witness signatures follow a clause containing the substance required by §3.1. Under §§3(c)–(e) counterparts introduce supervision, assembly and affidavit requirements; do not reuse the ordinary ceremony."
   },
   "US-IA": {
     "source": "https://www.legis.iowa.gov/docs/code/2026/633.pdf",
     "rule": "Maker signs and declares that the document is their will. At their request two competent witnesses sign in the presence of the maker AND one another.",
-    "caveat": "Local provisions for minor gifts, supervision, alternate guardians, other parents and court appointment have not been verified for a generated family will."
+    "caveat": "Local provisions for gifts to minors, supervision, alternate guardians, other parents and court appointment have not been verified for a generated family will."
   },
   "US-KS": {
     "source": "https://www.kslegislature.gov/b2025_26/laws/059_000_0000_chapter/059_006_0000_article/059_006_0006_section/059_006_0006_k/",
     "rule": "Maker signs at the end. Two or more competent witnesses see signing or hear the maker acknowledge the will, then attest and sign in the maker’s presence.",
-    "caveat": "Local provisions for minor gifts, supervision, alternate guardians, other parents and court appointment have not been verified for a generated family will."
+    "caveat": "Local provisions for gifts to minors, supervision, alternate guardians, other parents and court appointment have not been verified for a generated family will."
   },
   "US-KY": {
     "source": "https://apps.legislature.ky.gov/Law/statutes/statute.aspx?id=36237",
     "rule": "Maker subscribes or acknowledges before at least two credible witnesses. They sign in the presence of both the maker and each other.",
-    "caveat": "Local provisions for minor gifts, supervision, alternate guardians, other parents and court appointment have not been verified for a generated family will."
+    "caveat": "Local provisions for gifts to minors, supervision, alternate guardians, other parents and court appointment have not been verified for a generated family will."
   },
   "US-LA": {
     "source": "https://legis.la.gov/Legis/Law.aspx?d=108900&p=y",
@@ -182,12 +182,12 @@ export const evidence = Object.freeze(
   "US-MD": {
     "source": "https://mgaleg.maryland.gov/mgawebsite/Laws/StatuteText?article=get&section=4-102",
     "rule": "Maker signs. Two or more credible witnesses attest and sign in the maker’s physical presence on the ordinary paper route.",
-    "caveat": "Local provisions for minor gifts, supervision, alternate guardians, other parents and court appointment have not been verified for a generated family will. Remote/electronic and supervised execution have separate requirements; paper in-person form under §4-102(b)."
+    "caveat": "Local provisions for gifts to minors, supervision, alternate guardians, other parents and court appointment have not been verified for a generated family will. Remote/electronic and supervised execution have separate requirements; paper in-person form under §4-102(b)."
   },
   "US-MA": {
     "source": "https://malegislature.gov/Laws/GeneralLaws/PartII/TitleII/Chapter190B/ArticleII/Section2-502",
     "rule": "Maker signs. Two people each witness the signing or the maker’s acknowledgment of signature or will and each signs.",
-    "caveat": "Local provisions for minor gifts, supervision, alternate guardians, other parents and court appointment have not been verified for a generated family will. State §2-502 does not use the model UPC’s ‘reasonable time’ wording."
+    "caveat": "Local provisions for gifts to minors, supervision, alternate guardians, other parents and court appointment have not been verified for a generated family will. State §2-502 does not use the model UPC’s ‘reasonable time’ wording."
   },
   "US-MI": {
     "source": "https://www.legislature.mi.gov/Laws/MCL?objectName=MCL-700-2502",
@@ -197,17 +197,17 @@ export const evidence = Object.freeze(
   "US-MN": {
     "source": "https://www.revisor.mn.gov/statutes/2026/cite/524/full",
     "rule": "Maker signs. Two people each witness the signing or the maker’s acknowledgment of the signature or will, then each signs within a reasonable time.",
-    "caveat": "Local provisions for minor gifts, supervision, alternate guardians, other parents and court appointment have not been verified for a generated family will. §524.2-502 also addresses court-ordered conservator signing; refer out of the personal-signature route."
+    "caveat": "Local provisions for gifts to minors, supervision, alternate guardians, other parents and court appointment have not been verified for a generated family will. §524.2-502 also addresses court-ordered conservator signing; refer out of the personal-signature route."
   },
   "US-MS": {
     "source": "https://courts.ms.gov/images/Opinions/CO159577.pdf",
     "rule": "Maker signs. At least two competent witnesses attest and subscribe in the maker’s presence.",
-    "caveat": "Local provisions for minor gifts, supervision, alternate guardians, other parents and court appointment have not been verified for a generated family will. §91-5-1 expressly permits a maker aged 18 or over of sound and disposing mind; a product cutoff of 21 is not the legal minimum."
+    "caveat": "Local provisions for gifts to minors, supervision, alternate guardians, other parents and court appointment have not been verified for a generated family will. §91-5-1 expressly permits a maker aged 18 or over of sound and disposing mind; a product cutoff of 21 is not the legal minimum."
   },
   "US-MO": {
     "source": "https://revisor.mo.gov/main/OneSection.aspx?bid=26293&section=474.320",
     "rule": "Maker signs. At least two competent witnesses attest and subscribe in the maker’s presence.",
-    "caveat": "Local provisions for minor gifts, supervision, alternate guardians, other parents and court appointment have not been verified for a generated family will."
+    "caveat": "Local provisions for gifts to minors, supervision, alternate guardians, other parents and court appointment have not been verified for a generated family will."
   },
   "US-MT": {
     "source": "https://mca.legmt.gov/bills/mca/title_0720/chapter_0020/part_0050/section_0220/0720-0020-0050-0220.html",
@@ -217,22 +217,22 @@ export const evidence = Object.freeze(
   "US-NE": {
     "source": "https://nebraskalegislature.gov/laws/statutes.php?statute=30-2327",
     "rule": "Maker signs. Two people each witness the signing or the maker’s acknowledgment of signature or will and each signs.",
-    "caveat": "Local provisions for minor gifts, supervision, alternate guardians, other parents and court appointment have not been verified for a generated family will. §30-2326 permits a sound-minded person aged 18 or older, or otherwise not a minor, to make a will. A product floor of 19 is narrower."
+    "caveat": "Local provisions for gifts to minors, supervision, alternate guardians, other parents and court appointment have not been verified for a generated family will. §30-2326 permits a sound-minded person aged 18 or older, or otherwise not a minor, to make a will. A product floor of 19 is narrower."
   },
   "US-NV": {
     "source": "https://www.leg.state.nv.us/Nrs/NRS-133.html",
     "rule": "Maker signs. At least two competent witnesses attest and subscribe in the maker’s presence.",
-    "caveat": "Local provisions for minor gifts, supervision, alternate guardians, other parents and court appointment have not been verified for a generated family will."
+    "caveat": "Local provisions for gifts to minors, supervision, alternate guardians, other parents and court appointment have not been verified for a generated family will."
   },
   "US-NH": {
     "source": "https://gc.nh.gov/rsa/html/LVI/551/551-2.htm",
     "rule": "Maker signs. Two or more credible witnesses attest to the maker’s signature at the maker’s request and in the maker’s presence.",
-    "caveat": "Local provisions for minor gifts, supervision, alternate guardians, other parents and court appointment have not been verified for a generated family will. RSA 551:2 includes separate attorney-linked remote formalities."
+    "caveat": "Local provisions for gifts to minors, supervision, alternate guardians, other parents and court appointment have not been verified for a generated family will. RSA 551:2 includes separate attorney-linked remote formalities."
   },
   "US-NJ": {
     "source": "https://pub.njleg.gov/bills/2004/pl04/132_.HTM",
     "rule": "Maker signs. Two people each witness the signing or the maker’s acknowledgment of the signature or will, then each signs within a reasonable time.",
-    "caveat": "Local provisions for minor gifts, supervision, alternate guardians, other parents and court appointment have not been verified for a generated family will."
+    "caveat": "Local provisions for gifts to minors, supervision, alternate guardians, other parents and court appointment have not been verified for a generated family will."
   },
   "US-NM": {
     "source": "https://nmonesource.com/nmos/nmsa/en/item/4393/index.do",
@@ -242,87 +242,87 @@ export const evidence = Object.freeze(
   "US-NY": {
     "source": "https://www.nysenate.gov/legislation/laws/EPT/3-2.1",
     "rule": "Maker signs at the end or acknowledges to each witness; declares to each that this is their will. Each of two witnesses signs at the maker’s request, both within one 30-day period. Record residential addresses; failure to add an address does not alone invalidate.",
-    "caveat": "Local provisions for minor gifts, supervision, alternate guardians, other parents and court appointment have not been verified for a generated family will. Current EPTL 3-2.1 distinguishes amendments effective December 12, 2027."
+    "caveat": "Local provisions for gifts to minors, supervision, alternate guardians, other parents and court appointment have not been verified for a generated family will. Current EPTL 3-2.1 distinguishes amendments effective December 12, 2027."
   },
   "US-NC": {
     "source": "https://www.ncleg.gov/EnactedLegislation/Statutes/HTML/ByArticle/Chapter_31/Article_1.html",
     "rule": "Maker signs or acknowledges to each of two competent witnesses, separately if desired. Both sign in the maker’s presence; they need not be together.",
-    "caveat": "Local provisions for minor gifts, supervision, alternate guardians, other parents and court appointment have not been verified for a generated family will."
+    "caveat": "Local provisions for gifts to minors, supervision, alternate guardians, other parents and court appointment have not been verified for a generated family will."
   },
   "US-ND": {
     "source": "https://ndlegis.gov/cencode/t30-1c08.pdf",
     "rule": "Maker signs. Two people each witness the signing or the maker’s acknowledgment of the signature or will, then each signs within a reasonable time. Alternatively, the maker may acknowledge the will before a notary or another authorized official.",
-    "caveat": "Local provisions for minor gifts, supervision, alternate guardians, other parents and court appointment have not been verified for a generated family will."
+    "caveat": "Local provisions for gifts to minors, supervision, alternate guardians, other parents and court appointment have not been verified for a generated family will."
   },
   "US-OH": {
     "source": "https://codes.ohio.gov/ohio-revised-code/section-2107.03",
     "rule": "Maker signs at the end. Two competent witnesses see signing or hear acknowledgment of the maker’s signature and sign in the maker’s conscious presence.",
-    "caveat": "Local provisions for minor gifts, supervision, alternate guardians, other parents and court appointment have not been verified for a generated family will."
+    "caveat": "Local provisions for gifts to minors, supervision, alternate guardians, other parents and court appointment have not been verified for a generated family will."
   },
   "US-OK": {
     "source": "https://www.oklegislature.gov/OK_Statutes/CompleteTitles/os84.pdf",
     "rule": "Maker signs at the end or acknowledges before two witnesses, declaring at that time that it is their will. Each witness signs at the end at the maker’s request and in the maker’s presence.",
-    "caveat": "Local provisions for minor gifts, supervision, alternate guardians, other parents and court appointment have not been verified for a generated family will. Under §84-41(B), a person subject to guardianship or conservatorship must subscribe and acknowledge the will before a district judge. The judge attests execution and has no authority to approve or disapprove its contents. Refer such cases out of the ordinary workflow."
+    "caveat": "Local provisions for gifts to minors, supervision, alternate guardians, other parents and court appointment have not been verified for a generated family will. Under §84-41(B), a person subject to guardianship or conservatorship must subscribe and acknowledge the will before a district judge. The judge attests execution and has no authority to approve or disapprove its contents. Refer such cases out of the ordinary workflow."
   },
   "US-OR": {
     "source": "https://www.oregonlegislature.gov/bills_laws/ors/ors112.html",
     "rule": "Maker signs or acknowledges in each witness’s presence. Each of two witnesses sees signing or hears acknowledgment, then signs within a reasonable time before the maker's death.",
-    "caveat": "Local provisions for minor gifts, supervision, alternate guardians, other parents and court appointment have not been verified for a generated family will. ORS 112.235, effective January 1, 2026, including express exclusion of electronic records from ‘writing’; transition depends on the decedent’s date of death. Directed signing has additional signer-identification rules."
+    "caveat": "Local provisions for gifts to minors, supervision, alternate guardians, other parents and court appointment have not been verified for a generated family will. ORS 112.235, effective January 1, 2026, including express exclusion of electronic records from ‘writing’; transition depends on the decedent’s date of death. Directed signing has additional signer-identification rules."
   },
   "US-PA": {
     "source": "https://www.legis.state.pa.us/WU01/LI/LI/CT/HTM/20/00.025.002.000..HTM",
     "rule": "Ordinary personally signed written will: maker signs at the end; no attesting witnesses required for execution. A mark or proxy is a distinct two-witness procedure, including a declaration for proxy.",
-    "caveat": "Local provisions for minor gifts, supervision, alternate guardians, other parents and court appointment have not been verified for a generated family will. §3132 calls for proof by two competent witnesses in probate. They need not be execution witnesses for a will personally signed by the maker."
+    "caveat": "Local provisions for gifts to minors, supervision, alternate guardians, other parents and court appointment have not been verified for a generated family will. §3132 calls for proof by two competent witnesses in probate. They need not be execution witnesses for a will personally signed by the maker."
   },
   "US-RI": {
     "source": "https://webserver.rilegislature.gov/Statutes/TITLE33/33-5/33-5-5.HTM",
     "rule": "Maker signs or acknowledges the signature before two witnesses together. Both sign in the maker’s presence.",
-    "caveat": "Local provisions for minor gifts, supervision, alternate guardians, other parents and court appointment have not been verified for a generated family will. Limited military/at-sea rules in §33-5-6 are separate."
+    "caveat": "Local provisions for gifts to minors, supervision, alternate guardians, other parents and court appointment have not been verified for a generated family will. Limited military/at-sea rules in §33-5-6 are separate."
   },
   "US-SC": {
     "source": "https://www.scstatehouse.gov/code/t62c002.php",
     "rule": "Maker signs. Two people each witness the signing or the maker’s acknowledgment of signature or will and each signs.",
-    "caveat": "Local provisions for minor gifts, supervision, alternate guardians, other parents and court appointment have not been verified for a generated family will. §62-2-504 can reduce a gift to a witness, the witness’s spouse OR issue if there are not two additional disinterested witnesses. Under §62-2-503 the maker and at least one witness can make a will self-proved before an authorized oath officer; the ordinary will still needs two witnesses. Naming a witness to an office is treated differently from a devise."
+    "caveat": "Local provisions for gifts to minors, supervision, alternate guardians, other parents and court appointment have not been verified for a generated family will. §62-2-504 can reduce a gift to a witness, the witness’s spouse OR issue if there are not two additional disinterested witnesses. Under §62-2-503 the maker and at least one witness can make a will self-proved before an authorized oath officer; the ordinary will still needs two witnesses. Naming a witness to an office is treated differently from a devise."
   },
   "US-SD": {
     "source": "https://sdlegislature.gov/api/Statutes/29A-2-502.html",
     "rule": "Maker signs. Two witnesses in the maker’s conscious presence witness signing or acknowledgment of the signature and sign in that conscious presence.",
-    "caveat": "Local provisions for minor gifts, supervision, alternate guardians, other parents and court appointment have not been verified for a generated family will."
+    "caveat": "Local provisions for gifts to minors, supervision, alternate guardians, other parents and court appointment have not been verified for a generated family will."
   },
   "US-TN": {
     "source": "https://www.tncourts.gov/sites/default/files/chastainestate_opn.pdf",
     "rule": "Maker tells both witnesses that the document is their will and signs or acknowledges the signature in their presence. Both witnesses sign in the presence of the maker and each other.",
-    "caveat": "Local provisions for minor gifts, supervision, alternate guardians, other parents and court appointment have not been verified for a generated family will."
+    "caveat": "Local provisions for gifts to minors, supervision, alternate guardians, other parents and court appointment have not been verified for a generated family will."
   },
   "US-TX": {
     "source": "https://tcss.legis.texas.gov/resources/ES/pdf/ES.251.pdf",
     "rule": "Ordinary attested will: maker signs; two credible witnesses at least 14 each hand-sign in maker’s presence. Texas Supreme Court forms use a self-proving ceremony: follow the form’s two witnesses and notary instructions.",
-    "caveat": "Texas Supreme Court publishes married/unmarried forms with/without children. Its family form has minor guardian nomination and allows the executor to name a custodian for gifts to a beneficiary under 21; check each form’s eligibility, dispositions and alternatives."
+    "caveat": "Texas Supreme Court publishes married/unmarried forms with/without children. Its forms for parents let the maker nominate a guardian for a child who needs one, including an incapacitated adult child, and let the executor name a custodian for gifts to a beneficiary under 21. Check each form’s eligibility, dispositions and alternatives."
   },
   "US-UT": {
     "source": "https://le.utah.gov/xcode/Title75/Chapter2/C75-2-S502_1800010118000101.pdf",
     "rule": "Maker signs. Two people each witness the signing or the maker’s acknowledgment of the signature or will, then each signs within a reasonable time.",
-    "caveat": "Local provisions for minor gifts, supervision, alternate guardians, other parents and court appointment have not been verified for a generated family will."
+    "caveat": "Local provisions for gifts to minors, supervision, alternate guardians, other parents and court appointment have not been verified for a generated family will."
   },
   "US-VT": {
     "source": "https://legislature.vermont.gov/statutes/section/14/001/00005",
     "rule": "Maker signs before two or more credible witnesses. They sign in the presence of both the maker and each other.",
-    "caveat": "Local provisions for minor gifts, supervision, alternate guardians, other parents and court appointment have not been verified for a generated family will."
+    "caveat": "Local provisions for gifts to minors, supervision, alternate guardians, other parents and court appointment have not been verified for a generated family will."
   },
   "US-VA": {
     "source": "https://law.lis.virginia.gov/vacode/title64.2/chapter4/section64.2-403/",
     "rule": "Maker signs or acknowledges the signature before two witnesses together. Both sign in the maker’s presence.",
-    "caveat": "Local provisions for minor gifts, supervision, alternate guardians, other parents and court appointment have not been verified for a generated family will."
+    "caveat": "Local provisions for gifts to minors, supervision, alternate guardians, other parents and court appointment have not been verified for a generated family will."
   },
   "US-WA": {
     "source": "https://app.leg.wa.gov/rcw/default.aspx?cite=11.12.020",
     "rule": "Maker signs. Two competent witnesses sign the will, or a statutory affidavit, at the maker’s direction/request and in the maker’s presence.",
-    "caveat": "Local provisions for minor gifts, supervision, alternate guardians, other parents and court appointment have not been verified for a generated family will."
+    "caveat": "Local provisions for gifts to minors, supervision, alternate guardians, other parents and court appointment have not been verified for a generated family will."
   },
   "US-WV": {
     "source": "https://code.wvlegislature.gov/41-1-3/",
     "rule": "Maker signs or acknowledges the signature before two witnesses together. Both sign in the maker’s presence. Witnesses must sign in one another’s presence as well.",
-    "caveat": "Local provisions for minor gifts, supervision, alternate guardians, other parents and court appointment have not been verified for a generated family will."
+    "caveat": "Local provisions for gifts to minors, supervision, alternate guardians, other parents and court appointment have not been verified for a generated family will."
   },
   "US-WI": {
     "source": "https://docs.legis.wisconsin.gov/statutes/statutes/853.pdf",
@@ -332,7 +332,7 @@ export const evidence = Object.freeze(
   "US-WY": {
     "source": "https://wyoleg.gov/statutes/compress/title02.pdf",
     "rule": "Maker signs; two competent witnesses witness the will. Use one in-person ceremony and both witness signatures. Statute also addresses a directed signer and remote attendance.",
-    "caveat": "Local provisions for minor gifts, supervision, alternate guardians, other parents and court appointment have not been verified for a generated family will. Gifts to subscribing witnesses are limited unless there are two disinterested competent witnesses; see §2-6-112(a)."
+    "caveat": "Local provisions for gifts to minors, supervision, alternate guardians, other parents and court appointment have not been verified for a generated family will. Gifts to subscribing witnesses are limited unless there are two disinterested competent witnesses; see §2-6-112(a)."
   },
   "GB-ENG": {
     "source": "https://www.gov.uk/make-will/make-sure-your-will-is-legal",
@@ -360,7 +360,7 @@ export const evidence = Object.freeze(
     "caveat": "Spouse’s legal right share: ordinarily half without children, one third with them (s111); civil partners/child provision require their own provisions. A child can seek provision under s117; Ireland is not a participant in the EU Succession Regulation."
   },
   "NL": {
-    "source": "https://e-justice.europa.eu/topics/family-matters-inheritance/inheritance/succession/nl_en",
+    "source": "https://wetten.overheid.nl/BWBR0002761/#Boek4_Titeldeel4_Afdeling4_Artikel95",
     "rule": "An estate-wide will can use a civil-law notarial deed or a private instrument delivered to a notary for safekeeping with formalities (BW 4:94–95). No general home print-and-sign option. A narrow handwritten codicil may cover specified personal items/wishes, not an entire estate.",
     "caveat": "Descendants can claim a monetary legitime; spousal succession/protections differ. Confirm European Netherlands and personal/territorial application; do not infer law for Caribbean territories."
   },
@@ -415,7 +415,7 @@ export const evidence = Object.freeze(
     "caveat": "If spouse or descendants entitled as compulsory heirs, generally only a third may be freely disposed of. District commissioners certify and do not draft. Inheritance Act arts34, 40–43; Icelandic legislation controls over English translation."
   },
   "MT": {
-    "source": "https://legislation.mt/eli/cap/16/eng/portalpdf",
+    "source": "https://legislation.mt/eli/cap/16/eng/pdf",
     "rule": "Secret will: sign at the end, seal, and personally deliver and declare it before the notary or through the Court of Voluntary Jurisdiction. Delivery is the date of making.",
     "caveat": "Reserved portions protect qualifying spouse and descendants as claims on the estate. Joint unica carta is a special spousal form. Public/secret procedures and language/read-back requirements are not interchangeable."
   },
@@ -450,7 +450,7 @@ export const evidence = Object.freeze(
     "caveat": "The kit names one adult heir. If that person does not inherit, legal heirs succeed under §461(2). Protected shares under §479 and the effect of conditions under §478 require individual consideration."
   },
   "NZ": {
-    "source": "https://www.legislation.govt.nz/act/public/2007/0036/latest/DLM413519.html",
+    "source": "https://www.legislation.govt.nz/act/public/2007/36/en/latest/sections/DLM413519/",
     "rule": "Wills Act 2007 s11: in writing; maker signs or directs someone to sign in their presence. At least two witnesses together see the signing/acknowledgment and each signs in maker's presence. S13 addresses witness/partner gifts with exceptions.",
     "caveat": "Te Ture Whenua Māori Act 1993 s108 restricts whom an owner can leave interests in Māori freehold land to, with special relationship/use rights. Home and assets all in NZ does not screen this out. Family/dependency, relationship property, foreign connections and special obligations need separate consideration."
   },

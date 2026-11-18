@@ -6,7 +6,7 @@ const familyGuides = {
   "CA-NB": "https://www.courtsnb-coursnb.ca/content/cour/en/probate-court/content/faq.html",
   "CA-NL": "https://publiclegalinfo.com/legal-info/wills-and-estates/wills/",
   "CA-NS": "https://courts.ns.ca/courts/probate-court",
-  "CA-NT": "https://www.justice.gov.nt.ca/en/files/estate-administration/Questions%20and%20Answers%20about%20Wills.pdf",
+  "CA-NT": "https://gnwt.ca/resources/questions-and-answers-about-wills",
   "CA-NU": "https://www.gov.nu.ca/sites/default/files/publications/2023-08/Nunavut%20Will%20Guide.pdf",
   "CA-ON": "https://www.ontario.ca/page/estate-planning-and-wills",
   "CA-PE": "https://legalinfopei.ca/information/resource/wills",

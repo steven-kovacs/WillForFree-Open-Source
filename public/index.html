@@ -9,17 +9,18 @@
       content="Make a free will kit for your home jurisdiction. No card, no email gate, no donation request, no paid download."
     />
     <meta name="robots" content="index,follow" />
+    <link rel="canonical" href="https://willforfree.com/" />
     <title>WillForFree — A little chat about your will</title>
     
     <link rel="preload" href="/fonts/wff-reddit-latin-900.v2.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="preload" href="/fonts/wff-reddit-latin-700.v2.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="preload" href="/fonts/wff-reddit-latin-500.v2.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="preload" href="/fonts/wff-reddit-latin-400.v2.woff2" as="font" type="font/woff2" crossorigin />
-    <link rel="stylesheet" href="/styles.css?v=community-1" />
-    <link rel="stylesheet" href="/information.css?v=community-1" />
-    <link rel="modulepreload" href="/app.js" />
+    <link rel="stylesheet" href="/styles.css?v=mission-1" />
+    <link rel="stylesheet" href="/information.css?v=mission-1" />
+    <link rel="modulepreload" href="/app.js?v=mission-1" />
     <script src="/home-entry.js"></script>
-    <script type="module" src="/app.js"></script>
+    <script type="module" src="/app.js?v=mission-1"></script>
     <script type="module" src="/language-menu.js"></script>
     <script type="module" src="/contact.js"></script>
   </head>
@@ -30,13 +31,15 @@
         <a class="brand" href="/" aria-label="WillForFree home"
           ><strong>WillForFree</strong></a>
         <nav class="home-nav" aria-label="Main navigation">
-          <a href="/free-and-private/" class="mast-privacy">Is this private?</a>
-          <a href="/fine-print/" class="fine-link"
+          <a href="/free-and-private/" class="mast-link">Is this private?</a>
+          <a href="/why-do-i-need-a-will/" class="mast-link" data-menu-label="Education">Education</a>
+          <a href="/our-mission/" class="mast-link" data-menu-label="Our Mission">Our Mission</a>
+          <a href="/fine-print/" class="fine-link" data-menu-label="Fine print"
             >Fine print
             <svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true">
               <path d="M4 12 12 4M5 4h7v7" /></svg
           ></a>
-          <a class="contact-icon" href="mailto:info@willforfree.com" data-contact="support" aria-label="Contact WillForFree" aria-haspopup="dialog" title="Contact WillForFree"><svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="2.5" y="4.5" width="19" height="15" rx="3"/><path d="m3.5 6 7.3 5.7a2 2 0 0 0 2.4 0L20.5 6"/></svg></a>
+          <a class="contact-icon" data-menu-label="Contact" href="mailto:info@willforfree.com" data-contact="support" aria-label="Contact WillForFree" aria-haspopup="dialog" title="Contact WillForFree"><svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="2.5" y="4.5" width="19" height="15" rx="3"/><path d="m3.5 6 7.3 5.7a2 2 0 0 0 2.4 0L20.5 6"/></svg></a>
         </nav>
       </header>
       <p id="info-status" role="status" hidden></p>
@@ -55,7 +58,7 @@
             Choose your location ▾
           </button>
           <div class="hero-titlewrap">
-            <h1 id="hero-title">
+            <h1 id="hero-title" tabindex="-1">
               A little chat<span class="hero-period">.</span><br />About your
               <span class="hand-underline"
                 >will<svg
@@ -70,7 +73,7 @@
           <p class="hero-lead">
             A little conversation. A free will kit to keep.
           </p>
-          <p class="promises">No card, no email gate, no donation request, no paid download.</p>
+          <p class="promises price-promise"><strong>Free download. No card, email or donation.</strong></p>
           <div class="edges" aria-hidden="true">
             
             <svg class="paper-fly" viewBox="0 0 120 70">
@@ -90,7 +93,12 @@
           </div>
           <div class="hero-chat">
             <form class="first-box" id="start-form">
-              <label for="opening">How can I help you get started?</label>
+              <div class="opening-heading">
+                <label for="opening">How can I help you get started?</label>
+                <button type="button" class="ai-toggle" id="home-ai-toggle" role="switch" aria-checked="true" aria-haspopup="dialog" aria-controls="chat-ai-dialog">
+                  <span>AI Enabled</span><span class="ai-track" aria-hidden="true"></span>
+                </button>
+              </div>
               <div class="first-row">
                 <textarea
                   id="opening"
@@ -112,17 +120,17 @@
             </form>
             <div class="starter-row">
               <button class="starter" data-start="start" type="button">
-                Let’s start <span aria-hidden="true">↗</span></button
+                Let’s start <span class="link-arrow" aria-hidden="true"></span></button
               ><button class="starter" data-start="kids" aria-controls="home-guide" aria-haspopup="dialog" type="button">
-                I have kids <span aria-hidden="true">↗</span></button
+                I have kids <span class="link-arrow" aria-hidden="true"></span></button
               ><button class="starter" data-start="help" aria-controls="home-guide" aria-haspopup="dialog" type="button">
-                How does it work? <span aria-hidden="true">↗</span>
+                How does it work? <span class="link-arrow" aria-hidden="true"></span>
               </button>
             </div>
             <p id="clear-status" role="status" hidden></p>
             <aside class="home-education" aria-labelledby="learn-about-wills">
-              <h2 id="learn-about-wills"><a href="/why-do-i-need-a-will/">Why do I need a will? <span aria-hidden="true">↗</span></a></h2>
-              <p>You can say who should inherit a keepsake or your savings.</p>
+              <h2 id="learn-about-wills"><a href="/why-do-i-need-a-will/">Why do I need a will? <span class="link-arrow" aria-hidden="true"></span></a></h2>
+              <p>Choose who gets your keepsakes or savings.</p>
             </aside>
           </div>
         </section>
@@ -133,16 +141,27 @@
           aria-labelledby="conv-title"
         >
           <div class="thread-top">
-            <button type="button" id="back-home" class="text-btn">← Home</button
-            ><span class="thread-loc"
-              ><span class="ink-dot"></span> <span id="thread-place"></span
-            ></span>
+            <div class="thread-context">
+              <button type="button" id="back-home" class="text-btn">← Home</button>
+              <span class="thread-loc"><span class="ink-dot"></span><span id="thread-place"></span></span>
+            </div>
+            <button type="button" class="ai-toggle" id="chat-ai-toggle" role="switch" aria-checked="true" aria-haspopup="dialog" aria-controls="chat-ai-dialog">
+              <span>AI Enabled</span><span class="ai-track" aria-hidden="true"></span>
+            </button>
+            <button type="button" id="chat-fullscreen" aria-controls="conversation">
+              <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
+                <path class="enter-fullscreen" d="M14 4h6v6m0-6-7 7M10 20H4v-6m0 6 7-7"/>
+                <path class="exit-fullscreen" d="m20 4-7 7m0-6v6h6M4 20l7-7m0 6v-6H5"/>
+              </svg>
+              <span class="enter-fullscreen">Full screen</span>
+              <span class="exit-fullscreen">Exit full screen</span>
+            </button>
           </div>
           <div class="thread-title">
             <p class="edition-note" id="edition-note" hidden></p>
             <div class="document-notice" id="document-notice" hidden>
               <p id="method-note" class="method-note"></p>
-              <button type="button" id="notice-trigger" class="notice-trigger" aria-haspopup="dialog"></button>
+              <button type="button" id="notice-trigger" class="notice-trigger with-arrow" aria-haspopup="dialog"></button>
             </div>
             <p class="overline" id="chapter">01 / Getting started</p>
             <h1 id="conv-title">Your will, in little steps.</h1>
@@ -203,12 +222,16 @@
           ></section>
           </div>
           <div class="thread-tools">
-            <button id="undo" type="button" class="text-btn" hidden>
-              ← Change last answer</button
-            ><button id="browse-help" type="button" class="text-btn" hidden>Help topics</button
-            ><button id="restart" type="button" class="text-btn">
-              Start over
+            <button id="undo" type="button" class="text-btn" title="← Change last answer" hidden>
+              <span class="tool-long">← Change last answer</span><span class="tool-short">Edit</span>
             </button>
+            <button id="question-note" type="button" class="text-btn" title="Leave a note for a professional" hidden>
+              <span class="tool-long">Leave a note for a professional</span><span class="tool-short">Leave a note</span>
+            </button>
+            <button id="browse-help" type="button" class="text-btn" title="Help topics" hidden>
+              <span class="tool-long">Help topics</span><span class="tool-short">Help</span>
+            </button>
+            <button id="restart" type="button" class="text-btn">Start over</button>
           </div>
         </section>
         <noscript
@@ -224,7 +247,7 @@
       </footer>
     </div>
     <dialog id="home-guide" class="home-guide" aria-labelledby="home-guide-title">
-      <h2 id="home-guide-title" tabindex="-1"></h2>
+      <h2 id="home-guide-title" tabindex="-1" autofocus></h2>
       <div id="home-guide-copy"></div>
       <div class="dialog-buttons">
         <button type="button" id="home-guide-close" class="outline-btn">Close</button>
@@ -233,7 +256,7 @@
     </dialog>
     <dialog id="place-dialog" aria-labelledby="place-title" aria-describedby="place-help">
       <form id="place-form">
-        <h2 id="place-title">Where is your permanent home?</h2>
+        <h2 id="place-title" tabindex="-1" autofocus>Where is your permanent home?</h2>
         <p id="place-help" aria-live="polite"></p>
         <label for="country">Country</label
         ><select id="country" required>
@@ -252,8 +275,28 @@
         </div>
       </form>
     </dialog>
+    <dialog id="chat-ai-dialog" aria-labelledby="chat-ai-title">
+      <form method="dialog">
+        <div class="ai-dialog-heading">
+          <h2 id="chat-ai-title" tabindex="-1" autofocus>How does WillForFree use AI?</h2>
+          <button class="ai-dialog-dismiss" type="submit" aria-label="Close"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="m4 4 8 8m0-8-8 8"/></svg></button>
+        </div>
+        <div class="ai-copy">
+          <p>Typically, you can go from the first question to downloading your will kit without the chat ever using AI. Your browser builds the kit from your answers. AI help is on by default. Think of AI as a manager who helps keep the interview on track. If you have a question or go off course, it can point you to a help topic so you can pick up where you left off.</p>
+          <div class="ai-privacy-note">
+            <p><strong>We never send your personal information to an AI company.</strong></p>
+            <p>AI sees only topic names, such as executor duties or privacy, and the kind of step you’re on. Your question, names, answers and will stay in your browser.</p>
+          </div>
+          <p>The chat checks our written answers first. AI can suggest which help topic to read, then you can return to your interview question. If we don’t have an answer, we say so.</p>
+        </div>
+        <div class="ai-dialog-actions">
+          <button class="outline-btn" type="submit">Back to chat</button>
+          <button class="primary-btn" id="chat-ai-confirm" type="submit">Turn Off</button>
+        </div>
+      </form>
+    </dialog>
     <dialog id="notice-dialog" aria-labelledby="notice-title">
-      <h2 id="notice-title">About this document</h2>
+      <h2 id="notice-title" tabindex="-1" autofocus>About this document</h2>
       <p id="notice-full"></p>
       <button id="notice-close" class="primary-btn" type="button">Back to chat</button>
     </dialog>
@@ -264,24 +307,35 @@
       </header>
       <div class="sponsor-story">
         <p class="partner-credit" id="partner-credit" data-verbatim></p>
-        <h2 id="sponsor-title">An offer from our sponsor.</h2>
+        <h2 id="sponsor-title" tabindex="-1" autofocus>An offer from our sponsor.</h2>
         <p id="sponsor-description" data-verbatim></p>
       </div>
       <div class="sponsor-delivery">
         <p>Your kit is free. You can download it right here.</p>
-        <div class="sponsor-actions">
-          <button type="button" class="primary-btn" id="save-zip" aria-describedby="download-responsibility" autofocus>Download ZIP <span aria-hidden="true">↓</span></button>
-          <p class="download-notice">
+        <div id="download-terms" class="download-terms">
+          <label for="accept-download-terms">
+            <input id="accept-download-terms" type="checkbox" required autocomplete="off" />
             <span id="download-responsibility"></span>
-            <a href="/fine-print/#responsibility" target="_blank" rel="noopener noreferrer">Responsibility and legal terms<span class="sr"> (opens in a new tab)</span></a>
-          </p>
-          <a class="outline-btn" id="partner-visit" target="_blank" rel="noopener noreferrer sponsored" referrerpolicy="no-referrer">Visit sponsor</a>
+          </label>
+          <a href="/fine-print/#responsibility" target="_blank" rel="noopener noreferrer">Read the terms (opens in a new tab)</a>
+          <a id="download-terms-french" href="/fine-print/#responsibility/CA-QC/fr" lang="fr" hreflang="fr" target="_blank" rel="noopener noreferrer" data-verbatim hidden>Lire les conditions en français (nouvel onglet)</a>
+        </div>
+        <div class="sponsor-actions">
+          <button type="button" class="primary-btn" id="save-zip" aria-describedby="download-responsibility">Download ZIP <span aria-hidden="true">↓</span></button>
+          <a class="outline-btn with-arrow" id="partner-visit" target="_blank" rel="noopener noreferrer sponsored" referrerpolicy="no-referrer">Visit sponsor</a>
         </div>
         <p id="zip-status" role="status"></p>
       </div>
     </dialog>
+    <dialog id="download-consent-dialog" aria-labelledby="download-consent-title" aria-describedby="download-consent-help">
+      <h2 id="download-consent-title" tabindex="-1" autofocus>Download ZIP</h2>
+      <p id="download-consent-help">Check the box to accept the download terms before downloading your ZIP.</p>
+      <form method="dialog" class="dialog-buttons">
+        <button class="primary-btn" type="submit">Close</button>
+      </form>
+    </dialog>
     <dialog id="reset-dialog" aria-labelledby="reset-title">
-      <h2 id="reset-title">Start over?</h2>
+      <h2 id="reset-title" tabindex="-1" autofocus>Start over?</h2>
       <p>This removes your messages and answers from this tab. Files you already downloaded stay on your device.</p>
       <div class="dialog-buttons">
         <button type="button" id="keep" class="outline-btn">

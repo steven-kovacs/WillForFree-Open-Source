@@ -1,12 +1,14 @@
+import {warning,goOn,skipped,reviewDetail,skipEffect,noteAction,notePrivacy,noteEffect,saveNote,setReviewNote,blankAdvice,careEntries,deferred} from "./planning.js";
 import {disclosesPressure} from "./local-wording.js";
 import { cloneOriginal } from "./language-menu.js";
 import { currentLanguage, sentence, wording, clearWording, display, editionNotice, translatedList } from "./locale.js";
 import { businessFile, ownsBusiness } from "./business.js";
 import { QUESTION_LIMIT, replyLimit, setupLengthHint, shortHelp } from "./chat-limits.js";
 import { setupConnectionInfo } from "./connection-info.js";
+import { navigationLanded } from "./navigation-feedback.js";
 import { setUpInformationNavigation } from "./information-nav.js";
-import { YES, STOP, interviewCards, coveredLater, friendlyValue, reviewLabel } from "./interview-copy.js";
-import { manageTurn, currentHelp, responseHint, chooseLocalTopic } from "./conversation.js";
+import { YES, STOP, interviewCards, coveredLater, friendlyValue, reviewLabel, reviewQuestionTitle, mattersForReview } from "./interview-copy.js";
+import { manageTurn, currentHelp, responseHint, chooseLocalTopic, canSkipQuestion } from "./conversation.js";
 import {directSubject, guidance, helpFor, helpMenu, isGeneralTopicRequest, isTopicChoice} from "./interview-help.js";
 import { interviewProgress } from "./progress.js";
 import { needsAdvice, notesEntries, wishesProfile, item, cash, adviceOption, giftCurrency, giftKey, giftText, giftList, doneGifts, noExtra, giftIntents, keepForAdvice } from "./extras.js";
@@ -15,13 +17,16 @@ import { profile, planDescription, executionProfile } from "./markets.js";
 import { locationUI } from "./geo.js";
 import {guideResources} from "./guide-sources.js";
 import { setupLocationGuidance } from "./will-guide.js";
-import { downloadNotice } from "./download-notice.js";
+import {trafficEvent} from "./traffic.js";
+import { downloadAgreement } from "./download-notice.js";
 import { completionSummary } from "./legal-locations.js";
-import { maineSpouseAmount } from "./procedures.js";
+import { hasMaineCourtReferral, maineAuthoredFit, maineOriginal, maineProbateCourts, mainePublisher, maineSpouseAmount } from "./procedures.js";
 import {
   questions,
   readAnswer,
   preserveAsNotes,
+  planningEntries,
+  usesEarlierChoicesNotice,
   formatValue,
   authority,
   sensitive,
@@ -32,10 +37,11 @@ import {
   topicsFor,
 } from "./flow.js";
 import { createKit, save, makeAnswerPDF } from "./kit.js";
-import {hasPublisherForm} from "./publisher-forms.js";
+import {hasPublisherForm, mainePreviewUrl} from "./publisher-forms.js";
 import {lookupOffer,countDownload} from "./partner-api.js";
 import { partnerOffersEnabled, topicHelpEnabled, placeForSession, serviceOpen } from "./release.js";
 import { createTopicRequest } from "./topic-request.js";
+import { setupChatAI } from "./chat-ai.js";
 
 const $ = (id) => document.getElementById(id);
 const panel = $("conversation"),
@@ -54,11 +60,14 @@ let data = { version: 2, place: null, answers: {} },
   editing = null,
   pendingGiftWho = null,
   pending = false,
-  modalAttempt = 0;
+  downloadAttempt = 0;
 const openingLength=setupLengthHint($("opening"),$("opening-length"));
 const replyLength=setupLengthHint(reply,$("reply-length"));
 let remoteRetryAt=0;
 const sponsorDialog = $("sponsor-dialog");
+const downloadTerms = $("download-terms"), acceptTerms = $("accept-download-terms");
+const agreementText = $("download-responsibility"), saveZip = $("save-zip");
+const downloadConsentDialog = $("download-consent-dialog");
 let downloadTrigger = null, offerReceipt = null;
 const withOffers = await partnerOffersEnabled();
 let cards=[], part=0, shown=null, lastQuestion=null, giftCue=null, earlyGift=false, openingRequest=0;
@@ -71,10 +80,11 @@ if (!openForKits) {
   $("welcome").querySelector(".hero-chat").hidden = true;
   $("welcome").querySelector(".promises").hidden = true;
 }
-let remoteHelpAllowed = new URL(location.href).searchParams.get("ai") !== "off";
+const chatAI = setupChatAI();
 const geo = locationUI((place) => {
   $("thread-place").textContent = profile(place).label;
 }, openForKits);
+if (location.hash === "#place-chip") geo.show();
 function el(tag, value, cls) {
   const n = document.createElement(tag);
   if (value !== undefined) n.textContent = value;
@@ -164,15 +174,24 @@ function updateChoicesHint() {
 }
 function showCurrentChoices(row) {
   choices.scrollTop = 0;
+  navigationLanded();
   // Translated labels can wrap differently. Measure the finished turn before it paints.
   requestAnimationFrame(() => {
     if (stage !== "chat" || feed.lastElementChild !== row) return;
     updateChoicesHint();
     lastReplyInView(row);
+    if (panel.hasAttribute("data-fullscreen")) panel.scrollTop = 0;
   });
 }
 choices.addEventListener("scroll", updateChoicesHint, { passive: true });
 const choiceResize = new ResizeObserver(() => requestAnimationFrame(updateChoicesHint));
+function openReviewNote() {
+  if(stage==="chat" && !busy && active)showHelpRoute(noteEffect,{returnable:true,composeNote:true});
+}
+$("question-note").addEventListener("click",openReviewNote);
+const skipFieldButton = button("Skip this question",()=>{
+  if(stage==="chat" && !busy && canSkipQuestion(active,shown))showHelpRoute(skipEffect,{returnable:true,choice:deferred});
+},"text-btn");
 $("more-choices").addEventListener("click", () => {
   const bottom = choices.getBoundingClientRect().bottom;
   const next = [...choices.children].find(b => b.getBoundingClientRect().bottom > bottom - 2);
@@ -185,14 +204,17 @@ $("more-choices").addEventListener("click", () => {
 function setBusy(on) {
   busy = on;
   reply.disabled = on;
+  $("question-note").disabled = on;
   form.querySelector("button").disabled = on;
   form.setAttribute("aria-busy", String(on));
   for (const b of choices.children) b.disabled = on;
 }
 function formVisible(on) {
+  skipFieldButton.remove();
   form.hidden = !on;
   $("answers-panel").hidden = !on;
   $("browse-help").hidden = !on;
+  $("question-note").hidden = !on;
   $("undo").hidden = !on;
   choices.hidden = !on;
   if (on) choiceResize.observe(choices);
@@ -201,10 +223,11 @@ function formVisible(on) {
 }
 function stageTitle(value) {
   $("chapter").textContent = value;
+  $("chapter").hidden = !value;
 }
+const typingPointer = matchMedia("(hover: hover) and (pointer: fine)");
 function focusInput() {
-  if (matchMedia("(min-width:681px)").matches)
-    reply.focus({ preventScroll: true });
+  if (typingPointer.matches && !reading && !document.querySelector("dialog[open]")) reply.focus({ preventScroll: true });
 }
 function paintStage(list = [], id = "") {
   panel.dataset.stage = stage;
@@ -219,20 +242,65 @@ function paintStage(list = [], id = "") {
   }
 }
 function startOf(section) {
+  navigationLanded();
   section.scrollTop = 0;
+  panel.scrollTop = 0;
   window.scrollTo({ top: 0, behavior: "instant" });
   const h = section.querySelector("h2");
   if (h) { h.tabIndex = -1; h.focus({ preventScroll: true }); }
 }
+let restingHeight = 0, viewportWidth = 0;
 function viewport() {
-  const h = window.visualViewport?.height || window.innerHeight;
-  panel.closest(".site-frame").style.setProperty("--thread-viewport", h + "px");
-  panel.toggleAttribute("data-compact", h < 460 && !panel.hidden);
+  const view = window.visualViewport;
+  if (panel.hidden || (view && view.scale !== 1)) return;
+  const h = view?.height || window.innerHeight;
+  const frame = panel.closest(".site-frame");
+  const scroll = $("chat-scroll");
+  const resized = frame.style.getPropertyValue("--thread-viewport") !== h + "px";
+  const followLatest = resized && stage === "chat" && !reading &&
+    scroll.scrollHeight - scroll.clientHeight - scroll.scrollTop < 2;
+  const width = window.innerWidth;
+  const typing = panel.contains(document.activeElement) && document.activeElement.matches("textarea, input");
+  if (!typing || width !== viewportWidth) restingHeight = h;
+  viewportWidth = width;
+  frame.style.setProperty("--thread-viewport", h + "px");
+  frame.style.setProperty("--thread-top", (view?.offsetTop || 0) + "px");
+  // Safari can resize both viewports when its keyboard opens.
+  const keyboard = typing && Math.max(restingHeight, window.innerHeight) - h > 120;
+  panel.toggleAttribute("data-keyboard", keyboard);
+  panel.toggleAttribute("data-compact", h < 460 || keyboard);
+  if (followLatest && feed.lastElementChild) lastReplyInView(feed.lastElementChild);
 }
 window.visualViewport?.addEventListener("resize", viewport);
+window.visualViewport?.addEventListener("scroll", viewport);
 window.addEventListener("resize", viewport);
+let normalChatScrollY = 0;
+let normalPanelScroll = 0;
+function toggleChatFullscreen() {
+  navigationLanded();
+  const scroll = $("chat-scroll");
+  const atEnd = scroll.scrollHeight - scroll.clientHeight - scroll.scrollTop < 2;
+  // Keep the latest reply in view, or keep the reader on the same earlier message as lines rewrap.
+  const first = !atEnd && Array.from(feed.children).find(row => row.offsetTop + row.offsetHeight > scroll.scrollTop);
+  const offset = first ? scroll.scrollTop - first.offsetTop : 0;
+  const pageTop = window.scrollY;
+  const panelTop = panel.scrollTop;
+  const expanded = panel.toggleAttribute("data-fullscreen");
+  if (expanded) { normalChatScrollY = pageTop; normalPanelScroll = panelTop; }
+  panel.scrollTop = expanded ? 0 : normalPanelScroll;
+  window.scrollTo({ top: expanded ? 0 : normalChatScrollY, behavior: "instant" });
+  if (atEnd) scroll.scrollTop = scroll.scrollHeight;
+  else if (first) scroll.scrollTop = first.offsetTop + Math.min(offset, first.offsetHeight - 1);
+}
+$("chat-fullscreen").addEventListener("click", toggleChatFullscreen);
+document.addEventListener("keydown", event => {
+  if (event.key !== "Escape" || event.defaultPrevented || event.isComposing || event.repeat) return;
+  if (panel.hidden || !panel.hasAttribute("data-fullscreen") || document.querySelector("dialog[open]")) return;
+  event.preventDefault();
+  toggleChatFullscreen();
+});
 function outputProfile() {
-  return wishesProfile(executionProfile(current, data.answers), data.answers);
+  return wishesProfile(executionProfile(current, data.answers), data.answers, data.issues);
 }
 function setThread() {
   panel.hidden = false;
@@ -240,7 +308,8 @@ function setThread() {
   $("welcome").hidden = true;
   if (!reading) window.scrollTo({ top: 0, behavior: "instant" });
 }
-function reset() {
+function reset({ keepChatView = false } = {}) {
+  if (!keepChatView) panel.removeAttribute("data-fullscreen");
   clearWording();
   topicPicks.clear();
   generation++;
@@ -251,6 +320,7 @@ function reset() {
   delete panel.dataset.question; delete panel.dataset.part;delete panel.dataset.parts;
   $("journey").hidden=true; $("journey-meter").value=0;
   if ($("home-guide").open) $("home-guide").close();
+  if ($("chat-ai-dialog").open) $("chat-ai-dialog").close();
   $("clear-status").hidden=true;
   $("chat-scroll").scrollTop=0; $("chat-page").hidden=true; formVisible(false);
   data = { version: 2, place: null, answers: {} };
@@ -260,9 +330,11 @@ function reset() {
   pendingGiftWho = null;
   pending = false;
   $("document-notice").hidden = true;
+  if (downloadConsentDialog.open) downloadConsentDialog.close();
   if (sponsorDialog.open) sponsorDialog.close();
   downloadTrigger = null; offerReceipt = null;
-  modalAttempt++;
+  acceptTerms.checked = false;
+  downloadAttempt++;
   setBusy(false);
   feed.replaceChildren();
   choices.replaceChildren();
@@ -276,18 +348,21 @@ function reset() {
   $("opening").value = "";
   openingLength.reset();replyLength.reset();
 }
-function sourceLinks() {
+function sourceLinks(checkingMaineChoice = false) {
   if (!current.legalSource) return [];
-  if (current.route === "statutory") return [link("Maine statutory will and its notices ↗","https://legislature.maine.gov/statutes/18-C/title18-Csec2-517.pdf","help-link")];
+  if (current.key === "US-ME" && (checkingMaineChoice || data.answers.mainePaperChoice === skipped || hasMaineCourtReferral(data.record)))
+    return [link("Find your Maine probate court", maineProbateCourts, "help-link")];
+  if (current.route === "statutory")
+    return [link("Maine statutory will and its notices",mainePublisher,"help-link with-arrow")];
   const [title, url] = authority(executionProfile(current, data.answers));
-  return [link(sentence("{0} ↗",wording(title)), url, "help-link")];
+  return [link(title, url, "help-link with-arrow")];
 }
 function notesOnly() {
   return current.use === "planning" || current.use === "appointment";
 }
 async function startNotes(place, retained=null, carryChat=false) {
   const oldFeed=carryChat ? [...feed.children] : [];
-  reset(); if(carryChat) feed.append(...oldFeed);
+  reset({ keepChatView: carryChat }); if(carryChat) feed.append(...oldFeed);
   data=retained || {version:2,purpose:"planning",place,answers:{}};
   const epoch=generation, jurisdiction=await placeForSession(place,"planning");
   if(epoch!==generation) return;
@@ -295,26 +370,108 @@ async function startNotes(place, retained=null, carryChat=false) {
   message("assistant","These are notes for you to keep or take to an appointment. They won’t include a will to sign.");
   ask();
 }
-function showHelpRoute(reason, {returnable=false, choice="", pressure=false}={}) {
+function showHelpRoute(reason, {returnable=false, choice="", pressure=false, composeNote=false}={}) {
   const was=active, at=part, card=shown;
+  const draft=composeNote?reply.value:"";
   const businessCheck=was?.id==="businessTransfer" || was?.id==="businessWishes";
-  const rawIssue=pressure ? "You said someone may be pressuring you." : card ? card.title+(choice?sentence(" Answer: {0}.", wording(choice)):"") : reason;
+  const selected=choice===deferred || card?.options?.some(option=>option.label===choice);
+  const question=card && was ? reviewQuestionTitle(was,card,current,data.answers) : "";
+  const rawIssue=pressure ? display("You said someone may be pressuring you.") : card
+    ? display(question)+(choice ? " "+display(sentence("Answer: {0}.",selected?wording(choice):choice)) : "") : display(reason);
   // The notes format is single-line. Keep words and names from multiline input
   // without allowing control characters to break the recovery actions.
+  const maineChoice = was?.id === "mainePaperChoice" && !pressure;
   const issue=rawIssue.replace(/[\p{Cc}\p{Cf}]+/gu," ").replace(/\s+/gu," ").trim().slice(0,1000);
   stage="helper"; formVisible(false);
   done.hidden=true; review.hidden=false; review.className="helper-card";
-  review.replaceChildren(el("p",current.label,"helper-place"),el("h2",pressure?"Your will needs to be your choice":returnable?"Let’s pause on this question":"Before you continue"),el("p",reason));
-  if(returnable && card) review.append(el("p",sentence("The question was: {0}", wording(card.title)),"paused-question"));
-  const actions=el("div",undefined,"helper-actions");
-  if(returnable && was) {
-    actions.append(button("Back to this question",()=>ask(was.id,at),"primary-btn"));
+  const title=composeNote?noteAction:pressure?"Your will needs to be your choice":returnable?"Let’s pause on this question":"Before you continue";
+  const explanation=el("p",reason);explanation.id="pause-explanation";
+  review.replaceChildren(el("p",current.label,"helper-place"),el("h2",title),explanation);
+  if(returnable && card) {
+    const context=el("p",composeNote?question:sentence("The question was: {0}",wording(question)),"paused-question");
+    context.id="pause-question";review.append(context);
   }
+  const noteLabel=el("label",reviewDetail,"review-detail-label"), note=el("textarea"), noteStatus=el("p",undefined,"helper-status");
+  const privacy=el("p",notePrivacy);privacy.id="note-privacy";
+  noteLabel.htmlFor=note.id="pause-detail";
+  note.maxLength=600;note.rows=composeNote?4:2;
+  noteStatus.id="pause-detail-status";noteStatus.setAttribute("role","status");
+  note.setAttribute("aria-describedby",[returnable && card?"pause-question":"",explanation.id,privacy.id,noteStatus.id].filter(Boolean).join(" "));
+  const saved=data.reviewNotes?.find(n=>n.id===was?.id && n.part===at);
+  const oldGiftNote=composeNote && was?.id.startsWith("orgTerms") && data.answers[was.id]===deferred && data.answers[was.id.replace("Terms","Request")];
+  const previousIssue=data.issues?.[was?.id || "opening"];
+  note.value=saved?.text || (previousIssue?.[0]===at && previousIssue[2]) || (oldGiftNote && !["Leave open",skipped].includes(oldGiftNote)?oldGiftNote:"");
+  review.append(privacy,noteLabel,note,noteStatus);
+  const readDetail=()=>{
+    const value=note.value.trim().replace(/\s+/gu," ");
+    if(value && (sensitive(value) || /[\p{Cc}\p{Cf}]/u.test(value))){
+      noteStatus.textContent=display("Enter a brief answer without account numbers, passwords or contact details.");
+      note.focus();return null;
+    }
+    return value;
+  };
+  const actions=el("div",undefined,"helper-actions");
+  const returnToQuestion=()=>{
+    if(composeNote && feed.lastElementChild===lastQuestion)lastQuestion.remove();
+    ask(was.id,at);
+    if(draft){reply.value=draft;reply.dispatchEvent(new Event("input"));}
+  };
+  const saveDetail=(target,value)=>{
+    if(saved?.text!==value)setReviewNote(target,was.id,at,question,value);
+    const previous=target.issues?.[was.id];
+    if(previous?.[0]===at && previous.length===3)target.issues={...target.issues,[was.id]:previous.slice(0,2)};
+  };
+  const saveAndReturn=()=>{
+    const value=readDetail();
+    if(value===null)return;
+    saveDetail(data,value);returnToQuestion();
+  };
+  if(composeNote){
+    const save=button(saveNote,saveAndReturn,"primary-btn");
+    const update=()=>{
+      const empty=!note.value.trim();
+      save.disabled=empty && !saved;
+      save.textContent=empty && saved?"Remove note":saveNote;
+    };
+    note.addEventListener("input",update);update();
+    actions.append(save,button("Cancel",returnToQuestion,"outline-btn"));
+    review.append(actions);stageTitle(current.label);paintStage();startOf(review);
+    if (typingPointer.matches) note.focus({preventScroll:true});
+    return;
+  }
+  if(was && (returnable || pressure)) {
+    const back=button("Back to this question",saveAndReturn,"primary-btn");
+    const update=()=>{back.textContent=note.value.trim()?saveNote:"Back to this question";};
+    note.addEventListener("input",update);update();actions.append(back);
+  }
+  const next=button(goOn,()=>{
+    const id=was?.id || "opening";
+    const detail=pressure?"You said someone may be pressuring you.":(choice || reason);
+    const response=detail.replace(/[\p{Cc}\p{Cf}]/gu," ").trim().slice(0,650);
+    const details=readDetail();if(details===null)return;
+    (data.issues ||= {})[id]=!was && details?[at,response,details]:[at,response];
+    if(was){
+      saveDetail(data,details);
+      data.answers[id]=skipped;
+      const live=new Set(questions(current,data.answers).map(q=>q.id));
+      for(const key of Object.keys(data.answers))if(!live.has(key))delete data.answers[key];
+      deliberate.push({id,part:at});
+    }
+    editing=null;pendingGiftWho=null;receipts.clear();ask();
+  },"outline-btn");
+  actions.append(next);
   if(!pressure && !notesOnly()) {
+    const noteState = maineChoice ? {...data, answers: {...data.answers}, issues: {...data.issues}} : data;
+    if (maineChoice) {
+      // A refusal on the review screen supersedes the earlier answer in a private download.
+      delete noteState.answers[was.id];
+      delete noteState.issues[was.id];
+    }
     let snapshot=null;
-    try {snapshot=preserveAsNotes(current,data,issue);} catch { /* A text download and Back still work. */ }
+    try {snapshot=preserveAsNotes(current,noteState,issue);} catch { /* A text download and Back still work. */ }
     const all=questions(current,data.answers), byLabel=new Map(all.map(q=>[q.label,q]));
-    const records=snapshot?.record || [...all.filter(q=>Object.hasOwn(data.answers,q.id)).map(q=>[q.label,formatValue(data.answers[q.id])]),["Question to discuss",issue]];
+    const records=snapshot?.record || [...all.filter(q=>Object.hasOwn(noteState.answers,q.id)).map(q=>[q.label,formatValue(noteState.answers[q.id])]),["Question to discuss",issue]];
+    if (maineChoice) records.push(["Find your Maine probate court", maineProbateCourts]);
     const readable=()=>records.flatMap(([label,value])=>{
       const q=byLabel.get(label);
       if(!q || value!==YES) return [[q?reviewLabel(q):label,q?.values?.includes(value)?display(friendlyValue(value)):value]];
@@ -322,10 +479,14 @@ function showHelpRoute(reason, {returnable=false, choice="", pressure=false}={})
     });
     const status=el("p",undefined,"helper-status");status.setAttribute("role","status");
     const download=button("Download my answers (PDF)",async()=>{
+      const details=readDetail();if(details===null)return;
       const epoch=generation;
       download.disabled=true;
       try {
-        const pdf=await makeAnswerPDF(current,readable(),{partial:true});
+        const partial={...data};
+        if(was)saveDetail(partial,details);
+        const matters=mattersForReview(current,data.answers,undefined,all,undefined,partial.reviewNotes);
+        const pdf=await makeAnswerPDF(current,readable(),{partial:true,matters});
         if(epoch!==generation || !download.isConnected)return;
         save(new Blob([pdf],{type:"application/pdf"}),"WillForFree-my-answers.pdf");
         status.textContent="Your answers PDF is downloading.";
@@ -336,7 +497,11 @@ function showHelpRoute(reason, {returnable=false, choice="", pressure=false}={})
     actions.append(download,el("small","Keep these answers to discuss with someone. They are not a will."),status);
     if(snapshot && Object.keys(data.answers).length) {
       const other=el("details",undefined,"other-options");other.append(el("summary",businessCheck?"Prefer to make notes for an adviser?":"Want to make notes for an adviser?"),el("p","Add the questions or wishes you’d like to discuss, then download them as a PDF."));
-      other.append(button("Make a notes kit",()=>startNotes(data.place,snapshot,true),"outline-btn")); actions.append(other);
+      other.append(button("Make a notes kit",()=>{
+        const details=readDetail();if(details===null)return;
+        if(was)saveDetail(snapshot,details);
+        startNotes(data.place,snapshot,true);
+      },"outline-btn")); actions.append(other);
     }
   }
   if (!returnable) actions.append(button("Go to the start",confirmReset,"text-btn"));
@@ -347,12 +512,17 @@ function showHelpRoute(reason, {returnable=false, choice="", pressure=false}={})
   if(returnable && card?.tip) {
     const more=el("details",undefined,"other-options");more.append(el("summary","Why this matters"),el("p",card.tip));review.append(more);
   }
-  const sources=sourceLinks(); if(sources.length) {const section=el("div",undefined,"helper-source"); section.append(el("p","Where to check the rules"),...sources);if(current.country==="CA" && ["localLaw","canadaEstates"].includes(was?.id)) section.append(link("Estate services for First Nations ↗","https://www.sac-isc.gc.ca/eng/1100100032357/1581866877231","help-link"));review.append(section);}
+  const sources=sourceLinks(maineChoice); if(sources.length) {const section=el("div",undefined,"helper-source"); section.append(el("p","Where to check the rules"),...sources);if(current.country==="CA" && ["localLaw","canadaEstates"].includes(was?.id)) section.append(link("Estate services for First Nations","https://www.sac-isc.gc.ca/eng/1100100032357/1581866877231","help-link with-arrow"));review.append(section);}
   historyAt(review,Boolean(feed.lastElementChild?.classList.contains("user")));
   stageTitle(current.label);paintStage();startOf(review);
 }
 document.addEventListener("wff:language",()=>{
   if (current) displayDocumentUse();
+  if (stage === "finished") {
+    setDownloadTermsLink();
+    acceptTerms.checked = false;
+    updateDownloadConsent();
+  }
   if (stage === "chat" && current?.key === "US-TX" && active?.id === "txAlternates") {
     const draft = reply.value;
     lastQuestion?.remove();
@@ -367,7 +537,7 @@ function displayDocumentUse() {
   $("method-note").textContent = notice;
   $("document-notice").hidden = !notice;
   $("notice-full").textContent = notice;
-  $("notice-trigger").textContent = "Not a substitute for an attorney ↗";
+  $("notice-trigger").textContent = "Not a substitute for an attorney";
 }
 $("notice-trigger").addEventListener("click", () => $("notice-dialog").showModal());
 $("notice-close").addEventListener("click", () => $("notice-dialog").close());
@@ -385,6 +555,7 @@ function browseHelp(section,maineChoice=false) {
   const menu=el("details",undefined,"help-topics"), summary=el("summary","Help topics"), list=el("div",undefined,"help-topic-list");
   const answer=el("p");answer.setAttribute("aria-live","polite");
   const resource=el("div");
+  if(stage==="chat" && canSkipQuestion(active,shown))list.append(skipFieldButton);
   for(const [subject,label] of helpMenu)list.append(button(label,()=>{
     answer.textContent=prepared(subject,maineChoice);
     const source=guidanceLink(answer.textContent);resource.replaceChildren(...(source?[source]:[]));
@@ -411,7 +582,8 @@ function showExplanation(answer,maineChoice=false) {
 const topicPicks=new Map();
 const requestTopic=createTopicRequest();
 async function explain(value, area="opening", tags=topicsFor(value),maineChoice=false) {
-  const epoch=generation, subject=directSubject(value,current);
+  const epoch=generation, subject=directSubject(value,current), permission=chatAI.signal;
+  const canRequest=()=>!permission.aborted && generation===epoch;
   if(subject)return prepared(subject,maineChoice);
   if(!tags.length)return guidance.unknown;
   // A model that sees only topic names cannot answer a case-specific question.
@@ -421,17 +593,17 @@ async function explain(value, area="opening", tags=topicsFor(value),maineChoice=
   if(tags.length===1 && !general && !["process","province"].includes(tags[0]))return guidance.unknown;
   let topic=chooseLocalTopic(tags,area);
   const cacheKey=area+"|"+[...tags].sort().join("|");
-  if(remoteHelpAllowed && topicPicks.has(cacheKey))topic=topicPicks.get(cacheKey);
-  else if (value.length<=QUESTION_LIMIT && Date.now()>=remoteRetryAt && tags.length > 1 && remoteHelpAllowed && await topicHelpEnabled() && remoteHelpAllowed && generation===epoch) {
+  if(canRequest() && topicPicks.has(cacheKey))topic=topicPicks.get(cacheKey);
+  else if (value.length<=QUESTION_LIMIT && Date.now()>=remoteRetryAt && tags.length > 1 && canRequest() && await topicHelpEnabled() && canRequest()) {
     try {
-      const response=await requestTopic(tags,area,()=>remoteHelpAllowed && generation===epoch);
-      if(response.status===429 || response.status===503){
+      const response=await requestTopic(tags,area,canRequest,permission);
+      if(canRequest() && (response.status===429 || response.status===503)){
         const seconds=Number(response.headers.get("Retry-After")) || 60;
         remoteRetryAt=Date.now()+Math.min(3600,Math.max(1,seconds))*1000;
       }
       if(response.ok && (response.headers.get("content-type") || "").includes("application/json")) {
         const result=await response.json();
-        if(generation===epoch && remoteHelpAllowed && tags.includes(result.topic)){topic=result.topic;topicPicks.set(cacheKey,topic);}
+        if(canRequest() && tags.includes(result.topic)){topic=result.topic;topicPicks.set(cacheKey,topic);}
       }
     } catch {}
   }
@@ -445,7 +617,28 @@ function copyFor(q,all) {
   return interviewCards(q,current,data.answers,legacy);
 }
 function ask(id=null, at=0) {
+  const focused = document.activeElement;
+  const focusQuestion = focused === document.body || choices.contains(focused) || review.contains(focused) ||
+    done.contains(focused) || $("welcome").contains(focused) || focused === $("undo");
   const all=questions(current,data.answers);
+  // Personal gifts and organization gifts share printed rows and, for the same
+  // charity, cash totals. A changed amount or row must be confirmed on its new terms.
+  for(const key of Object.keys(data.answers))if(/^org(?:Total|Terms|Request)\d+$/.test(key)){
+    const q=all.find(q=>q.id===key);
+    if(!q || /^orgTotal/.test(key) && data.answers[key]!==skipped && !q.values.includes(data.answers[key]))delete data.answers[key];
+  }
+  for(const [key,issue] of Object.entries(data.issues || {})){
+    if(key==="opening")continue;
+    const q=all.find(q=>q.id===key);
+    // Older interviews stored the written note on the unanswered issue itself.
+    if(issue[2]){
+      const card=q && copyFor(q,all)[issue[0]];
+      const title=card?reviewQuestionTitle(q,card,current,data.answers):"Question to discuss";
+      setReviewNote(data,key,issue[0],title,issue[2]);
+      data.issues[key]=issue.slice(0,2);
+    }
+    if(data.answers[key]!==skipped || !q)delete data.issues[key];
+  }
   active=id ? all.find(q=>q.id===id) : all.find(q=>!Object.hasOwn(data.answers,q.id));
   // Do not ask twice for a condition explicitly confirmed earlier in this session.
   while(!id && active && receipts.has(active.id) && active.values?.[0]===YES) {
@@ -456,8 +649,13 @@ function ask(id=null, at=0) {
   if(replacingWho) active={...active,kind:pendingGiftWho.who==="A charity"?"charity":"name"};
   cards=copyFor(active,all);part=Math.min(at,cards.length-1);shown=cards[part];
   stage="chat"; review.hidden=true; done.hidden=true;formVisible(true);
+  const hasNote = data.reviewNotes?.some(n => n.id === active.id && n.part === part);
+  const noteButton = $("question-note");
+  noteButton.title = hasNote ? "Edit note" : noteAction;
+  noteButton.querySelector(".tool-long").textContent = noteButton.title;
+  noteButton.querySelector(".tool-short").textContent = hasNote ? "Edit note" : "Leave a note";
   panel.dataset.question=active.id;panel.dataset.part=String(part);panel.dataset.parts=String(cards.length);
-  stageTitle(sentence(notesOnly() || needsAdvice(data.answers)?"Your notes · {0}":"Your will · {0}",wording(current.name)));
+  stageTitle(notesOnly() || needsAdvice(data.answers) ? sentence("Your notes · {0}", wording(current.name)) : "");
   $("undo").disabled=(!Object.keys(data.answers).length && !part) || Boolean(editing);
   paintStage(all,active.id);
   const row=message("assistant",shown.title), bubble=row.querySelector(".bubble");
@@ -477,8 +675,12 @@ function ask(id=null, at=0) {
   reply.value="";reply.maxLength=replyLimit(active);replyLength.reset();
   choices.replaceChildren(...shown.options.map(o=>{const b=button(o.label,()=>submit(o.value,{source:"choice",label:o.label}));b.dataset.value=o.value;return b;}),
     ...(replacingWho?[button("Keep the original recipient",()=>{pendingGiftWho=null;editing=null;ask();})]:[]),
-    ...(!editing && (["item","charity","amount"].includes(active.kind) || active.giftField==="extraRecipient")?[button("Change gift choice",()=>{const start=active.giftStart;data.answers=priorTo(start);editing=null;giftCue=null;ask(start);})]:[]));
-  showCurrentChoices(row);focusInput();
+    ...(!editing && active.giftStart && (["item","charity","amount"].includes(active.kind) || active.giftField==="extraRecipient")?[button("Change gift choice",()=>{const start=active.giftStart;data.answers=priorTo(start);editing=null;giftCue=null;ask(start);})]:[]));
+  if (focusQuestion && !reading) {
+    row.tabIndex = -1;
+    row.focus({preventScroll:true});
+  }
+  showCurrentChoices(row);
 }
 function shortIntro(p) {
   if(p.route==="deposit" || p.key==="EE") return planDescription(p);
@@ -493,8 +695,8 @@ async function missingForm(p,epoch) {
   review.hidden=false; review.className="helper-card";
   review.replaceChildren(el("h2","The publisher’s form is unavailable here."),el("p","You can get the original form directly from its publisher."));
   const publisher = p.key==="US-CA" ? "https://selfhelp.courts.ca.gov/wills-estates-probate/legal-documents" :
-    p.key==="US-TX" ? "https://www.txcourts.gov/rules-forms/forms/" : "https://legislature.maine.gov/statutes/18-C/title18-Csec2-517.pdf";
-  review.append(link("Open the official form ↗",publisher,"help-link"),button("Back to start",()=>reset(),"outline-btn"));
+    p.key==="US-TX" ? "https://www.txcourts.gov/rules-forms/forms/" : maineOriginal;
+  review.append(link("Open the official form",publisher,"help-link with-arrow"),button(goOn,()=>startNotes(data.place,{version:2,purpose:"planning",place:data.place,answers:{},issues:{opening:[0,"The publisher’s form is unavailable here."]}},true),"primary-btn"),button("Back to start",()=>reset(),"outline-btn"));
   browseHelp(review);historyAt(review,true);
   stageTitle(p.label); startOf(review); return true;
 }
@@ -505,6 +707,7 @@ function start(raw="",source="typed") {
     if(intent!==openingRequest) return;
     reset();data.place=place;const epoch=generation;
     const jurisdiction=await placeForSession(place);if(epoch!==generation)return;
+    trafficEvent("interview_start");
     current=jurisdiction;setThread();stage="chat";paintStage();$("thread-place").textContent=current.label;
     if(current.use==="planning")data.purpose="planning";displayDocumentUse();
     if(opening && source==="typed")echo(opening);
@@ -518,11 +721,11 @@ function start(raw="",source="typed") {
       if(epoch!==generation)return;setBusy(false);showExplanation(answer,current.key==="US-ME");
     }
     if(current.route==="official" && (await missingForm(current,epoch) || generation!==epoch))return;
-    if(current.route==="fixed"){finish();return;}
+    if(current.route==="fixed"){message("assistant",blankAdvice);ask();return;}
     if(current.key==="US-ME") {
       stage="route"; displayDocumentUse(); formVisible(false);paintStage();review.hidden=false;review.className="helper-card";
-      review.replaceChildren(el("h2","Choose your Maine will"),el("p","The official form includes options for a spouse, children and a guardian. The chat option leaves what’s left to one adult, with a backup."),el("p",maineSpouseAmount));const actions=el("div",undefined,"helper-actions");
-      actions.append(button("Use the Maine statutory will",async()=>{const token=generation,next=await placeForSession(place,"statutory");if(token!==generation || await missingForm(next,token) || token!==generation)return;data.purpose="statutory";current=next;finish();},"primary-btn"),button("Make a simple will in chat",()=>{message("assistant",shortIntro(current));ask();displayDocumentUse();},"outline-btn"));review.append(actions);
+      review.replaceChildren(el("h2","Choose your Maine will"),el("p","The official form includes options for a spouse, children and a guardian. The chat option leaves what’s left to one adult, with a backup."),el("p",maineAuthoredFit),el("p",maineSpouseAmount));const actions=el("div",undefined,"helper-actions");
+      actions.append(button("Use the Maine statutory will",async()=>{const token=generation,next=await placeForSession(place,"statutory");if(token!==generation || await missingForm(next,token) || token!==generation)return;data.purpose="statutory";current=next;message("assistant",blankAdvice);ask();},"primary-btn"),button("Make a simple will in chat",()=>{message("assistant",shortIntro(current));ask();displayDocumentUse();},"outline-btn"));review.append(actions);
       browseHelp(review,true);historyAt(review,true);stageTitle(current.label);startOf(review);return;
     }
     if (!typedHelp && !sensitive(opening) && /\b(?:kids|children)\b/i.test(opening)) {
@@ -555,6 +758,10 @@ async function submit(raw,{source="typed",label=""}={}) {
   if(disclosesPressure(v)){showHelpRoute("A will must express your own free choice. If someone is putting pressure on you, speak privately with someone you trust or a local legal service.",{pressure:true});return;}
   for(const b of choices.querySelectorAll("[data-note-choice]")) b.remove();
   let turn=source==="typed"?manageTurn(v,active,shown,current):{type:"answer",value:v,label};
+  if(turn.type==="reviewNote"){openReviewNote();return;}
+  if(turn.type==="skip" || turn.value===deferred && active.values?.includes(deferred)){
+    showHelpRoute(skipEffect,{returnable:true,choice:deferred});return;
+  }
   if(turn.type==="noteOrHelp") {
     const expected=active,epoch=generation;
     const row=message("assistant","Would you like those exact words in your notes, or were you asking me? Nothing has been added yet.");
@@ -603,9 +810,12 @@ async function submit(raw,{source="typed",label=""}={}) {
   const choice=turn.value;
   if (source==="choice") stamp(label);
   if(shown.yesPass!==undefined && choice===STOP){
-    const reason=active.id==="businessTransfer" || active.id==="businessWishes" ? shown.tip : active.id==="localLaw"?sentence("This will covers property that follows the usual rules in {0}. If other rules might apply, check them before using this form.", wording(current.name)):"This will is for a simpler situation. Check the local guidance before using it for the answer you gave.";
+    const reason = ["businessTransfer","businessWishes"].includes(active.id) ? shown.tip
+      : active.id === "localLaw" ? sentence("This will covers property that follows the usual rules in {0}. If other rules might apply, check them before using this form.", wording(current.name))
+      : "This will is for a simpler situation. Check the local guidance before using it for the answer you gave.";
     showHelpRoute(reason,{returnable:true,choice:turn.label || label || v});return;
   }
+  if(active.id==="priorContinue" && choice==="Back to this question"){editing="priorWill";ask("priorWill");return;}
   const result=readAnswer(active,choice,data.answers);
   if(result.value && part+1<cards.length && (result.value===YES || result.value==="Yes, that fits")) {
     ask(active.id,part+1);return;
@@ -622,7 +832,8 @@ async function submit(raw,{source="typed",label=""}={}) {
     ask(amount); reply.value = previous || ""; focusInput(); return;
   }
   if(result.stop) {
-    const reason=active.id==="businessOwnership" ? "Check whether you own part of the business or just work there. If you own a share, you can come back and choose “I own a business”." : result.reason;
+    const reason=active.id==="mainePaperChoice" ? "These are notes for you to keep or take to an appointment. They won’t include a will to sign."
+      : active.id==="businessOwnership" ? "Check whether you own part of the business or just work there. If you own a share, you can come back and choose “I own a business”." : result.reason;
     showHelpRoute(reason || "This form doesn’t have an option for that situation. You can check the local guidance and keep your answers to use later.",{returnable:true,choice:turn.label || label || v});return;
   }
   if(result.error) {
@@ -660,6 +871,9 @@ async function submit(raw,{source="typed",label=""}={}) {
       choices.prepend(carry);
       showCurrentChoices(row);
     }
+    choices.querySelector("[data-review-answer]")?.remove();
+    const other=button(goOn,()=>showHelpRoute(result.error,{returnable:true,choice:v}),"outline-btn");
+    other.dataset.reviewAnswer="";choices.append(other);showCurrentChoices(row);
     focusInput();
     return;
   }
@@ -675,9 +889,10 @@ async function submit(raw,{source="typed",label=""}={}) {
   // Earlier route/eligibility changes legitimately need re-entry of later answers. Name that effect
   // before doing it so a review action cannot silently erase an independent gift or family note.
   const stableGiftField=["extraAmount","extraItem","extraRecipient","extraWho"].includes(active.giftField);
-  if (editing && Object.hasOwn(data.answers,id) && result.value!==data.answers[id] && !stableGiftField && result.value!==adviceOption) {
+  const appendingGift=active.giftMenu && [doneGifts,noExtra].includes(data.answers[id]) && [item,cash].includes(result.value);
+  if (editing && !active.planStep && !appendingGift && Object.hasOwn(data.answers,id) && result.value!==data.answers[id] && !stableGiftField && result.value!==adviceOption) {
     const list=questions(current,data.answers), idx=list.findIndex(q=>q.id===id);
-    if (idx>=0 && list.slice(idx+1).some(q=>Object.hasOwn(data.answers,q.id) && (q.giftField==="extraRecipient" || /^noteText/.test(q.id)))) {
+    if (idx>=0 && list.slice(idx+1).some(q=>Object.hasOwn(data.answers,q.id) && (q.giftField==="extraRecipient" || /^(?:noteText|pet(?:Carer|Care|Names)|funeralDetails|orgName)/.test(q.id)))) {
       const old=data.answers[id], expected=active;
       const row=message("assistant","Changing this choice means re-entering later gifts or notes. Keep them, or continue if you intend to replace those later answers.");
       choices.replaceChildren(button("Keep my gifts and notes", () => { editing=null; ask(); }),
@@ -707,6 +922,18 @@ async function submit(raw,{source="typed",label=""}={}) {
         if (match && Number(match[1] || 1) >= active.giftNumber) delete data.answers[key];
       }
       if (active.giftField==="extraWho") delete data.answers[giftKey("extraRecipient", active.giftNumber)];
+    } else if(active.planStep) {
+      // These sections are independent. Editing one must not erase the other plans.
+      if(id==="priorWill")delete data.answers.priorContinue;
+      if(["petCarer","petBackup"].includes(id))delete data.answers.petPlan;
+      if(/^org(?:Gift|Name|Item|Amount)\d+$/.test(id)){
+        const n=Number(id.match(/\d+$/)[0]);
+        delete data.answers["orgTerms"+n];delete data.answers["orgRequest"+n];
+        for(const k of Object.keys(data.answers))if(/^orgTotal\d+$/.test(k) && Number(k.slice(8))>=n)delete data.answers[k];
+      }
+    } else if(appendingGift){
+      const keep=Object.fromEntries(questions(current,data.answers).filter(q=>q.planStep && Object.hasOwn(data.answers,q.id)).map(q=>[q.id,data.answers[q.id]]));
+      data.answers={...priorTo(id),...keep};
     } else data.answers = priorTo(id);
   }
   if(editing && !stableGiftField) receipts.clear();
@@ -723,6 +950,21 @@ async function submit(raw,{source="typed",label=""}={}) {
   editing = null;
   ask();
 }
+function showReviewWarning(container) {
+  const matters=mattersForReview(current,data.answers,data.issues,questions(current,data.answers),data.record,data.reviewNotes);
+  if(!matters.length)return;
+  const box=el("section",undefined,"review-notice");box.append(el("strong",warning));
+  const list=el("ul");
+  for(const [label,value,raw,note] of matters){
+    const li=el("li");
+    li.append(el("span",label),document.createTextNode(" · "),raw?verbatim("span",value):el("span",value));
+    if(note && container===review)li.append(document.createTextNode(" "),button("Remove note",()=>{
+      setReviewNote(data,note.id,note.part,note.question,"");showReview();
+    },"text-btn"));
+    list.append(li);
+  }
+  box.append(list);container.querySelector("h2").after(box);
+}
 function showReview() {
   stage = "review";
   formVisible(false);
@@ -734,22 +976,25 @@ function showReview() {
   review.className = "summary";
   stageTitle(sentence("Review · {0}", wording(current.name)));
   review.replaceChildren(
-    el("h2", advice || notesOnly() ? "Check your notes" : "Check your will kit"),
+    el("h2", advice || output.use==="planning" || notesOnly() ? "Check your notes" : "Check your will kit"),
     el(
       "p",
       "Check the names, who gets what, and anything you’d like to change before you download.",
     ),
   );
+  showReviewWarning(review);
   if (data.record?.length && current.use==="planning") {
     if (profile(data.place).route==="fixed") review.append(el("p","Your earlier information is available as private notes. To get this state’s blank will, start a new kit. Your earlier answers will not fill the form.","review-notice"));
     const saved=el("details",undefined,"recorded-wishes");saved.append(el("summary",sentence("Read my earlier choices ({0})", data.record.length)));
-    const list=el("dl");for(const [label,value] of data.record)list.append(el("dt",label),verbatim("dd",value));saved.append(list);review.append(saved);
+    const list=el("dl");
+    for(const [label,value,preset] of planningEntries(data.place,data.record))list.append(el("dt",label),preset ? el("dd",value) : verbatim("dd",value));
+    saved.append(list);review.append(saved);
   }
   if (advice) review.append(el("p", data.answers.adviceOverride
     ? "Your earlier gift list is shown for reference. Your requested change is recorded separately for local advice; there is no will to sign."
     : "Your request needs local advice. This kit keeps your choices and the request together. It does not contain a will to sign.", "review-notice"));
-  if (notesEntries(data.answers).length) review.append(el("p", "Your personal notes will be in their own file. They do not change who inherits.", "review-notice"));
-  if (!advice && data.answers.businessOwnership===ownsBusiness) review.append(el("p","Whatever your estate gets from the business follows the same choices as the rest of your estate. Your kit includes a separate business checklist.","review-notice"));
+  if (notesEntries(data.answers).length || careEntries(data.answers).length) review.append(el("p", "Your personal notes will be in their own file. They do not change who inherits.", "review-notice"));
+  if (output.use!=="planning" && output.use!=="appointment" && data.answers.businessOwnership===ownsBusiness) review.append(el("p","Whatever your estate gets from the business follows the same choices as the rest of your estate. Your kit includes a separate business checklist.","review-notice"));
   const all = questions(current,data.answers), gifts = giftList(data.answers);
   if (gifts.length) {
     const block=el("section",undefined,"gift-summary");
@@ -768,6 +1013,8 @@ function showReview() {
   if (!advice && lastMenu) {
     review.append(button(gifts.length ? "Add another gift" : "Add a gift", () => { editing=lastMenu.id; ask(lastMenu.id); }, "outline-btn"));
   }
+  const nextOrganization=all.find(q=>/^orgGift\d+$/.test(q.id) && data.answers[q.id]==="I’m done");
+  if(nextOrganization) review.append(button("Add a gift to an organization",()=>{editing=nextOrganization.id;ask(editing);},"outline-btn"));
   const dl = el("dl"), checks=el("details",undefined,"review-checks"), checkList=el("dl");
   checks.append(el("summary","Review the checks for this will"),checkList);
   for (const q of all) {
@@ -785,7 +1032,9 @@ function showReview() {
     );
     b.setAttribute("aria-label", sentence("Edit {0}", wording(q.label)));
     const label = gifts.length && ["caExtras","txSpecific"].includes(q.id) ? "Other court form gifts" : reviewLabel(q);
-    row.append(el("dt",label),q.values?.includes(data.answers[q.id]) ? el("dd",data.answers[q.id]===YES?"Confirmed":friendlyValue(data.answers[q.id])) : verbatim("dd",formatValue(data.answers[q.id])),b);
+    const value=data.answers[q.id];
+    const authored=q.values?.includes(value) || (q.id==="wishes" && usesEarlierChoicesNotice(data));
+    row.append(el("dt",label),value===skipped ? el("dd","For professional review") : authored ? el("dd",value===YES?"Confirmed":friendlyValue(value)) : verbatim("dd",formatValue(value)),b);
     if(data.answers[q.id]===YES) {
       const description=el("ul",undefined,"review-conditions");
       for(const c of copyFor(q,all)) {
@@ -806,19 +1055,49 @@ function showReview() {
   review.append(button("Looks right — get my kit", finish, "primary-btn"));
   browseHelp(review);historyAt(review);startOf(review);
 }
-async function startDownload(trigger, allowOffer) {
-  if (pending || stage !== "finished") return;
-  const epoch = generation;
-  pending = true; trigger.disabled = true;
+function setDownloadTermsLink() {
+  downloadTerms.querySelector("a").hash = "responsibility/" + current.key + "/" + currentLanguage();
+  downloadTerms.querySelector("#download-terms-french").hidden = current.key !== "CA-QC" || currentLanguage() === "fr";
+}
+function syncDownloadButtons() {
+  if (downloadTrigger) downloadTrigger.disabled = pending;
+  saveZip.disabled = pending;
+}
+function updateDownloadConsent() {
+  if (!acceptTerms.checked) {
+    // Withdrawing consent cancels a lookup or ZIP already in progress, even if rechecked.
+    downloadAttempt++;
+    pending = false;
+    $("kit-status").textContent = "";
+    $("zip-status").textContent = "";
+  }
+  syncDownloadButtons();
+}
+acceptTerms.addEventListener("change", updateDownloadConsent);
+function hasDownloadConsent() {
+  if (acceptTerms.checked) return true;
+  if (!downloadConsentDialog.open) downloadConsentDialog.showModal();
+  return false;
+}
+downloadConsentDialog.addEventListener("close", () => {
+  if (stage === "finished") acceptTerms.focus();
+});
+
+async function startDownload(allowOffer) {
+  if (pending || stage !== "finished" || sponsorDialog.open || !hasDownloadConsent()) return;
   if (allowOffer && withOffers && (!offerReceipt || offerReceipt.until <= Date.now())) {
+    const attempt = ++downloadAttempt;
+    pending = true;
+    syncDownloadButtons();
     offerReceipt = null;
     const next = await lookupOffer(data.place);
-    if (epoch !== generation) return;
-    if (stage !== "finished" || !trigger.isConnected) { pending = false; return; }
+    if (attempt !== downloadAttempt) return;
+    pending = false;
+    syncDownloadButtons();
+    if (!acceptTerms.checked || stage !== "finished") return;
     offerReceipt = next;
   }
-  trigger.disabled = false; pending = false;
-  if (!allowOffer || !withOffers || !offerReceipt) return generateZip(trigger,$("kit-status"),null);
+  if (!allowOffer || !withOffers || !offerReceipt) return generateZip($("kit-status"), null);
   const ad = offerReceipt.offer;
   $("partner-label").textContent = ad.kind === "paid" ? "Advertisement · Paid sponsor" : "Advertisement · From the WillForFree team";
   $("partner-credit").textContent = ad.name;
@@ -826,16 +1105,14 @@ async function startDownload(trigger, allowOffer) {
   $("sponsor-title").textContent = ad.title;
   $("sponsor-description").textContent = ad.message;
   $("partner-visit").href = ad.url;
-  $("partner-visit").textContent = sentence("Visit {0} ↗", ad.name);
+  $("partner-visit").textContent = sentence("Visit {0}", ad.name);
 
-  downloadTrigger = trigger;
-  $("download-responsibility").textContent = downloadNotice(outputProfile());
   $("zip-status").className = "";
   $("zip-status").textContent = "";
-  $("save-zip").disabled = false;
+  // Move the same checked control beside the final button, including its Terms link.
+  saveZip.parentElement.before(downloadTerms);
   sponsorDialog.showModal();
   sponsorDialog.scrollTop = 0;
-  $("save-zip").focus({ preventScroll: true });
 }
 $("dismiss-sponsor").addEventListener("click", () => sponsorDialog.close());
 sponsorDialog.addEventListener("click", event => {
@@ -844,19 +1121,25 @@ sponsorDialog.addEventListener("click", event => {
   if (event.clientX < r.left || event.clientX > r.right || event.clientY < r.top || event.clientY > r.bottom) sponsorDialog.close();
 });
 sponsorDialog.addEventListener("close", () => {
-  modalAttempt++;
+  downloadAttempt++;
   pending = false;
-  if (downloadTrigger?.isConnected && stage === "finished") downloadTrigger.focus({ preventScroll: true });
+  syncDownloadButtons();
+  if (downloadTrigger?.isConnected && stage === "finished") {
+    downloadTrigger.parentElement.before(downloadTerms);
+    (acceptTerms.checked ? downloadTrigger : acceptTerms).focus({ preventScroll: true });
+  }
 });
-$("save-zip").addEventListener("click", () => generateZip($("save-zip"),$("zip-status"),offerReceipt));
-async function generateZip(saveButton,status,receipt) {
-  if (pending || stage !== "finished" || (receipt && !sponsorDialog.open)) return;
+saveZip.addEventListener("click", () => {
+  if (sponsorDialog.open && offerReceipt) void generateZip($("zip-status"), offerReceipt);
+});
+async function generateZip(status, receipt) {
+  if (pending || stage !== "finished" || (receipt && !sponsorDialog.open) || !hasDownloadConsent()) return;
   pending = true;
-  const epoch = generation, attempt = ++modalAttempt;
-  saveButton.disabled = true;
+  const attempt = ++downloadAttempt;
+  syncDownloadButtons();
   status.className = "";
   status.textContent = "Preparing your files…";
-  const valid = () => attempt === modalAttempt && generation === epoch && stage === "finished" && (!receipt || sponsorDialog.open);
+  const valid = () => attempt === downloadAttempt && acceptTerms.checked && stage === "finished" && (!receipt || sponsorDialog.open);
   try {
     const sponsored = receipt && receipt.until > Date.now() ? receipt : null;
     let kit = await createKit(data,sponsored?.offer);
@@ -867,6 +1150,8 @@ async function generateZip(saveButton,status,receipt) {
     }
     if (!valid()) return;
     save(kit.blob, kit.filename);
+    trafficEvent("kit_download_start");
+    acceptTerms.checked = false;
     if (attributed) void countDownload(attributed.ticket);
     const notice = "Download started. Open 00-Start-here.pdf inside your ZIP.";
     $("kit-status").textContent = notice;
@@ -877,7 +1162,7 @@ async function generateZip(saveButton,status,receipt) {
       status.textContent = error.message || "Your ZIP could not be created. Please try again.";
     }
   } finally {
-    if (attempt === modalAttempt) { pending = false; saveButton.disabled = false; }
+    if (attempt === downloadAttempt) { pending = false; syncDownloadButtons(); }
   }
 }
 function finish() {
@@ -911,13 +1196,14 @@ function finish() {
       output.route === "official"
         ? "Keep the court PDF you complete. A new visit starts with a fresh form."
         : ["fixed","statutory"].includes(output.route)
-          ? "No names or wishes are collected on this route. Open the form to check its wording. Complete it yourself before the signing ceremony."
+          ? blankAdvice
           : notes
             ? "Your ZIP includes your private notes, your answers and local guidance as PDFs."
             : output.route === "paper" ? completionSummary(output) : "Read the full wording and follow the completion instructions enclosed with your will.",
     ),
   );
-  if (notesEntries(data.answers).length) card.append(el("p", "Find your family notes in 04-Personal-wishes.pdf."));
+  showReviewWarning(card);
+  if (notesEntries(data.answers).length || careEntries(data.answers).length) card.append(el("p", "Find your family notes in 04-Personal-wishes.pdf."));
   if (!notes && data.answers.businessOwnership===ownsBusiness) card.append(el("p",sentence("Read {0} before signing. It also covers the practical steps for keeping the business running.", wording(businessFile))));
   const status = el("p");
   status.id = "kit-status";
@@ -929,18 +1215,25 @@ function finish() {
     },
     "text-btn",
   );
-  const download = button("Download ZIP ↓", () => startDownload(download, !notes), "primary-btn");
-  if (withOffers && !notes) download.setAttribute("aria-haspopup","dialog");
-  const responsibility = el("p",downloadNotice(output),"download-notice");
-  responsibility.id = "kit-responsibility"; download.setAttribute("aria-describedby",responsibility.id);
+  downloadTrigger = button("Download ZIP ↓", () => startDownload(true), "primary-btn");
+  if (withOffers) downloadTrigger.setAttribute("aria-haspopup","dialog");
+  agreementText.textContent = downloadAgreement(output);
+  setDownloadTermsLink();
+  acceptTerms.checked = false;
+  syncDownloadButtons();
+  downloadTrigger.setAttribute("aria-describedby", agreementText.id);
   const actions = el("div", undefined, "review-actions");
-  actions.append(download);
+  actions.append(downloadTrigger);
+  actions.append(editBeforeDownload);
   if (output.route==="fixed") {
-    actions.append(link("Read the blank form ↗","/forms/basic/"+output.region+".pdf","help-link"));
-  } else if(output.route==="statutory")actions.append(link("Read the blank form ↗","/forms/me-statutory.pdf","help-link"));
-  else actions.append(editBeforeDownload);
-  card.append(actions, responsibility, status, ...sourceLinks());
-  card.append(link("Legal terms & privacy", "/fine-print/", "kit-legal-link"));
+    actions.append(link("Read the blank form","/forms/basic/"+output.region+".pdf","help-link with-arrow"));
+  } else if(output.route==="statutory") {
+    const preview = link("Read the blank form",maineOriginal,"help-link with-arrow");
+    actions.append(preview);
+    mainePreviewUrl().then(url=>{preview.href=url;}).catch(()=>{ /* The county link is already available. */ });
+  }
+
+  card.append(downloadTerms, actions, status, ...sourceLinks());
   browseHelp(card);historyAt(card,["fixed","statutory"].includes(output.route));done.append(card);
   startOf(done);
 }
@@ -1011,7 +1304,6 @@ const resetDialog = $("reset-dialog");
 const confirmReset = () => {
   if (stage === "home") return;
   resetDialog.showModal();
-  $("keep").focus();
 };
 $("back-home").addEventListener("click", confirmReset);
 $("restart").addEventListener("click", confirmReset);
@@ -1021,7 +1313,7 @@ $("clear").addEventListener("click", () => {
   reset();geo.resetConfirmation();
   $("clear-status").textContent="Previous chat cleared. You can start a new will."; $("clear-status").hidden=false;
   window.scrollTo({ top: 0, behavior: "instant" });
-  $("opening").focus({ preventScroll: true });
+  $("hero-title").focus({ preventScroll: true });
 });
 let reading = false;
 const clearInfoOnRestore = setUpInformationNavigation({
@@ -1030,20 +1322,16 @@ const clearInfoOnRestore = setUpInformationNavigation({
   panel,
   isHome: () => stage === "home",
   confirmReset,
-  disableAI() {
-    remoteHelpAllowed = false;
-  },
+  disableAI: chatAI.disable,
   setupContent(section, path) {
-    if (path === "/why-do-i-need-a-will/" || path === "/fine-print/") setupLocationGuidance(section);
+    if (path.startsWith("/why-do-i-need-a-will/") || path === "/fine-print/") setupLocationGuidance(section);
+    // An interview already has a jurisdiction. Its reader can return to the same draft.
+    if (stage !== "home") section.querySelector("[data-after-picker]")?.setAttribute("hidden", "");
     if (path === "/free-and-private/") setupConnectionInfo(section);
   },
   readingChanged(value) {
     reading = value;
-    if (!value && !remoteHelpAllowed && location.pathname === "/") {
-      const url = new URL(location.href);
-      url.searchParams.set("ai", "off");
-      history.replaceState(history.state, "", url.pathname + url.search + url.hash);
-    }
+    if (!value) { chatAI.syncHomeURL(); viewport(); }
   },
 });
 window.addEventListener("pagehide", () => { reset();geo.resetConfirmation(); });

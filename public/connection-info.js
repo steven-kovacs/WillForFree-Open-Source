@@ -10,7 +10,7 @@ export function setupConnectionInfo(root) {
   for (const details of section.querySelectorAll("details")) {
     const button = document.createElement("button");
     button.type = "button";
-    button.className = "connection-trigger";
+    button.className = "connection-trigger with-arrow";
     button.textContent = details.querySelector("summary").textContent;
     button.setAttribute("aria-haspopup", "dialog");
     button.setAttribute("aria-controls", dialog.id);

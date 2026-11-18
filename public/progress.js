@@ -7,7 +7,7 @@ export function interviewProgress(list, active, stage, part=0, parts=1) {
   if (stage === "review") return { label: "Review your answers", count: "Step 4 of 4", value: 94 };
   const i = list.findIndex(q => q.id === active);
   const maker = list.findIndex(q => q.id === "maker");
-  const extras = list.findIndex(q => q.id === "extra");
+  const extras = list.findIndex(q => q.id === "pets" || q.id === "extra");
   const afterExtras=extras>=0 && i>extras && list[i]?.values?.[0]==="Yes, all apply";
   if(afterExtras) {
     const index=list.slice(extras+1,i).filter(q=>q.values?.[0]==="Yes, all apply").length;

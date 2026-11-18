@@ -88,8 +88,8 @@ test("Ontario branches keep handwritten and typed ceremonies apart and older pro
   const confirmation = questions(profile(ontario), partnered.answers).find(
     (q) => q.id === "partnerOutright",
   );
-  assert.match(confirmation.prompt, /whole residue outright/);
-  assert.match(confirmation.prompt, /only if your partner dies before you/);
+  assert.match(confirmation.prompt, /residue, they own it outright/);
+  assert.match(confirmation.prompt, /separate gift you make to a child/i);
   assert.equal(readAnswer(confirmation, "No or unsure").stop, true);
   const olderPartner = withoutNewChecks(partnered);
   delete olderPartner.answers.extra; // The earlier interview had no extras checkpoint.
@@ -130,14 +130,14 @@ test("non-operative planning and appointment notes preserve the user’s own scr
     const expected={...state,purpose:"planning"};
     assert.deepEqual(validateState(state),expected);
     assert.throws(() => validateState(state, true), /remaining questions/);
-    state.answers.extra = "Nothing else";
+    Object.assign(state.answers,{priorWill:"No",pets:"No",funeral:"No preference",orgGift1:"I’m done",extra:"Nothing else"});
     assert.deepEqual(validateState(state, true), expected);
     assert.throws(() => validateState({ ...state, purpose: "official" }, true));
   }
   const plan = questions({...profile(place("MT")),route:"planning"}, {});
   assert.deepEqual(
     plan.map((q) => q.id),
-    ["appointment", "maker", "wishes", "extra"],
+    ["priorWill","appointment", "maker", "wishes","pets","funeral", "extra","orgGift1"],
   );
   assert.ok(readAnswer(plan[2], "PIN: 546222").error);
   assert.match(signing(profile(place("PT"))).join(" "), /notary/);
@@ -226,10 +226,10 @@ test("old affirmative answers need explicit current eligibility consent while pr
     const p = { ...profile(where), legacy: true };
     const next = questions(p, old.answers);
     const confirmation = next.find((q) => q.id === "legacyConsent");
-    assert.match(confirmation.prompt, /first will/);
+    assert.match(confirmation.prompt, /making this will for yourself/);
     if (where.country === "GB") assert.match(confirmation.prompt,/descendants of any generation/);
     if (where.country === "CA")
-      assert.match(confirmation.prompt, /whole residue outright/);
+      assert.match(confirmation.prompt, /residue, they own it outright/);
     assert.equal(readAnswer(confirmation, "No or unsure").stop, true);
     for (const q of next)
       if (!Object.hasOwn(old.answers, q.id)) old.answers[q.id] = q.values[0];

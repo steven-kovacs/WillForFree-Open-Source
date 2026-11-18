@@ -58,6 +58,8 @@ test("browser network checks omit cookies and topic data, preserve first-party c
     if(url===target){enabled=false;return new Response(proof);}
     return Response.json({topic:"signing"});
   });
+  await assert.rejects(request(["signing","executor"],"choice",()=>false));
+  assert.equal(calls.length,0,"An opt-out must also suppress the network-ticket request");
   await assert.rejects(request(["signing","executor"],"choice",()=>enabled));
   assert.equal(calls.length,1);
   assert.equal(calls[0].options.credentials,"omit");
@@ -70,6 +72,18 @@ test("browser network checks omit cookies and topic data, preserve first-party c
   assert.equal(calls[1].options.credentials,"same-origin");
   assert.equal(calls[1].options.headers["X-Wff-Network-Ticket"],proof);
   assert.deepEqual(JSON.parse(calls[1].options.body),{topics:["signing","executor"],context:"choice"});
+});
+
+test("opting out cancels an outstanding ticket before any topic can be sent",async()=>{
+  const calls=[], permission=new AbortController();
+  const request=createTopicRequest("https://edge.example.invalid/ticket",(url,{signal})=>{
+    calls.push(url);
+    return new Promise((resolve,reject)=>signal.addEventListener("abort",()=>reject(signal.reason),{once:true}));
+  });
+  const pending=request(["executor","privacy"],"choice",()=>!permission.signal.aborted,permission.signal);
+  permission.abort();
+  await assert.rejects(pending,{name:"AbortError"});
+  assert.deepEqual(calls,["https://edge.example.invalid/ticket"]);
 });
 
 test("anonymous browsers share limits across instances and keep their hour allowance after a restart",async()=>{

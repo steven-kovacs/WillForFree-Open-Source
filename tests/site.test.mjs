@@ -232,7 +232,7 @@ test("HTTP serves all kit assets, rejects private bodies, and public Hosting has
       assert.equal(res.status, 200, file);
       assert.match(res.headers.get("Content-Security-Policy"), /get.geojs.io/);
     }
-    for (const route of ["/why-do-i-need-a-will", "/free-and-private", "/partners", "/partners/brief", "/partners/ideas"]) {
+    for (const route of ["/why-do-i-need-a-will", "/why-do-i-need-a-will/after-the-will", "/our-mission", "/free-and-private", "/partners", "/partners/brief", "/partners/ideas"]) {
       const address = await fetch(domain + route + "?view=example", {redirect:"manual"});
       assert.equal(address.status, 308);
       assert.equal(address.headers.get("location"), route + "/?view=example");

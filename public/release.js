@@ -1,4 +1,5 @@
 import { profile } from "./markets.js";
+import { maineWitnesses } from "./procedures.js";
 import { publicKitHost } from "./release-target.js";
 
 const runtime = fetch("/runtime.json", { cache:"no-store", credentials:"same-origin" })
@@ -23,6 +24,7 @@ export async function placeForSession(place, purpose) {
   const p = profile(place);
   const use = documentUse(p, (await runtime).release, location.hostname);
   if (use === "closed") throw Error("WillForFree is not open for public downloads.");
-  if (purpose === "statutory" && p.key === "US-ME") return {...p,route:"statutory",use:"statutory"};
+  if (purpose === "statutory" && p.key === "US-ME")
+    return {...p, route:"statutory", use:"statutory", rule:maineWitnesses, legalSource:"https://legislature.maine.gov/statutes/18-C/title18-Csec2-517.html"};
   return purpose === "planning" ? { ...p, route:"planning", use:"planning" } : { ...p, use };
 }

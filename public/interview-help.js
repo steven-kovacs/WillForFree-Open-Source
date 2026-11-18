@@ -1,3 +1,4 @@
+import {previousAdvice,orgGiftHelp,petAdvice,funeralAdvice,maineCharity} from "./planning.js";
 import {help} from "./flow.js";
 import {fold, questionSubjects} from "./help-language.js";
 import {currentLanguage, display, editionNotice, sentence, translatedList, wording} from "./locale.js";
@@ -7,11 +8,11 @@ import {survivalHelp} from "./survival.js";
 import {businessHelp, businessWords} from "./business.js";
 import {supportsGifts} from "./extras.js";
 import {markets,regions} from "./markets.js";
-import {maineSpouseAmount, texasFamilyHome} from "./procedures.js";
+import {appointmentRequest, dutchWitnessEligibility, executorAgeInstruction, malteseCourt, malteseNotary, portugueseWitnesses, texasGuardianScope, texasCustody, maineAuthoredFit, maineSpouseAmount, maineSpouseRights, maineWitnesses, texasFamilyHome} from "./procedures.js";
 
 export const guidance = {
   blankEdition:"The blank will is in English. The signing guide is in your chosen language. Use the form only if you understand the entire will.",
-  language:"These kits cover specific choices for a first will. Some include choices for parents. The chat explains what the selected form can do. You can change the language of the chat and kit. Publisher forms keep their original wording. California and Maine supply English forms. Texas also supplies an English–Spanish form. A location in the list does not mean every family or estate there can use the same form.",
+  language:"Some include choices for parents. The chat explains what the selected form can do. You can change the language of the chat and kit. Publisher forms keep their original wording. California and Maine supply English forms. Texas also supplies an English–Spanish form. A location in the list does not mean every family or estate there can use the same form.",
   unknown:"I don’t have a prepared answer to that question. You can explore the help topics or check the local guidance. If your decision depends on the answer, ask a qualified estates professional where you live before signing.",
   expenses:"Keep receipts and a record of trips you make for the estate. Repayment of expenses and payment for an executor’s time are separate questions. This kit sets no mileage rate or fee. Check what the local rules allow before claiming either.",
   tax:"This kit doesn’t calculate taxes. What the estate or a beneficiary might owe depends on the property and the tax rules that apply. A local tax authority or a tax professional can help you check before you distribute anything.",
@@ -21,7 +22,7 @@ export const guidance = {
   limitedFamily:"This version leaves the remainder of your estate to one adult. It has no place to appoint a guardian or set aside money for a child. If you need either, choose a form that covers your family or get local advice.",
   capacity:"A will records the maker’s own choices. If someone needs help understanding the will or signing it, or you’re helping another person make theirs, ask a local estates professional about the options before using this kit.",
   international:"If you have property or a permanent home in more than one place, a single location choice may miss rules that affect your estate. Get advice covering each place before signing. Bring details of any existing will.",
-  previous:"This service is for a first will. If you’ve already signed one, even by hand, changing it needs a different process.",
+  previous:previousAdvice,
   change:"After a move, marriage, separation, birth, adoption, death or change of beneficiary, reconsider the whole plan under the law that then applies. Do not hand-edit a signed will. Completing this chat again produces a new unsigned document.",
   outside:"Check beneficiary nominations and jointly owned assets with the relevant institution. Keep account credentials outside the will.",
   home:"Check whose name is on the title, how the home is owned and whether there is a mortgage. Your will can only pass the interest that forms part of your estate. If you want to leave a particular home to someone, check that the form has that option.",
@@ -64,17 +65,20 @@ export function helpFor(subject,p,{execution,household,descendants,maineChoice=f
   if(subject==="home" && notes)return guidance.notesOnly;
   if(!notes && p.key==="US-TX" && (subject==="home" || subject==="familyRights"))
     return translatedList([texasFamilyHome,subject==="home" ? guidance.home : guidance.familyRights]," ");
+  if(subject==="familyRights" && p.route==="statutory")return maineSpouseRights;
   if(subject==="outside")return translatedList(["A joint owner or someone named on an account, pension or insurance policy may receive it separately. Property held in a trust may also pass separately.",guidance.outside]," ");
-  if(subject==="personal" && ["fixed","statutory"].includes(p.route))return help.notes;
+  if(subject==="personal")return translatedList([petAdvice,funeralAdvice]," ");
   if(subject==="process")return notes?"This path lets you write down your plans and download them to take to an appointment.":help.process;
   if(subject==="business")return businessHelp;
+  if(subject==="executorFit" && !notes && executorAgeInstruction(p))
+    return translatedList([executorAgeInstruction(p),guidance.executorFit]," ");
   if(subject==="age")return translatedList([sentence("Is {0} your permanent home, and are you at least {1}?",wording(p.name),p.minimum),"Use the place you consider your permanent home, even if you’re visiting somewhere else. The age shown is the minimum for this service."]," ");
   if(subject==="gifts") {
-    if(notes)return "This kit records plans, including gifts you want to discuss locally.";
-    if(maineChoice)return translatedList([guidance.maine,maineSpouseAmount]," ");
-    if(p.route==="statutory")return translatedList([signing(p)[1],maineSpouseAmount]," ");
+    if(notes)return orgGiftHelp;
+    if(maineChoice)return translatedList([guidance.maine,maineAuthoredFit,maineSpouseAmount]," ");
+    if(p.route==="statutory")return translatedList([maineCharity,maineSpouseAmount]," ");
     if(p.key==="US-CA")return "You can name people or charities for cash gifts, one gift at a time.";
-    return supportsGifts(p)?"You can give keepsakes or money to named adults, one gift at a time.":"This will form doesn’t have a place for separate gifts.";
+    return orgGiftHelp;
   }
   if(["witness","signing","guardian","survival","custody"].includes(subject)) {
     if(notes)return guidance.notesOnly;
@@ -84,6 +88,8 @@ export function helpFor(subject,p,{execution,household,descendants,maineChoice=f
     if(p.parentPlan && household==="One adult beneficiary")return translatedList([guidance.limitedFamily,guidance.edit]," ");
     if(p.key==="US-TX" && descendants==="No children or grandchildren")
       return translatedList([sentence("{0} · {1}",wording("Children or grandchildren"),wording(descendants)),guidance.edit]," ");
+    if(p.key==="US-TX" && descendants==="I have children or grandchildren")
+      return translatedList([texasGuardianScope,texasCustody]," ");
     return p.parentPlan || ["official","statutory"].includes(p.route)?guidance.family:guidance.limitedFamily;
   }
   if(subject==="survival")return survivalHelp(p);
@@ -96,11 +102,15 @@ export function helpFor(subject,p,{execution,household,descendants,maineChoice=f
       if(subject==="signing")return guidance.beforeMethod;
       return translatedList([guidance.beforeMethod,translatedList(["Print and sign with two witnesses",signing(p)[1]]," · ")]," ");
     }
+    if(p.route==="deposit"){
+      if(subject==="signing")return translatedList([completionSummary(p),appointmentRequest[p.country]]," ");
+      if(p.country==="MT")return translatedList([malteseNotary,malteseCourt]," ");
+      return p.country==="PT" ? portugueseWitnesses : translatedList([appointmentRequest.NL,dutchWitnessEligibility]," ");
+    }
     if(subject==="signing")return completionSummary(p);
     const rules=signing(p);
-    if(p.route==="deposit")return completionSummary(p);
     if(p.route==="handwriting")return p.key==="CA-ON"?rules[1]:p.key==="US-LA"?rules[3]:completionSummary(p);
-    if(p.route==="statutory")return rules[4];
+    if(p.route==="statutory")return maineWitnesses;
     if(p.route==="official")return completionSummary(p);
     if(p.key==="GB-SCT")return translatedList([rules[0], scottishWitnessIdentity]," ");
     if(["GB-ENG","GB-WLS"].includes(p.key))return rules[0];

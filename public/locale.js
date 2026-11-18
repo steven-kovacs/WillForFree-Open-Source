@@ -75,8 +75,8 @@ export function translatedList(words, separator) {
 export function hasCopy(key) { return Object.hasOwn(catalog, key); }
 const kitFiles = {
   "00-Start-here.pdf":"Start here", "01-Last-will-and-testament.pdf":"Last will and testament",
-  "01-Will-for-formal-completion.pdf":"Last will and testament", "01-Maine-statutory-will.pdf":"Maine statutory family will",
-  "01-Official-will-form.pdf":"Last will and testament", "01-Simple-will-form.pdf":"Last will and testament",
+  "01-Will-for-formal-completion.pdf":"Will requiring formal completion", "01-Maine-statutory-will.pdf":"Maine statutory family will",
+  "01-Official-will-form.pdf":"Official will form", "01-Simple-will-form.pdf":"Blank will form",
   "01-Will-text-to-handwrite.pdf":"Text to copy entirely by hand", "01-My-planning-notes.pdf":"My planning notes",
   "01-Notes-for-my-appointment.pdf":"Notes for my appointment", "02-Local-next-steps.pdf":"Your next steps",
   "02-Signing-and-next-steps.pdf":"Signing and next steps", "03-My-answers.pdf":"Your interview answers",

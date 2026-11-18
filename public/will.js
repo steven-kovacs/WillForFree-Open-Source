@@ -1,11 +1,13 @@
+import {earlierQuestions, careQuestions, organizationQuestions, skipped, deferred, orgAdvice} from "./planning.js";
 import {localWordingIssue} from "./local-wording.js";
 import {looksLikeQuestion,localControl} from "./help-language.js";
-import { currentLanguage, parseWholeAmount, sentence, wording } from "./locale.js";
-import { survivalHelp, texasResidueChoices } from "./survival.js";
+import { currentLanguage, parseWholeAmount, display, sentence, translatedList, wording } from "./locale.js";
+import { partnerResidue, refusalToBackup, residueRefusalKey, survivalHelp, texasResidueChoices } from "./survival.js";
 import { noBusiness, ownsBusiness, soleHeirBusiness } from "./business.js";
 import { currentChecks } from "./suitability.js";
+import { maineChoicePrompt, maineEarlierChoice, mainePaperChoices } from "./procedures.js";
 import { printableName } from "./characters.js";
-import { extraQuestions, needsAdvice, giftList, itemIdentity, itemOwnershipIssue, doneGifts, finishNotes, bespoke, differentTerms, noExtra, item, cash, adviceOption, correctCash, cancelAdvice } from "./extras.js";
+import { ordinaryGifts, giftCurrency, confirmCash, giftIdentity, extraQuestions, needsAdvice, giftList, itemIdentity, itemOwnershipIssue, doneGifts, finishNotes, bespoke, differentTerms, noExtra, item, cash, adviceOption, correctCash, cancelAdvice } from "./extras.js";
 import { hasSensitive } from "./flow.js";
 import { profile, validPlace, copyByHand } from "./markets.js";
 
@@ -44,9 +46,25 @@ export function questions(p, answers = {}) {
       ),
     );
   }
-  if (["fixed","statutory"].includes(p.route)) return list;
-  const confirmations = currentChecks(p, answers, check);
-  return [...list, ...extraQuestions(p, answers), ...(needsAdvice(answers) ? confirmations.filter(q => Object.hasOwn(answers,q.id)) : confirmations)];
+  const blank=["fixed","statutory"].includes(p.route);
+  const wishes=[...careQuestions(p,answers),...(blank?[]:extraQuestions(p,answers)),...organizationQuestions(p,answers,ordinaryGifts(answers),giftCurrency(p),confirmCash,giftIdentity)];
+  if (blank) {
+    const planningQuestions = [...earlierQuestions(answers), ...wishes];
+    if (p.key === "US-ME" && p.route === "statutory") {
+      const choices = [...mainePaperChoices];
+      if (answers.mainePaperChoice === maineEarlierChoice) choices.push(maineEarlierChoice);
+      choices.push("No or unsure");
+      planningQuestions.unshift({
+        ...options("mainePaperChoice", "Maine statutory family will", maineChoicePrompt, choices),
+        planStep: true,
+      });
+    }
+    return planningQuestions;
+  }
+  // These end-of-interview checks do not select other questions. An earlier
+  // saved interview can keep later answers, but no kit may skip a new check.
+  const confirmations = currentChecks(p, answers, check).map(q=>({...q,supplementalCheck:true}));
+  return [...earlierQuestions(answers), ...list, ...wishes, ...(needsAdvice(answers) ? confirmations.filter(q => Object.hasOwn(answers,q.id)) : confirmations)];
 }
 function baseQuestions(p, answers) {
   if (["fixed","statutory"].includes(p.route)) return [];
@@ -82,7 +100,7 @@ function baseQuestions(p, answers) {
     check(
       "eligible",
       "Making this will",
-      sentence("Is this your own first will? Confirm that you are at least {0} for this service, live permanently in {1}, understand your property and family obligations, can read the whole will in the language in which you will sign it, and are choosing freely.", p.minimum, wording(p.name)),
+      translatedList(["Are you making this will for yourself?",sentence("Is {0} your permanent home, and are you at least {1}?",wording(p.name),p.minimum),"You understand what you own and who depends on you. You can read and understand the whole will in the language in which you will sign it, and you can sign it yourself."]," "),
     ),
     options("businessOwnership", "Business ownership", "Do you own all or part of a business?", [noBusiness, ownsBusiness, "I’m unsure"]),
     ...(answers.businessOwnership === ownsBusiness ? [
@@ -94,7 +112,7 @@ function baseQuestions(p, answers) {
     check(
       "estateScope",
       "Estate",
-      "Is everything you intend to dispose of here, with no earlier will, inheritance agreement, disputed family obligations, foreign property, benefit-sensitive beneficiary or need for someone else to sign?",
+      translatedList([sentence("Do you own any assets outside {0}?",wording(p.name)),"There is an agreement with someone else about who inherits.","There’s a disagreement about who you must support.","A gift could affect someone’s benefits, or someone else needs to sign for you."]," "),
     ),
   ];
   if (p.country === "CA")
@@ -102,7 +120,7 @@ function baseQuestions(p, answers) {
       check(
         "localLaw",
         "Applicable law",
-        "Does ordinary provincial or territorial law apply to your estate? Choose “No or unsure” if reserve property or another legal regime may apply.",
+        "Does ordinary provincial or territorial law apply to your estate? Choose “No or unsure” if your estate may include property on a First Nations reserve or fall under a different legal system.",
       ),
     );
   if (p.country === "SG")
@@ -118,7 +136,7 @@ function baseQuestions(p, answers) {
       check(
         "localLaw",
         "Applicable law",
-        "Will ordinary state law govern all the property covered here, with no tribal trust land or other special succession rules?",
+        "Will ordinary state law govern all the property covered here, with no land held in trust by the United States for a Tribe or an individual Native American and no other special inheritance rules?",
       ),
     );
   if (p.route === "official") {
@@ -292,8 +310,8 @@ function baseQuestions(p, answers) {
       list.push(
         name(
           "familyGuardian",
-          "Guardian for minor children",
-          "If a guardian is needed for a minor child, who is your first choice? Enter a full name or leave this open.",
+          "Guardian nomination",
+          "Who would you choose to look after your children if a guardian is needed?",
           true,
         ),
       );
@@ -509,6 +527,7 @@ function baseQuestions(p, answers) {
         ? "Which adult should inherit if neither your partner nor any of your children or their descendants survives you?"
         : answers.household === "Children first"
           ? "Which adult should inherit if none of your children or their descendants survives you?"
+          : refusalToBackup.has(p.key) ? "Who inherits as a backup"
           : "Which different adult should inherit if your first beneficiary dies before you? Enter their full legal name.",
     ),
   );
@@ -542,7 +561,7 @@ function baseQuestions(p, answers) {
       check(
         "partnerOutright",
         "Your partner’s gift",
-        "If your partner outlives you, they receive the whole residue outright and can spend it or leave it to anyone. Your children inherit under this will only if your partner dies before you. Is that the result you want?",
+        sentence("{0} Is that the result you want?", wording(partnerResidue)),
       ),
     );
   }
@@ -550,6 +569,8 @@ function baseQuestions(p, answers) {
 }
 const normalize = (s) =>
   s.normalize("NFKC").trim().replace(/\s+/g, " ").toLocaleLowerCase("en");
+// Compare equivalent printed punctuation while retaining the visitor’s spelling in the will.
+const nameIdentity = value => normalize(value).replace(/[‘’]/gu, "'").replace(/[‐‑]/gu, "-");
 const undecided =
   /^(?:no(?: one)?|none|skip|help|yes|unknown|undecided|not sure|nobody|myself|my (?:sister|brother|spouse|wife|husband)|leave open|i don[’']t know)$/i;
 export function sensitive(s) {
@@ -578,7 +599,7 @@ function cleanName(value) {
       /\b(?:if|unless|when|whenever|until|after|before|provided|otherwise|conditional|subject to|on condition|only for|as (?:a |the )?(?:trustee|guardian|executor|custodian|agent)|in trust|on behalf of|for the benefit of|turns|at age|graduat(?:es?|ing|ion)|equally|instead|must|shall|should)\b/i.test(v)) return null;
   return v;
 }
-export function readAnswer(q, raw, answers = {}, seenItems = null) {
+export function readAnswer(q, raw, answers = {}, seenItems = null, compareName = nameIdentity) {
   if (
     typeof raw !== "string" ||
     !raw.trim() ||
@@ -590,13 +611,15 @@ export function readAnswer(q, raw, answers = {}, seenItems = null) {
         "Enter a brief answer without account numbers, passwords or contact details.",
     };
   const v = raw.trim();
+  if(q.optional && normalize(v)==="leave open")return {value:"Leave open"};
+  if(v===skipped || (v===deferred && !q.values?.includes(deferred)))return {error:"Please check the answers in the chat."};
   const issue=localWordingIssue(v,q.kind);
   if (issue==="pressure") return { stop:true, reason:"A will must express your own free choice. If someone is pressuring you, stop here and speak privately with someone you trust or a local legal service." };
   if(["name","names","town","noteName"].includes(q.kind) && v.split(/[,;，、；\n]+/u).some(part=>looksLikeQuestion(part,q.kind) || localControl(part)))
     return {error:"Choose the answer that fits. You can also ask a question."};
   if (issue==="name") return {error:"Enter a full legal name only. If you want to set a condition, use local advice."};
   if (issue==="item") return {advice:v,error:"This gift is for one personal item you own outright. For conditions, shared property or other arrangements, use local advice."};
-  if (q.giftField === "extraRecipient") {
+  if (q.giftField === "extraRecipient" || /^orgName\d+$/.test(q.id) && q.kind==="charity") {
     const phrase = v.normalize("NFKC").replace(/\s+/g," ");
     const terms = /\b(?:if|unless|when|whenever|until|after|before|provided|providing|otherwise|conditional|subject to|on condition|only (?:for|at|when|on)|as (?:a |the )?(?:trustee|guardian|executor|custodian|agent)|in trust|on behalf of|for the benefit of|turns|at age|graduates?|graduating|divid(?:e|ed)|equally|instead|must|shall|should)\b/i;
     if (terms.test(phrase))
@@ -628,14 +651,16 @@ export function readAnswer(q, raw, answers = {}, seenItems = null) {
       return {advice:v,error:"You chose to leave your interest in the business with the rest of your estate. Choose a personal keepsake here. If you want a business asset to go to someone else, save that request for separate advice."};
     if (q.kind === "item" && itemOwnershipIssue(label))
       return {advice:v,error:"This sounds like an item with a loan, a lease or another owner. This gift is only for an item you own outright. You can save the exact wording as a note or choose a different gift."};
-    const allowed = q.kind === "charity" ? /^[\p{L}\p{N}][\p{L}\p{M}\p{N} &’'.()\p{Pd}]*$/u : /^[\p{L}\p{N}][\p{L}\p{M}\p{N} ’'\p{Pd}]*$/u;
+    const allowed = q.kind === "charity" ? /^[\p{L}\p{N}][\p{L}\p{M}\p{N} &’'.,()\p{Pd}]*$/u : /^[\p{L}\p{N}][\p{L}\p{M}\p{N} ’'\p{Pd}]*$/u;
     if (q.kind === "item" && /\b(?:if|unless|when|whenever|until|after|before|upon|once|provided|providing|condition(?:al)?|contingent|subject to|only (?:at|on|for)|at age|turns|graduate[sd]?|graduating|inherits?|receives?|gets?|give|instead|otherwise|divid(?:e|ed)|share(?:d|s)?|split|equally|respectively|must|shall|should|then|to my|to be|and|or|but|except|pay|leave)\b/i.test(label))
       return { advice: v, error: "This sounds like terms or more than one thing. The keepsake gift accepts one item description only. Reword it, or save this request for local advice." };
     if (q.kind === "item" && /\b(?:home|farm|building|company|corporation|stock|stocks|securities|crypto|bitcoin|bank|wallet|estate|retirement|pension|insurance|trust|animals?|pets?|dogs?|cats?|horse|parrot)\b/i.test(label))
       return { advice: v, error: "This gift is for a personal keepsake only. Choose local advice for land, animals, finances or conditions." };
     if (label.length < 3 || label.length > (q.kind === "item" ? 75 : 80) || !allowed.test(label) || !printableName(label) || undecided.test(label) ||
         (q.kind === "item" && /\b(?:if|unless|provided|except|shall|must|give|leave|pay|estate|account|cash|money|pet|dog|cat|land|house|shares|property|joint)\b/i.test(label)))
-      return { advice: v, error: q.kind === "item" ? "Give just the identifying words for one physical keepsake. Use local advice for property, instructions or conditions." : "Enter the verified charity name as it must appear. If it cannot be entered exactly, use the court PDF or local advice." };
+      return { advice: v, error: q.kind === "item" ? "Give just the identifying words for one physical keepsake. Use local advice for property, instructions or conditions." : /^orgName\d+$/.test(q.id) ? orgAdvice : "Enter the verified charity name as it must appear. If it cannot be entered exactly, use the court PDF or local advice." };
+    const orgNumber=/^orgItem(\d+)$/.exec(q.id || "");
+    if (q.kind==="item" && orgNumber && (seenItems?seenItems.has(itemIdentity(label)):giftList(answers).some(g=>g.type===item && !(g.organization && g.n===ordinaryGifts(answers).length+Number(orgNumber[1])) && itemIdentity(g.description)===itemIdentity(label))))return {error:"That keepsake is already in your list. For two different items, describe what distinguishes this one. To change the original gift, edit it on the review screen."};
     const duplicate = q.kind === "item" && q.giftNumber && (seenItems ? seenItems.has(itemIdentity(label))
       : giftList(answers).some(g => g.type === item && g.n !== q.giftNumber && itemIdentity(g.description) === itemIdentity(label)));
     if (duplicate)
@@ -652,7 +677,7 @@ export function readAnswer(q, raw, answers = {}, seenItems = null) {
       names.length < (q.min || 1) ||
       names.length > (q.max || 8) ||
       names.some((x) => !x) ||
-      new Set(names.map(normalize)).size !== names.length
+      new Set(names.map(compareName)).size !== names.length
     )
       return {
         error:
@@ -660,10 +685,10 @@ export function readAnswer(q, raw, answers = {}, seenItems = null) {
             ? sentence("Enter {0} to {1} distinct full names, separated by commas.", q.min || 1, q.max || 8)
             : "Enter one person’s full name so the will clearly identifies them.",
       };
-    const n = normalize(names[0]);
+    const n = compareName(names[0]);
     if (
       q.id === "txOthers" &&
-      names.some((x) => normalize(x) === normalize(answers.recipient || ""))
+      names.some((x) => compareName(x) === compareName(answers.recipient || ""))
     )
       return {
         error:
@@ -671,19 +696,21 @@ export function readAnswer(q, raw, answers = {}, seenItems = null) {
       };
     if (
       q.id === "txAlternates" &&
-      names.some((x) => normalize(x) === normalize(answers.spouse || ""))
+      names.some((x) => compareName(x) === compareName(answers.spouse || ""))
     )
       return {
         error: "Choose a different backup beneficiary.",
       };
-    if (q.id === "coTrustee" && n === normalize(answers.trustee || "")) return {error:"Choose two different people as co-trustees."};
-    if (q.id === "alternate" && n === normalize(answers.executor || ""))
+    if (q.id === "coTrustee" && n === compareName(answers.trustee || "")) return {error:"Choose two different people as co-trustees."};
+    if ((q.id==="petBackup" && n===compareName(answers.petCarer || "")) || (q.id==="petCarer" && n===compareName(answers.petBackup || "")))return {error:"Choose a different backup for pet care."};
+    if (["petCarer","petBackup"].includes(q.id) && n===compareName(answers.maker || ""))return {error:"Enter one person’s full name so the will clearly identifies them."};
+    if (q.id === "alternate" && n === compareName(answers.executor || ""))
       return { error: "Choose a different backup executor, or leave it open." };
     if (
       q.id === "backup" &&
       [answers.recipient, answers.partner, ...(answers.children || [])]
         .filter(Boolean)
-        .some((x) => normalize(x) === n)
+        .some((x) => compareName(x) === n)
     )
       return { error: "Choose a different backup beneficiary." };
     if (
@@ -696,7 +723,7 @@ export function readAnswer(q, raw, answers = {}, seenItems = null) {
         answers.coTrustee,
       ]
         .filter(Boolean)
-        .some((x) => normalize(x) === n)
+        .some((x) => compareName(x) === n)
     )
       return {
         error:
@@ -705,14 +732,14 @@ export function readAnswer(q, raw, answers = {}, seenItems = null) {
     if (
       q.id !== "maker" &&
       answers.maker &&
-      names.some((x) => normalize(x) === normalize(answers.maker))
+      names.some((x) => compareName(x) === compareName(answers.maker))
     )
       return {
         error:
           "The will-maker cannot be named for this role in their own will.",
       };
     const parentPartner = q.id === "formChildren" ? answers.spouse : q.id === "children" ? answers.partner : undefined;
-    if (parentPartner && names.some((x) => normalize(x) === normalize(parentPartner)))
+    if (parentPartner && names.some((x) => compareName(x) === compareName(parentPartner)))
       return {
         error:
           "Make sure each child is identified separately from the partner.",
@@ -754,6 +781,7 @@ export function readAnswer(q, raw, answers = {}, seenItems = null) {
       : /^(?:a |another )?(?:cash|money|cash gift|gift of money)$/.test(lookup) ? cash : null;
     if (q.values.includes(alias)) choice = alias;
   }
+  if(q.id==="priorContinue" && choice==="Back to this question")return {error:"Please check the answers in the chat."};
   if (q.id==="adviceOverride" && choice===cancelAdvice) return {cancelAdvice:true};
   if (q.giftField === "extraTotal" && /^(yes|correct|that is correct)$/.test(lookup)) choice=q.values[0];
   if (q.giftField === "extraTotal" && choice === correctCash) return { reviseGift: true };
@@ -786,13 +814,66 @@ function checkedRecord(record) {
     return [label,value];
   });
 }
+const earlierChoicesNotice = "My earlier choices are listed separately below.";
+export function usesEarlierChoicesNotice(state) {
+  return Boolean(state.record?.length) && state.answers.wishes===earlierChoicesNotice;
+}
+// Saved notes store a readable transcript. Only translate values identifiable as
+// choices on their original question. Names, wishes and unknown older rows stay verbatim.
+export function planningEntries(place,record=[]) {
+  if(!record.length)return [];
+  const p=profile(place), answers={};
+  let byLabel=new Map(), changed=true;
+  return record.map(([label,value])=>{
+    if(changed && !byLabel.has(label)){
+      byLabel=new Map(questions(p,answers).map(q=>[q.label,q]));
+      changed=false;
+    }
+    const q=byLabel.get(label);
+    if(!q)return [label,value,false];
+    const preset=Boolean(q.values?.includes(value));
+    if(preset || q.kind){
+      answers[q.id]=q.kind==="names" && !preset ? value.split(", ") : value;
+      changed=true;
+    }
+    return [label,value,preset];
+  });
+}
 export function preserveAsNotes(p,state,unresolvedLabel="") {
-  const record = questions(p,state.answers).filter(q=>Object.hasOwn(state.answers,q.id))
-    .map(q=>[q.label,formatValue(state.answers[q.id])]);
+  const record = [...(state.record || []),...questions(p,state.answers).filter(q=>Object.hasOwn(state.answers,q.id) && state.answers[q.id]!==skipped)
+    .map(q=>[q.label,formatValue(state.answers[q.id])])];
+  for(const [id,[part,answer,note]] of Object.entries(state.issues || {})){
+    const q=questions(p,state.answers).find(q=>q.id===id);
+    record.push(["Question to discuss",q?display(q.label)+": "+display(answer):display(answer)]);
+    if(note)record.push(["Question to discuss",note]);
+  }
   if (unresolvedLabel) record.push(["Question to discuss",unresolvedLabel]);
   const answers={appointment:"Yes, all apply"};
-  if (state.answers.maker) Object.assign(answers,{maker:state.answers.maker,wishes:"My earlier choices are listed separately below.",extra:"Nothing else"});
-  return validateState({version:2,purpose:"planning",place:state.place,answers,record});
+  if (state.answers.maker) Object.assign(answers,{maker:state.answers.maker,wishes:earlierChoicesNotice,extra:"Nothing else"});
+  for(const q of questions({...p,route:"planning"},state.answers)){
+    if (!q.planStep || /^org/.test(q.id) || !state.answers[q.id] || state.answers[q.id] === skipped) continue;
+    const value = state.answers[q.id];
+    // Keep both original spellings in the transcript. Do not repeat an ambiguous carer as an appointment.
+    answers[q.id] = q.optional && q.kind === "name" && !readAnswer(q, value, answers).value ? "Leave open" : value;
+  }
+  if(state.answers.orgGift1==="I’m done")answers.orgGift1=state.answers.orgGift1;
+  return validateState({version:2,purpose:"planning",place:state.place,answers,record,reviewNotes:state.reviewNotes,...(state.issues?.opening?{issues:{opening:state.issues.opening}}:{})});
+}
+function checkedReviewNotes(notes, p) {
+  if(notes===undefined)return [];
+  if(!Array.isArray(notes))throw Error("Invalid review notes.");
+  const seen=new Set();
+  const validText=(value,limit)=>typeof value==="string" && value.trim().length>0 && value.length<=limit && !/[\p{Cc}\p{Cf}]/u.test(value);
+  return notes.map(note=>{
+    if(!note || typeof note.id!=="string" || !/^[a-zA-Z][a-zA-Z0-9]{0,55}$/.test(note.id) || Object.hasOwn(Object.prototype,note.id) ||
+      !Number.isInteger(note.part) || note.part<0 || note.part>150 || !validText(note.question,3000) ||
+      note.caption!==undefined && !validText(note.caption,3000) || !validText(note.text,600) || sensitive(note.text))throw Error("Invalid review notes.");
+    const id=note.id === "residueRefusal" && p.route !== "planning" ? residueRefusalKey(p) : note.id;
+    const key=id+"/"+note.part;
+    if(seen.has(key))throw Error("Duplicate review note.");
+    seen.add(key);
+    return {id,part:note.part,question:note.question,...(note.caption?{caption:note.caption}:{}),text:note.text};
+  });
 }
 export function validateState(state, complete = false, importing = false) {
   if (
@@ -812,14 +893,60 @@ export function validateState(state, complete = false, importing = false) {
   if (state.purpose !== undefined && state.purpose !== "planning" && !(state.purpose==="statutory" && selected.key==="US-ME"))
     throw Error("Unrecognized type of kit.");
   if (state.record !== undefined && purpose!=="planning") throw Error("A private notes record cannot be used in a will.");
-  const record = state.record === undefined ? undefined : checkedRecord(state.record);
+  const record = state.record === undefined ? [] : checkedRecord(state.record);
   const p =
     purpose === "planning"
       ? { ...selected, route: "planning" }
       : purpose==="statutory" ? {...selected,route:"statutory"} : selected;
   if (state.version === 1) p.legacy = true;
+  const reviewNotes=checkedReviewNotes(state.reviewNotes,p);
+  const issues={};
+  if(state.issues!==undefined){
+    if(!state.issues || typeof state.issues!=="object" || Array.isArray(state.issues))throw Error("Invalid review details.");
+    for(const [id,row] of Object.entries(state.issues)){
+      if(!/^(?:[a-zA-Z][a-zA-Z0-9]{0,55})$/.test(id) || Object.hasOwn(Object.prototype,id) || !Array.isArray(row) || ![2,3].includes(row.length) || row.length===3 && (typeof row[2]!=="string" || !row[2].trim() || row[2].length>600 || /[\p{Cc}\p{Cf}]/u.test(row[2]) || sensitive(row[2])) || !Number.isInteger(row[0]) || row[0]<0 || row[0]>150 || typeof row[1]!=="string" || !row[1].trim() || row[1].length>650 || /[\p{Cc}\p{Cf}]/u.test(row[1]) || sensitive(row[1]) || id!=="opening" && state.answers[id]!==skipped)throw Error("Invalid review details.");
+      issues[id]=[...row];
+    }
+  }
   const answers = {};
   const incoming = {...state.answers};
+  if (p.route !== "planning" && residueRefusalKey(p) === "wholeInheritanceRefusal") {
+    // An earlier answer about refusing a share cannot confirm renunciation of the entire inheritance.
+    if (Object.hasOwn(incoming, "residueRefusal")) {
+      if (Object.hasOwn(incoming, "wholeInheritanceRefusal")) throw Error("Please check the answers in the chat.");
+      if (incoming.residueRefusal === skipped && issues.residueRefusal) {
+        incoming.wholeInheritanceRefusal = skipped;
+        issues.wholeInheritanceRefusal = issues.residueRefusal;
+        delete issues.residueRefusal;
+      } else if (incoming.residueRefusal !== yes[0]) {
+        throw Error("Please check the answers in the chat.");
+      }
+      delete incoming.residueRefusal;
+    }
+  }
+  if (p.route === "statutory" && Object.hasOwn(incoming, "maineResidueChoice")) {
+    if (Object.hasOwn(incoming, "mainePaperChoice")) throw Error("Please check the answers in the chat.");
+    const previous = incoming.maineResidueChoice;
+    if (previous === yes[0]) {
+      // That maker elected not to use B on the earlier Revisor publication. No A or C was selected.
+      incoming.mainePaperChoice = maineEarlierChoice;
+    } else {
+      const refusal = ["No", "No or unsure", "I’m not sure"].includes(previous);
+      if (!refusal && !(previous === skipped && issues.maineResidueChoice))
+        throw Error("Please check the answers in the chat.");
+      incoming.mainePaperChoice = skipped;
+      issues.mainePaperChoice = issues.maineResidueChoice || [0, previous];
+    }
+    delete incoming.maineResidueChoice;
+    delete issues.maineResidueChoice;
+  }
+  if (p.route === "statutory") {
+    // A visitor could save a private note before answering the former question.
+    for (const note of reviewNotes) {
+      if (note.id === "maineResidueChoice" && !reviewNotes.some(other => other.id === "mainePaperChoice" && other.part === note.part))
+        note.id = "mainePaperChoice";
+    }
+  }
   // The old scope question explicitly ruled out owning a business. Its key was
   // retired so an unfinished new interview can never be mistaken for that answer.
   if (Object.hasOwn(incoming, "scope")) {
@@ -833,7 +960,7 @@ export function validateState(state, complete = false, importing = false) {
   // only as an unchanged blank publication. Preserve the old answers as readable
   // wishes on import; do not use them to select or fill any will in that state.
   const oldSlovakWill = p.key === "SK" && Object.hasOwn(incoming,"backup");
-  if (importing && !purpose && ((p.route === "fixed" && Object.keys(incoming).length) || oldSlovakWill)) {
+  if (importing && !purpose && ((p.route === "fixed" && Object.keys(incoming).some(id=>!questions(p,incoming).some(q=>q.id===id))) || oldSlovakWill)) {
     const previous = oldSlovakWill ? {...p,legacySlovakBackup:true} : {...p,route:"paper"};
     const checked = {};
 
@@ -843,7 +970,7 @@ export function validateState(state, complete = false, importing = false) {
       if (!Object.hasOwn(incoming,q.id)) continue;
       const value=incoming[q.id];
       if (q.kind==="names" ? !Array.isArray(value) || value.some(v=>typeof v!=="string") : typeof value!=="string") throw Error("Invalid earlier answer.");
-      const r=readAnswer(q,Array.isArray(value)?value.join(","):value,checked);
+      const r=readAnswer(q,Array.isArray(value)?value.join(","):value,checked,null,normalize);
       if (!r.value) throw Error("Please keep the original file to read these earlier answers.");
       checked[q.id]=r.value;
     }
@@ -863,17 +990,20 @@ export function validateState(state, complete = false, importing = false) {
       throw Error("Invalid saved answer.");
   }
   let list;
-  let earlierFamilyConflict = "";
+  let earlierNameConflict = "";
   try { list = questions(p, incoming); } catch { throw Error("Invalid saved answers."); }
+  let gap=false;
   for (const q of list) {
     if (!Object.hasOwn(incoming, q.id)) {
       if (complete) throw Error("Please complete the remaining questions.");
       // An in-place change can invalidate a cash total or the recipient type without invalidating later gifts.
       // These two input slots may be pending in a partial save, but are always required before download.
-      if (["extraTotal","extraRecipient"].includes(q.giftField)) continue;
-      break;
+      if (q.planStep || q.supplementalCheck || ["extraTotal","extraRecipient"].includes(q.giftField)) continue;
+      gap=true;continue;
     }
+    if(gap && !q.planStep)throw Error("Unrecognized or out-of-order saved answers.");
     const raw = incoming[q.id];
+    if(raw===skipped && Object.hasOwn(issues,q.id)){answers[q.id]=skipped;continue;}
     if (q.kind === "names") {
       if (!Array.isArray(raw) || raw.some((x) => typeof x !== "string"))
         throw Error("Invalid names.");
@@ -890,17 +1020,24 @@ export function validateState(state, complete = false, importing = false) {
       input,
       answers, seenItems,
     );
-    // Older Texas interviews accepted an identical spouse and child name.
-    // On import retain the original entries for discussion, never for a will.
-    if (importing && !purpose && p.key === "US-TX" && q.id === "formChildren" &&
-        result.error === "Make sure each child is identified separately from the partner.") {
-      earlierFamilyConflict = result.error;
-      result = readAnswer(q, input, {...answers, spouse: undefined}, seenItems);
+    if (importing && result.error && ["name","names"].includes(q.kind)) {
+      // Older editions treated typographic punctuation as distinct. Texas also allowed a spouse to appear among the children.
+      const oldAnswers = p.key === "US-TX" && q.id === "formChildren" ? {...answers, spouse: undefined} : answers;
+      const previous = readAnswer(longerTexasList ? {...q, max: 10} : q, input, oldAnswers, seenItems, normalize);
+      if (previous.value) {
+        if (purpose === "planning" && q.optional) {
+          record.push([q.label, formatValue(previous.value)], ["Question to discuss", result.error]);
+          result = {value: "Leave open"};
+        } else {
+          earlierNameConflict = result.error;
+          result = previous;
+        }
+      }
     }
     if (!result.value || (q.giftField==="extraTotal" && result.value!==raw))
       throw Error("Please check the answers in the chat.");
     answers[q.id] = result.value;
-    if (q.giftField==="extraItem") seenItems.add(itemIdentity(result.value));
+    if (q.giftField==="extraItem" || /^orgItem\d+$/.test(q.id)) seenItems.add(itemIdentity(result.value));
   }
   // Aliases may normalize a choice, but may never change which fields a complete file requires.
   if (Object.hasOwn(answers,"adviceOverride") && !Object.hasOwn(answers,"adviceFor") && Object.hasOwn(answers,"extraRequest"))
@@ -909,11 +1046,13 @@ export function validateState(state, complete = false, importing = false) {
     throw Error("Please complete the remaining questions.");
   if (Object.keys(answers).length !== Object.keys(incoming).length)
     throw Error("Unrecognized or out-of-order saved answers.");
-  if (earlierFamilyConflict) return preserveAsNotes(p,{...state,answers},earlierFamilyConflict);
+  if (earlierNameConflict) return preserveAsNotes(p,{...state,answers},earlierNameConflict);
   return {
     version: state.version,
     ...(purpose ? { purpose } : {}),
-    ...(record ? {record} : {}),
+    ...(record.length || state.record !== undefined ? {record} : {}),
+    ...(Object.keys(issues).length ? {issues} : {}),
+    ...(reviewNotes.length ? {reviewNotes} : {}),
     place: { country: p.country, region: p.region },
     answers,
   };

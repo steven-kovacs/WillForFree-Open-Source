@@ -10,6 +10,7 @@ import {confirmationWrites} from "../../public/partner-api.js";
 import {execFileSync} from "node:child_process";
 import {fileURLToPath} from "node:url";
 import {makeServer} from "../../server.mjs";
+import pdfTextHelpers from "./pdf-text.cjs";
 
 const project=process.env.GCLOUD_PROJECT || "demo-willforfree", authHost=process.env.FIREBASE_AUTH_EMULATOR_HOST || "127.0.0.1:9199",
   dbHost=process.env.FIRESTORE_EMULATOR_HOST || "127.0.0.1:8187";
@@ -44,13 +45,14 @@ try{
   page.on("pageerror",e=>errors.push(e.message));await ctx.route("https://get.geojs.io/**",r=>r.abort());
   await page.goto(origin+"/");await page.getByRole("button",{name:/Let’s start/}).click();
   await page.locator("#country").selectOption("US");await page.locator("#region").selectOption("NC");await page.locator("#use-place").click();
+  await page.locator("#accept-download-terms").check();
   await page.locator("#complete .primary-btn").click();await page.locator("#sponsor-dialog[open]").waitFor();
   assert.match(await page.locator("#partner-label").textContent(),/Advertisement · Paid sponsor/);
   assert.equal(await page.locator("#partner-credit").textContent(),"Example East");
   const confirmed=page.waitForResponse(r=>r.url()===endpoint+":commit" && r.status()===200);
   const [download]=await Promise.all([page.waitForEvent("download"),page.locator("#save-zip").click()]);
   assert.ok(download.suggestedFilename().includes("US-NC"));await confirmed;
-  const entry=execFileSync("/usr/bin/unzip",["-p",await download.path(),"Sponsor-offer.txt"],{encoding:"utf8"});
+  const entry=pdfTextHelpers.kitText(await download.path(),"Sponsor-offer.pdf");
   assert.match(entry,/Sponsored by Example East/);
   const commit=(writes)=>fetch(endpoint+":commit",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({writes})});
   const get=(path,token)=>fetch(endpoint+"/"+path,{headers:token?{Authorization:"Bearer "+token}:{}});

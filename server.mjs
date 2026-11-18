@@ -13,7 +13,7 @@ const hosting = JSON.parse(
 const common = Object.fromEntries(
   hosting.headers[0].headers.map(({ key, value }) => [key, value]),
 );
-const informationPaths = new Set(["/why-do-i-need-a-will", "/fine-print", "/free-and-private", "/open-source", "/partners", "/partners/brief", "/partners/ideas"]);
+const informationPaths = new Set(["/why-do-i-need-a-will", "/why-do-i-need-a-will/after-the-will", "/our-mission", "/fine-print", "/free-and-private", "/open-source", "/partners", "/partners/brief", "/partners/ideas"]);
 const mime = {
   ".html": "text/html; charset=utf-8",
   ".js": "text/javascript; charset=utf-8",
@@ -22,6 +22,7 @@ const mime = {
   ".webp": "image/webp",
   ".woff2": "font/woff2",
   ".ttf": "font/ttf",
+  ".xml": "application/xml; charset=utf-8",
   ".txt": "text/plain; charset=utf-8",
   ".md": "text/plain; charset=utf-8",
   ".pdf": "application/pdf",

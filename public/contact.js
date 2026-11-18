@@ -1,10 +1,11 @@
+import {trafficEvent} from "./traffic.js";
 import {display} from "./locale.js";
 import {queueContact} from "./contact-api.js";
 
 const template = document.createElement("template");
 template.innerHTML = `<dialog class="contact-dialog" aria-labelledby="wff-contact-title">
   <div class="contact-top">
-    <h2 id="wff-contact-title" tabindex="-1">Contact us<span aria-hidden="true">.</span></h2>
+    <h2 id="wff-contact-title" tabindex="-1" autofocus>Contact us<span aria-hidden="true">.</span></h2>
     <button type="button" class="contact-close" aria-label="Close contact form">
       <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg>
     </button>
@@ -28,12 +29,12 @@ template.innerHTML = `<dialog class="contact-dialog" aria-labelledby="wff-contac
         <p class="contact-error" role="alert" hidden></p>
       </div>
       <div hidden aria-hidden="true"><label>Leave blank<input name="website" tabindex="-1" autocomplete="off"></label></div>
-      <button type="submit" class="primary-btn contact-send">Send message <span aria-hidden="true">↗</span></button>
+      <button type="submit" class="primary-btn contact-send">Send message <span class="link-arrow" aria-hidden="true"></span></button>
     </form>
     <span class="sr" role="status" data-contact-status></span>
   </div>
   <div data-contact-done hidden>
-    <p role="status"></p>
+    <p role="status" tabindex="-1"></p>
     <button type="button" class="outline-btn contact-finish">Done</button>
   </div>
   <p class="contact-email">Email us directly at <a href="mailto:info@willforfree.com">info@willforfree.com</a>.</p>
@@ -110,12 +111,15 @@ function createContact() {
     error.hidden = true;
     busy(true);
     try {
-      if (!form.elements.website.value) await queueContact(data, attempt.id, dialog);
+      if (!form.elements.website.value) {
+        await queueContact(data, attempt.id, dialog);
+        if (kind === "sponsor") trafficEvent("sponsor_inquiry_sent");
+      }
       entry.hidden = true;
       done.hidden = false;
       completedWhileClosed = !dialog.open;
       done.querySelector("p").textContent = kind === "sponsor" ? "Your sponsor inquiry is on its way to our team." : "Your message is on its way to our team.";
-      if (dialog.open) done.querySelector("button").focus({preventScroll:true});
+      if (dialog.open) done.querySelector("p").focus({preventScroll:true});
       attempts.delete(kind);
       drafts[kind] = "";
       message.value = "";

@@ -135,7 +135,7 @@ test("old affirmative estate screens keep their original meaning and a new parti
   assert.throws(()=>validateState({...old,answers:{...old.answers,scope:STOP}},true,true));
   assert.throws(()=>validateState({...old,answers:{...old.answers,businessOwnership:"I own a business"}},true,true));
   assert.throws(()=>validateState({...old,answers:{...old.answers,estateScope:YES}},true,true));
-  const pending={...base,answers:{eligible:YES,businessOwnership:"I own a business"}};
+  const pending={...base,answers:{priorWill:"No",eligible:YES,businessOwnership:"I own a business"}};
   assert.deepEqual(validateState(pending,false,true),pending);
   assert.equal(questions(p,pending.answers).find(q=>!Object.hasOwn(pending.answers,q.id)).id,"businessTransfer");
   assert.throws(()=>validateState(pending,true));

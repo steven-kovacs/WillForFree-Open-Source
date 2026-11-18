@@ -7,6 +7,8 @@ import {after,sections,signing} from "../public/document.js";
 import {cash,item,supportsGifts} from "../public/extras.js";
 import {questions,readAnswer,validateState} from "../public/will.js";
 import {interviewCards} from "../public/interview-copy.js";
+import {californiaDefaultHeirs,jointWillRules,priorDesignationGuide} from "../public/procedures.js";
+import {usWillGuidance} from "../public/us-sources.js";
 import {detectLanguage,display,editionNotice,languages,setLanguage,sourceChoice,sourcePattern} from "../public/locale.js";
 import {hasSensitive} from "../public/flow.js";
 
@@ -77,19 +79,28 @@ test("every location’s operative clauses, signing, aftercare and interview car
   };
   for(const country of Object.keys(markets)){
     for(const region of Object.keys(regions[country] || {"":true})){
-      const place={country,region},p=profile(place),branches=[{}];
+      const place={country,region},p=profile(place),branches=[{},{priorWill:"Yes"}];
       if(p.handOption)branches.push({execution:copyByHand});
-      if(p.parentPlan)branches.push({household:"Children first"},{household:"Partner, then children"});
+      if(p.parentPlan)branches.push({household:"Children first"},{household:"Partner, then children",extraRecipient:"Avery Morgan"});
       if(p.key==="US-TX")for(const marriage of ["Married, spouse living","Single, widowed or divorced"])
         for(const descendants of ["I have children or grandchildren","No children or grandchildren"])branches.push({marriage,descendants});
+      if(p.key==="US-AK")branches.push({orgGift1:"Give money",orgName1:"Cedar Vale Museum",orgAmount1:"307"});
+      add(priorDesignationGuide(p));
+      add(jointWillRules[p.key]);
+      add(usWillGuidance[p.key]?.familySupport);
+      add(usWillGuidance[p.key]?.executor);
+      if(p.key==="US-CA")add(californiaDefaultHeirs);
       const gifts=supportsGifts(p) && p.route!=="official" ? {extra:item,extraItem:"silver ring",extraRecipient:"Mira Lake",extraAfter:cash,extraAmount2:"1250",extraRecipient2:"Ben Reed"} : {};
       for(const branch of branches){
         const {answers}=fixture(place,{...gifts,...branch});
         const effective=executionProfile(p,answers);
         if(!["fixed","official"].includes(p.route))for(const [heading,clause] of sections(effective,answers)){add(heading);add(clause);}
-        for(const line of [...signing(effective),...after(effective)])add(line);
-        for(const q of questions(p,answers))for(const c of interviewCards(q,p,answers)){
-          for(const line of [c.title,c.tip,...c.lines,...c.options.map(o=>o.label)])add(line);
+        for(const line of [...signing(effective),...after(effective,answers)])add(line);
+        for(const q of questions(p,answers)){
+          add(q.label);
+          for(const c of interviewCards(q,p,answers)){
+            for(const line of [c.title,c.tip,...c.lines,...c.options.map(o=>o.label)])add(line);
+          }
         }
       }
       if(p.key==="US-ME")for(const line of [...signing({...p,route:"statutory"}),...after({...p,route:"statutory"})])add(line);

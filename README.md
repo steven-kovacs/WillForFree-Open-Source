@@ -2,6 +2,8 @@
 
 A free, browser-based will interview. The browser builds the PDFs and ZIP. An Ontario resident with a supported situation can complete the interview locally, print the will and follow the signing instructions. Other locations use their own forms and completion procedures.
 
+All locations can record earlier wills, pet care, funeral arrangements and gifts to organizations. See the [regional coverage and research](docs/review/planning-choices-2026-11-16.md) for the difference between a gift in the will and a request recorded for professional review.
+
 This repository contains the same files as the site's downloadable source edition. Verify them with `shasum -a 256 -c SHA256SUMS`.
 
 ## Run locally
@@ -42,6 +44,6 @@ Seven project-authored fixed forms are included. The ten publisher PDFs for Cali
 
 ## Verification and contributions
 
-Run `npm test` and `npm run check:partners`. The optional emulator integration check at qa/ux/partner-portal.mjs signs in to disposable accounts and exercises the actual download with Playwright WebKit. With the local emulators running, set WFF_PLAYWRIGHT to an installed Playwright module and run `node qa/ux/partner-portal.mjs`. To propose a change, describe the user-visible behavior, the affected jurisdictions if relevant, and the checks you ran. Use fictional people and property in examples. See [security reporting](SECURITY.md) before submitting sensitive information.
+Run `npm test` and `npm run check:partners`. The optional emulator integration check at qa/ux/partner-portal.mjs signs in to disposable accounts and exercises the actual download with Playwright WebKit. With the local emulators running, set WFF_PLAYWRIGHT to an installed Playwright module and WFF_PYTHON to a Python interpreter with pypdf, then run `node qa/ux/partner-portal.mjs`. To propose a change, describe the user-visible behavior, the affected jurisdictions if relevant, and the checks you ran. Use fictional people and property in examples. See [security reporting](SECURITY.md) before submitting sensitive information.
 
 This edition has a loopback release configuration. Its tests verify software behavior. Each person still needs to meet the requirements for their own circumstances and complete the local signing or appointment instructions.

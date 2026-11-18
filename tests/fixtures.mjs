@@ -22,8 +22,8 @@ export const choiceValues = {
   custodian: "Jordan Lee",
   oneAdult: "Élodie Rivera",
 };
-export function fixture(place, overrides = {}) {
-  const p = profile(place),
+export function fixture(place, overrides = {}, purpose) {
+  const base=profile(place), p=purpose?{...base,route:purpose}:base,
     answers = {};
   for (let i = 0; i < 64 + Object.keys(overrides).length * 7; i++) {
     const q = questions(p, answers).find((k) => !(k.id in answers));
@@ -33,5 +33,5 @@ export function fixture(place, overrides = {}) {
     if (!res.value) throw Error(q.id + " " + JSON.stringify(res));
     answers[q.id] = res.value;
   }
-  return { version: 2, place, answers };
+  return { version: 2, place, answers, ...(purpose?{purpose}:{}) };
 }

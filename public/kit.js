@@ -1,19 +1,22 @@
 import { kitFileName, duringKit, currentLanguage, display, editionNotice, sentence, wording } from "./locale.js";
-import { loadTexasForms } from "./publisher-forms.js";
-import { californiaBond, californiaCommunityShare, custodySources, procedureTitle, extraSources, texasFamilyHome, texasUnsignedChoice } from "./procedures.js";
+import { usWillGuidance } from "./us-sources.js";
+import { loadMaineForm, loadTexasForms } from "./publisher-forms.js";
+import {ownEstateClause, jointWillRules, priorDesignationGuide, priorDesignationSources, appointmentContacts, appointmentPapers, appointmentRequest, californiaBond, californiaCommunityShare, californiaCustodianScope, californiaDefaultHeirs, californiaDescendantShares, californiaGuardianScope, custodySources, executorAgeInstruction, procedureTitle, extraSources, hasMaineCourtReferral, maineProbateCourts, mainePublisher, maineSpouseAmount, maineStatuteNotice, texasCustody, texasFamilyHome, texasGuardianScope, texasUnsignedChoice, superannuationSource } from "./procedures.js";
 import { executionProfile } from "./markets.js";
 import { downloadNotice } from "./download-notice.js";
 import {latinPdfText} from "./characters.js";
 import { bilingualTexas } from "./texas-bilingual.js";
 import { placeForSession } from "./release.js";
 import { texasGiftRows } from "./court-gift-rows.js";
-import { item, needsAdvice, notesEntries, wishesProfile, giftList, courtDeferred, giftText } from "./extras.js";
-import { validateState, questions, formatValue } from "./will.js";
-import { sections, signing, after } from "./document.js";
-import { courtSpouseInherits, texasResidueChoices } from "./survival.js";
+import {warning,hasPrior,previousAdvice,careEntries,skipped,petAdvice,funeralAdvice,maineCharity} from "./planning.js";
+import { item, needsAdvice, notesEntries, wishesProfile, giftList, instrumentGifts, courtDeferred, giftText } from "./extras.js";
+import { validateState, questions, formatValue, planningEntries, usesEarlierChoicesNotice } from "./will.js";
+import { sections, signing, after, fixedSigning } from "./document.js";
+import { courtSpouseInherits, texasChildlessSpouseGift, texasResidueChoices } from "./survival.js";
 import { ownsBusiness, blankBusinessGuide, businessChecklist, businessFile } from "./business.js";
 import { renderCompanion } from "./companion-pdf.js";
-import { YES, interviewCards, friendlyValue, reviewLabel } from "./interview-copy.js";
+import { kitWordmark } from "./kit-brand.js";
+import { YES, interviewCards, friendlyValue, reviewLabel, mattersForReview } from "./interview-copy.js";
 const scripts = new Map();
 function library(path, name) {
   if (globalThis[name]) return Promise.resolve(globalThis[name]);
@@ -111,8 +114,9 @@ async function typeset(title, p, render, instrumentPages = false, expanded = cur
     y = h - 57;
 
   };
-  const space = (height) => {
-    if (!page || y - height < 60) newPage();
+  const space = (height, gapBefore = 0) => {
+    if (!page || y - gapBefore - height < 60) newPage();
+    else if (y < h - 57) y -= gapBefore;
   };
   // A short legal name should remain readable as one unit, including at a page break.
   const spacedNames = [...new Set(names)].filter(name => name.includes(" ")).sort((a,b) => b.length - a.length);
@@ -148,8 +152,8 @@ async function typeset(title, p, render, instrumentPages = false, expanded = cur
     run(display(str), regular, 11.5, 16);
     y -= 8;
   };
-  const sub = (str) => {
-    space(62);
+  const sub = (str, gapBefore = 0) => {
+    space(62, gapBefore);
     run(display(str), bold, 14, 19);
     y -= 3;
   };
@@ -158,8 +162,8 @@ async function typeset(title, p, render, instrumentPages = false, expanded = cur
     run(display(str), bold, 22, 28);
     y -= 7;
   };
-  const field = (label) => {
-    space(32);
+  const field = (label, gapBefore = 0) => {
+    space(32, gapBefore);
     page.drawLine({
       start: { x: 50, y: y - 6 },
       end: { x: w - 50, y: y - 6 },
@@ -223,7 +227,7 @@ function texForm(a) {
 export function formFilename(p, a) {
   return p.key === "US-CA" ? "ca-statutory" : texForm(a);
 }
-async function courtForm(p, a) {
+async function courtForm(p, a, gifts) {
   const { pdf, fontkit } = await pdfTools();
   const file = formFilename(p, a);
   const original = p.key === "US-TX" ? (await loadTexasForms()).get(file) : await bytes("/forms/" + file + ".pdf");
@@ -250,7 +254,8 @@ async function courtForm(p, a) {
   const fields = form.getFields().filter((f) => f instanceof pdf.PDFTextField);
   function writeField(f, value) {
     mustRender(font, value);
-    const sizes = f.acroField.getWidgets().map((w) => w.getRectangle());
+    const widgets = f.acroField.getWidgets();
+    const sizes = widgets.map((w) => w.getRectangle());
     const designed =
       Number(
         (f.acroField.getDefaultAppearance() || "").match(/([0-9.]+)\s+Tf/)?.[1],
@@ -273,6 +278,10 @@ async function courtForm(p, a) {
     f.setText(value);
     f.setFontSize(fitted);
     f.updateAppearances(font);
+    // The English Texas unmarried childless original omits Print on its eighth residue row.
+    for (const widget of widgets) {
+      if (!widget.hasFlag(pdf.AnnotationFlags.Print)) widget.setFlag(pdf.AnnotationFlags.Print);
+    }
   }
   function set(match, value) {
     if (!value || value === "Leave open") return;
@@ -281,7 +290,6 @@ async function courtForm(p, a) {
       throw Error("The court form changed. Check the original form.");
     writeField(list[0], value);
   }
-  const gifts=giftList(a);
   if (p.key === "US-CA") {
     set((n) => n === "Print Your Full Name", a.maker);
     set((n) => n === "Name of First Choice for Executor", a.executor);
@@ -407,6 +415,7 @@ async function buildFixedInstrument(p) {
     text(sentence("State of {0}", wording(p.name)));
     sub("Declaration");
     text("I declare this to be my last will. I revoke all earlier wills and codicils.");
+    text(ownEstateClause);
     field("My full legal name"); field("My town or city and state of permanent residence");
     sub("Executor");
     text("I appoint the following person as executor to administer my estate under the law:");
@@ -424,11 +433,14 @@ async function buildFixedInstrument(p) {
     for (let n=1;n<=2;n++) { field(sentence("Witness {0}: signature and full name", n));field(sentence("Witness {0}: residential address", n)); }
   },true);
 }
-async function instrument(p, a) {
-  if (p.route === "statutory" && p.key === "US-ME") return new Uint8Array(await bytes("/forms/me-statutory.pdf"));
+async function instrument(p, a, gifts) {
+  if (p.route === "statutory" && p.key === "US-ME") {
+    return new Uint8Array(await loadMaineForm());
+  }
   if (p.route === "fixed") return new Uint8Array(await bytes("/forms/basic/"+p.region+".pdf"));
-  if (p.route === "official") return courtForm(p, a);
+  if (p.route === "official") return courtForm(p, a, gifts);
   const hand = p.route === "handwriting";
+  const witnessGap = 16; // One body-text line between different signers' sections.
   const names = questions(p,a).filter(q => ["name","names"].includes(q.kind) && a[q.id] && a[q.id] !== "Leave open")
     .flatMap(q => a[q.id]);
   return typeset(
@@ -440,17 +452,19 @@ async function instrument(p, a) {
         text(
           "Reference copy. Personally handwrite all the numbered provisions below on blank paper. Add the date and place in your own handwriting and sign the handwritten original at the end. Do not sign this printout.",
         );
-      sections(p, a).forEach(([label, body], i) => {
+      sections(p, a, gifts).forEach(([label, body], i) => {
         sub(sentence("{0}. {1}", i + 1, wording(label)));
         text(body);
       });
       if (hand) return;
       if (p.route === "deposit") {
         if (p.key === "PT") {
-          space(465); sub(sentence("Signing the will of {0}", a.maker));
+          // The Portuguese notary starts the approval after the signatures on this sheet.
+          space(590 + witnessGap); sub(sentence("Signing the will of {0}", a.maker));
           text("In the presence of both witnesses and the authorized person, I declare that this document is my will and that I know its contents.");
           field("Will-maker’s full signature");
-          for(let i=1;i<=2;i++) { field(sentence("Witness {0}: signature", i)); field(sentence("Witness {0}: full name and address", i)); }
+          for(let i=1;i<=2;i++) { field(sentence("Witness {0}: signature", i), i===1 ? witnessGap : 0); field(sentence("Witness {0}: full name and address", i)); }
+          field("Place of signing", witnessGap);
           field("Authorized person: signature and official capacity"); field("Date entered by the authorized person at the end of the will");
         } else {
           space(125); sub(sentence("Signature of {0}", a.maker)); text("I sign these provisions as my will.");
@@ -468,7 +482,7 @@ async function instrument(p, a) {
       }
       const scotland = p.key === "GB-SCT";
       // Keep the actual signing and attestation together; the witness page identifies the will-maker independently.
-      space(scotland ? 410 : p.country === "IS" ? 610 : p.country === "DK" ? 580 : 540);
+      space((scotland ? 410 : p.country === "IS" ? 610 : p.country === "DK" ? 580 : 540) + witnessGap);
       sub(sentence("Signing the will of {0}", a.maker));
       text(
         scotland ? "I declare the preceding provisions to be my will and I request the witness below to witness my signature." : "I declare the preceding provisions to be my will and I request the witnesses below to witness my signature.",
@@ -476,7 +490,7 @@ async function instrument(p, a) {
       field("Place of signing");
       field("Day, month (in words) and year");
       field(sentence("Signature of {0}", a.maker));
-      sub(scotland ? "Witness" : "Witnesses");
+      sub(scotland ? "Witness" : "Witnesses", witnessGap);
       text(
         scotland
           ? "I witnessed the will-maker sign this will and signed in their presence."
@@ -487,7 +501,7 @@ async function instrument(p, a) {
       for (let i = 1; i <= (scotland ? 1 : 2); i++) {
         field(sentence("Witness {0}: signature and printed full name", i));
         field("Residential address, occupation, place and date of signing");
-        if (p.country === "IS") field("Witness identification number");
+        if (p.country === "IS") field("Witness identification number (Icelandic personal number, kennitala)");
       }
       if (p.country === "DK") field("Time of ceremony and any other relevant circumstances");
       if (p.country === "IS") {
@@ -503,37 +517,44 @@ async function companion(place,title,build) {
   const {pdf,fontkit}=await pdfTools();
   const doc=await pdf.PDFDocument.create();
   doc.registerFontkit(fontkit);
-  const [regular,bold]=await Promise.all([fontFor(doc),fontFor(doc,true)]);
-  return renderCompanion({pdf,doc,regular,bold},place,title,build);
+  const [regular,bold,wordmark]=await Promise.all([fontFor(doc),fontFor(doc,true),
+    kitWordmark && bytes(kitWordmark).then(data=>doc.embedPdf(data,[0])).then(([page])=>page)]);
+  return renderCompanion({pdf,doc,regular,bold,wordmark},place,title,build);
 }
 
-export function makeAnswerPDF(place,rows,{partial=false,notesOnly=false,maker="",earlier=[],gifts=[],checks=[]}={}) {
+export function makeAnswerPDF(place,rows,{partial=false,notesOnly=false,maker="",earlier=[],gifts=[],checks=[],matters=[]}={}) {
   return duringKit(()=>companion(place,partial?"Your answers so far":"Your interview answers",({body,heading,entry})=>{
     if(maker)body(sentence("Prepared for {0}", maker));
     body(partial ? "Keep these answers and questions for your records or to discuss with an adviser. This interview is unfinished and this document is not a will."
       : notesOnly ? "Your choices for planning and discussion. This copy is not a will." : "A personal record of the choices you confirmed in the chat. Only the separate will document is used to make your will. Keep this copy private.");
+    if(matters.length){body(warning);for(const [label,value,raw] of matters)entry(label,value,raw);}
     if(gifts.length){
       heading("Your gifts");
-      for(const gift of gifts)entry(sentence("Gift {0} to {1}", gift.n, gift.recipient),giftText(place,gift),true);
+      for(const gift of gifts)entry(sentence("Gift number {0} · Recipient: {1}", gift.n, gift.recipient),giftText(place,gift),true);
     }
     if(gifts.length || checks.length)heading("Your answers");
     for(const [label,value] of rows)entry(label,value,true);
     if(checks.length){heading("Checks you confirmed");for(const [label,value] of checks)entry(label,value);}
-    if(earlier.length){heading("Earlier choices for discussion");for(const [label,value] of earlier)entry(label,value,true);}
+    if(earlier.length){heading("Earlier choices for discussion");for(const [label,value,preset] of earlier)entry(label,value,!preset);}
   }));
 }
 
-function confirmedAnswers(place,answers) {
+function confirmedAnswers(place,state) {
+  const answers=state.answers;
   const rows=[],checks=[];
   for(const q of questions(place,answers)){
     if(!Object.hasOwn(answers,q.id))continue;
     const value=answers[q.id];
+    if(value===skipped)continue;
     if(value===YES || (q.giftField==="extraFit" && value===q.values[0])){
       for(const card of interviewCards(q,place,answers)){
         const choice=card.options?.find(o=>o.value===value);
         checks.push([card.title,choice?.label || "Confirmed"]);
       }
-    }else rows.push([reviewLabel(q), q.values?.includes(value) ? display(friendlyValue(value)) : formatValue(value)]);
+    }else{
+      const recorded=q.id==="wishes" && usesEarlierChoicesNotice(state) ? display(value) : formatValue(value);
+      rows.push([reviewLabel(q), q.values?.includes(value) ? display(friendlyValue(value)) : recorded]);
+    }
   }
   return {rows,checks};
 }
@@ -543,13 +564,21 @@ async function buildKit(incoming, offer) {
   const state = validateState(incoming, true);
   const a = state.answers;
   const original = await placeForSession(state.place, state.purpose);
-  const p = wishesProfile(executionProfile(original, a), a);
+  const p = wishesProfile(executionProfile(original, a), a, state.issues);
   const unresolved = needsAdvice(a);
-  const personalNotes = notesEntries(a);
+  const matters=mattersForReview(original,a,state.issues,questions(original,a),state.record,state.reviewNotes);
+  const reviewNotice=({body,heading,entry})=>{
+    if(!matters.length)return;
+    heading("What to discuss locally");body(warning);
+    if(hasPrior(a))body(previousAdvice);
+    for(const [label,value,raw] of matters)entry(label,value,raw);
+  };
+  const personalNotes = [...careEntries(a),...notesEntries(a)];
   const gifts = giftList(a);
   const notesOnly = p.use === "appointment" || p.use === "planning";
+  const printedGifts = notesOnly ? [] : instrumentGifts(p,a);
   const includeBusinessGuide = !notesOnly && (a.businessOwnership === ownsBusiness || blankBusinessGuide(p));
-  if (notesOnly && ((!a.wishes && !a.extraRequest) || !a.maker))
+  if (notesOnly && !matters.length && ((!a.wishes && !a.extraRequest) || !a.maker))
     throw Error(
       "Please complete the private notes interview for this location.",
     );
@@ -560,9 +589,14 @@ async function buildKit(incoming, offer) {
           "Keep your private notes with your planning papers. Tell a trusted person where your signed will is once you have made one.",
           "Store these PDFs somewhere private. You can bring them to a local appointment.",
         ]
-      : after(p);
+      : after(p, a);
   if (editionNotice(p)) steps.unshift(editionNotice(p));
+  if (!notesOnly && p.route==="statutory" && gifts.length) steps.unshift(maineCharity);
+  if (!notesOnly && p.key === "US-ME" && p.route === "statutory") steps.push(usWillGuidance[p.key].familySupport);
   if (!notesOnly && p.route !== "official") steps.unshift(sentence("Use this procedure in {0}. If you plan to sign elsewhere, check the rules there before signing.", wording(p.name)));
+  if (!notesOnly && hasPrior(a)) steps.unshift(...[priorDesignationGuide(p), jointWillRules[p.key]].filter(Boolean));
+  if (!notesOnly && usWillGuidance[p.key]?.executor) steps.push(usWillGuidance[p.key].executor);
+  if (!notesOnly && executorAgeInstruction(p)) steps.push(executorAgeInstruction(p));
   if (!notesOnly && p.country === "SG" && currentLanguage() !== "en") next.push("If your executor applies for probate in Singapore with a will written in another language, the court generally requires an English translation certified by a court interpreter or verified by a qualified translator’s affidavit. The simplified online Probate eService accepts only wills written in English.");
   if (!notesOnly && p.key === "US-NY" && currentLanguage() !== "en") next.push("For probate in New York, submit the original will. If it is written in another language, provide an English translation and the translator’s affidavit stating their qualifications and confirming the translation is accurate.");
   if (!notesOnly && p.key === "CA-QC" && !["en","fr"].includes(currentLanguage())) next.push("To have this will verified in Québec, first have it translated into French or English by a translator recognized by Québec’s professional order of translators (OTTIAQ).");
@@ -573,7 +607,11 @@ async function buildKit(incoming, offer) {
     steps.unshift(
       "This software is not a substitute for the advice of an attorney.",
     );
-    if (a.marriage === "Married, spouse living" || a.descendants === "I have children or grandchildren") steps.push(texasFamilyHome);
+    if (a.marriage === "Married, spouse living" || a.descendants === "I have children or grandchildren") steps.push(texasFamilyHome, usWillGuidance[p.key].familySupport);
+    if (courtSpouseInherits(p,a) && !a.txChoice) steps.push(texasChildlessSpouseGift);
+    steps.push(texasCustody);
+    if (currentLanguage() === "es") next.push("In section 4.4, the Spanish phrase “pagos pendientes” refers to the list of claims mentioned in English. When preparing a required list, the executor should also check amounts owed to the estate, including loans made under a written or oral agreement.");
+    if (a.descendants === "I have children or grandchildren") steps.push(texasGuardianScope);
     if (a.txChoice)
       steps.push(
         texasResidueChoices,
@@ -581,7 +619,7 @@ async function buildKit(incoming, offer) {
         texasUnsignedChoice,
       );
     const deferred=a.txSpecific !== "Use section 2 for everything" || courtDeferred(a);
-    if (gifts.length) steps.push(sentence("Section 3.3 contains {0} chat {1} Match each item or amount with the person on that same line.", gifts.length, wording(gifts.length===1?"gift on the first line.":"gifts in printed order.")));
+    if (printedGifts.length) steps.push(sentence("Section 3.3 contains {0} chat {1} Match each item or amount with the person on that same line.", printedGifts.length, wording(printedGifts.length===1?"gift on the first line.":"gifts in printed order.")));
     steps.push(deferred
       ? "Complete any remaining permitted gifts in the available section 3 boxes before signing. Cross out unused boxes as the court directs. Do not add a continuation page."
       : sentence("{0} Check all printed pages for unused boxes and mark them as the court directs.", wording(gifts.length ? "Other unused section 3 gift boxes are marked XXXX." : "You chose no separate specific gifts. The editable boxes for section 3 have been marked XXXX.")));
@@ -591,11 +629,15 @@ async function buildKit(incoming, offer) {
       );
   }
   if (!notesOnly && p.key === "US-CA") {
-    steps.push(californiaCommunityShare);
+    steps.push(californiaCommunityShare, usWillGuidance[p.key].familySupport);
+    steps.push(californiaDefaultHeirs);
+    if (/^[12]/.test(a.caBalance) || a.caExtras !== "Use my balance choice for everything" || courtDeferred(a)) steps.push(californiaDescendantShares);
+    if (a.familyGuardian && a.familyGuardian !== "Leave open") steps.push(californiaGuardianScope);
+    if (a.custodian && a.custodian !== "Leave open") steps.push(californiaCustodianScope);
     if (courtSpouseInherits(p, a)) steps.push("If your spouse or registered domestic partner survives you, that person owns what is left outright.");
     steps.push(
       a.caBond === "Sign the box to waive bond"
-        ? "You chose to waive the executor’s bond. Sign the box in paragraph 9 at execution."
+        ? "You chose to waive the executor’s bond. Sign the box in paragraph 9 when you sign your will."
         : "You chose to leave the paragraph 9 bond waiver unsigned. A bond may be required.",
     );
     if (a.caBond === "Sign the box to waive bond") steps.push(californiaBond);
@@ -623,30 +665,50 @@ async function buildKit(incoming, offer) {
         : "01-Last-will-and-testament.pdf";
   const guideFile = notesOnly ? "02-Local-next-steps.pdf" : "02-Signing-and-next-steps.pdf";
   const formIsBlank = ["fixed","statutory"].includes(p.route);
-  const {rows,checks}=confirmedAnswers({...original,legacy:state.version===1},a);
-  const hasAnswers=Boolean(rows.length || checks.length || state.record?.length);
+  const {rows,checks}=confirmedAnswers({...original,legacy:state.version===1},state);
+  const earlier=planningEntries(state.place,state.record);
+  const hasAnswers=Boolean(rows.length || checks.length || earlier.length || matters.length);
   const primaryTitle=notesOnly ? (p.use==="appointment" ? "Notes for my appointment" : "My planning notes") : "";
+  function appointment({heading,body,link}) {
+    heading("Your official appointment");
+    body(appointmentRequest[p.country]);
+    body(appointmentPapers);
+    for (const [label,url] of appointmentContacts[p.country]) link(label,url);
+  }
   const mainDoc=notesOnly ? companion(p,primaryTitle,({body,heading,entry})=>{
-    body(sentence("Prepared for {0}", a.maker));
+    if(a.maker && a.maker!==skipped)body(sentence("Prepared for {0}", a.maker));
     body("These notes are for discussion. There is no will to sign in this kit.");
+    reviewNotice({body,heading,entry});
     if(unresolved){
-      heading("What to discuss locally");body(a.extraRequest,true);
+      if(!matters.length){heading("What to discuss locally");body(a.extraRequest,true);}
       if(a.adviceFor)entry("Earlier choice affected",a.adviceFor,true);
       if(gifts.length){
         heading("Earlier gifts for discussion");
         for(const gift of gifts)entry(giftText(p,gift),gift.recipient,true,true);
       }
       body("The earlier choices are for reference. Your requested change has not been made into a will.");
-    }else{heading("Your wishes");body(a.wishes,true);}
-    if(state.record?.length){
+    }else if(a.wishes && a.wishes!==skipped){heading("Your wishes");body(a.wishes,!usesEarlierChoicesNotice(state));}
+    if(matters.length && !unresolved)for(const [key,value] of rows)entry(key,value,true);
+    if(earlier.length){
       heading("Earlier choices for discussion");
-      for(const [key,value] of state.record)entry(key,value,true);
+      for(const [key,value,preset] of earlier)entry(key,value,!preset);
     }
-  }) : instrument(p,a);
+  }) : instrument(p,a,printedGifts);
   const guides=companion(p,notesOnly?"Your next steps":"Signing and next steps",({body,heading,entry,link})=>{
-    if(!formIsBlank)body(sentence("Prepared for {0}", a.maker));
+    if(a.maker && a.maker!==skipped)body(sentence("Prepared for {0}", a.maker));
+    reviewNotice({body,heading,entry});
+    if(!notesOnly && p.route==="deposit")appointment({heading,body,link});
     heading(notesOnly?"Making your will locally":"Before you sign");
     steps.forEach((step,i)=>entry(sentence("Step {0}", i+1),step));
+    if (!notesOnly && p.route === "statutory") entry("Maine statutory family will", a.mainePaperChoice);
+    if (!notesOnly && p.route === "statutory" && printedGifts.length < gifts.length) {
+      heading("Your gifts");
+      for (const gift of printedGifts) entry(gift.recipient,giftText(p,gift),true,true);
+    }
+    if (notesOnly && p.key === "US-ME" && (a.mainePaperChoice === skipped || hasMaineCourtReferral(state.record))) {
+      body(maineSpouseAmount);
+      link("Find your Maine probate court", maineProbateCourts);
+    }
     heading(notesOnly?"Keep with your notes":"After signing");
     next.forEach(line=>body(line));
     if(!notesOnly && custodySources[p.key])link("After a death, check who must receive the original will and when",custodySources[p.key]);
@@ -654,11 +716,12 @@ async function buildKit(incoming, offer) {
   });
   const files = [
     ["00-Start-here.pdf",companion(p,"Start here",({body,heading,entry,link})=>{
-      if(!formIsBlank)body(sentence("Prepared for {0}", a.maker));
+      if(a.maker && a.maker!==skipped)body(sentence("Prepared for {0}", a.maker));
+      reviewNotice({body,heading,entry});
       if(notesOnly)body("You chose a planning kit. These PDFs are for discussion and there is no will to sign.");
       else if(formIsBlank)body("Fill out the blank form yourself. Read the signing guide before you sign.");
       else if(p.route==="handwriting")body("Copy the will text by hand. Follow the dating and signing instructions in your guide.");
-      else if(p.route==="deposit")body("Use the will and its local completion guide together. The guide explains the formal steps still to take.");
+      else if(p.route==="deposit")appointment({heading,body,link});
       else body("Read your will and the signing guide together before you sign.");
       if (editionNotice(p)) body(editionNotice(p));
       heading("Inside your kit");
@@ -667,40 +730,49 @@ async function buildKit(incoming, offer) {
       if(hasAnswers)entry("03-My-answers.pdf","A private reading copy of what you confirmed.");
       if(personalNotes.length)entry("04-Personal-wishes.pdf","Personal messages to keep separate from the will.");
       if(includeBusinessGuide)entry(businessFile,"A separate checklist for business owners.");
-      if(offer && !notesOnly)entry("Sponsor-offer.pdf","An optional advertisement.");
+      if(offer)entry("Sponsor-offer.pdf","An optional advertisement.");
       heading("About this kit");
       body("WillForFree is a self-service tool. No lawyer reviews your individual will through this service.");
       body(downloadNotice(p));
-      if(!notesOnly && p.rule)body(p.rule);
+      if(!notesOnly && p.rule)body(p.route==="fixed" ? fixedSigning : p.rule);
       if(p.legalSource){
         heading("Official sources");
         if(notesOnly)link("Background for making your will locally",p.legalSource);
         if(!notesOnly){
           const links=new Map([[p.legalSource,p.key==="CA-ON"?"Execution and handwritten wills · Succession Law Reform Act, sections 4, 6, 7 and 12":"Local will-making rules"]]);
-          for(const url of extraSources[p.key] || [])if(!links.has(url))links.set(url,"Further local guidance");
+          for(const url of [...(extraSources[p.key] || []), ...(usWillGuidance[p.key]?.sources || [])])if(!links.has(url))links.set(url,"Further local guidance");
+          if(p.country === "CA" && hasPrior(a)) links.set(priorDesignationSources[p.region], "Beneficiary designations made in an earlier will");
+          if(p.country==="AU")links.set(superannuationSource,"Who receives your super death benefit");
+          if (formIsBlank && p.country === "US") links.set("https://www.bia.gov/guide/your-land-your-decision","Which rules cover your property");
           if(p.key==="CA-ON"){
-            links.set("https://www.ontario.ca/laws/statute/90c12","Children’s Law Reform Act, section 61");
+            links.set("https://www.ontario.ca/laws/statute/90c12","Children’s Law Reform Act, sections 12 and 61");
             links.set("https://www.ontario.ca/page/apply-probate-estate","Probate, witness affidavits and proof of handwriting");
           }
-          if(p.route==="statutory")links.set("https://legislature.maine.gov/statutes/18-C/title18-Csec2-517.pdf","Maine statutory will and republication notice");
+          if(p.route==="statutory"){
+            links.set(mainePublisher,"Maine statutory family will");
+            links.set("https://legislature.maine.gov/statutes/18-C/title18-Csec2-517.pdf","Maine statutory will and republication notice");
+          }
           if(p.key==="US-TX")links.set("https://www.txcourts.gov/rules-forms/forms/","Original Texas court forms");
           if(p.key==="US-CA")links.set("https://selfhelp.courts.ca.gov/sites/default/files/2026-02/6240-Statutory-will-form.pdf","Original California court form");
           for(const [url,source] of links)link(source,url);
+          if(p.route==="statutory")body(maineStatuteNotice,true);
         }
       }
     })],
     [label,mainDoc],[guideFile,guides],
   ];
-  if(hasAnswers)files.push(["03-My-answers.pdf",makeAnswerPDF(p,rows,{maker:a.maker,notesOnly,gifts,checks,earlier:state.record})]);
+  if(hasAnswers)files.push(["03-My-answers.pdf",makeAnswerPDF(p,rows,{maker:a.maker===skipped?"":a.maker,notesOnly,gifts,checks,earlier,matters})]);
   if(personalNotes.length)files.push(["04-Personal-wishes.pdf",companion(p,"Personal wishes",({body,entry})=>{
-    body(sentence("Prepared for {0}", a.maker));
+    if(a.maker && a.maker!==skipped)body(sentence("Prepared for {0}", a.maker));
     body("Messages to share with people you trust. These are separate from the will. They do not give away property, grant account access or appoint a caregiver.");
-    personalNotes.forEach(([topic,note])=>entry(topic,note,true));
+    if(a.pets==="Yes")body(petAdvice);
+    if(a.funeral && a.funeral!=="No preference")body(funeralAdvice);
+    personalNotes.forEach(([topic,note,preset])=>entry(topic,note,!preset));
   })]);
   if(includeBusinessGuide)files.push([businessFile,companion(p,"Your business and your personal will",({heading,paragraph})=>{
     for(const section of businessChecklist(p)){heading(section.title);section.items.forEach(paragraph);}
   })]);
-  if(offer && !notesOnly)files.push(["Sponsor-offer.pdf",companion(p,"An offer from our sponsor",({body,heading,link})=>{
+  if(offer)files.push(["Sponsor-offer.pdf",companion(p,"An offer from our sponsor",({body,heading,link})=>{
     body("Advertisement");body(offer.kind==="paid"?sentence("Sponsored by {0}", offer.name):sentence("From the WillForFree team · {0}", offer.name));
     heading(offer.title,true);body(offer.message,true);link(sentence("Visit {0}", offer.name),offer.url);
     body("Your free kit is complete. This offer is optional and separate from your will.");

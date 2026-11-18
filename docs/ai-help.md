@@ -2,6 +2,8 @@
 
 The guided interview runs in the browser. Ordinary answers, documents and free-text questions are never sent to the model. Prepared help covers common questions, reads the actual kit type, and includes a translated topic menu. An unmatched question gets an explicit fallback. For an ambiguous request for general help, the endpoint can choose one of the supplied topic labels. Its model output has a 64-token ceiling. The browser reuses a successful topic choice for the same set of labels and kind of step during that chat.
 
+The **AI Enabled** switch stays in the chat toolbar, including in full screen. It opens the same explanation as Free & private. Only **Turn Off** or **Turn On** changes the setting; Back to chat, Close and Escape leave it alone. **Use without AI** on the privacy page switches it off directly. The [chat control](../public/chat-ai.js) remembers only the on/off choice in this tab’s session storage. The interview and kit work either way. Opening the dialog makes no AI request, and disabling AI aborts an outstanding browser request and prevents its result from being used.
+
 The UI limits ordinary questions to 240 characters. Short step hints aim for 60 words and keep the complete translation when an excerpt would fall back to English. Prepared answers retain their full wording, including conditions that distinguish printed, handwritten and notes-only routes. The form accepts longer local notes (600 characters) and lists of names (650). [Question coverage, language checks and sources](review/interview-help.md)
 
 ## Limits

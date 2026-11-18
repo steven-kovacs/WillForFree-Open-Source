@@ -1,6 +1,6 @@
 import { sentence, translatedList, wording } from "./locale.js";
 import { executionProfile, copyByHand } from "./markets.js";
-import { courtVenue, procedureIntro } from "./procedures.js";
+import { appointmentContacts, appointmentRequest, courtVenue, maineOriginal, procedureIntro } from "./procedures.js";
 
 function paper(p) {
   if (p.key === "EE") return "This domestic will requires two eligible witnesses. It expires after six months if you are still alive. A notarial will is another option.";
@@ -23,6 +23,7 @@ export function completionSummary(p) {
 
 function external(text, href) {
   const a = document.createElement("a");
+  a.className = "with-arrow";
   a.textContent = text;
   a.href = href;
   a.target = "_blank";
@@ -39,6 +40,12 @@ export function renderLocalRules(result, p) {
   const method = document.createElement("p");
   method.textContent = completionSummary(p);
   result.append(heading, method);
+  if (p.route === "deposit") {
+    const appointment = document.createElement("p");
+    appointment.append(appointmentRequest[p.country]);
+    for (const [label, url] of appointmentContacts[p.country]) appointment.append(" ", external(label, url));
+    result.append(appointment);
+  }
   if (p.handOption) {
     const hand = executionProfile(p, { execution: copyByHand });
     const alternative = document.createElement("p");
@@ -48,7 +55,7 @@ export function renderLocalRules(result, p) {
   }
   if (p.key === "US-ME") {
     const alternative = document.createElement("p");
-    alternative.append("You may also choose the ", external("Maine statutory family will", "https://legislature.maine.gov/statutes/18-C/title18-Csec2-517.pdf"), " and complete it yourself.");
+    alternative.append("You may also choose the ", external("Maine statutory family will", maineOriginal), " and complete it yourself.");
     result.append(alternative);
   }
   if (p.rule && p.route === "paper" && !["CA-ON", "EE", "GB-SCT", "US-PA"].includes(p.key)) {
@@ -62,5 +69,5 @@ export function renderLocalRules(result, p) {
     rule.append(title, text, note);
     result.append(rule);
   }
-  result.append(external(sentence("Read the source for {0} ↗", wording(p.name)), p.legalSource));
+  result.append(external(sentence("Read the source for {0}", wording(p.name)), p.legalSource));
 }

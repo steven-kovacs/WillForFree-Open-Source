@@ -3,31 +3,34 @@ import { suggestion, validPlace } from "./markets.js";
 // Keep only the home jurisdiction in this tab. Older guide-only choices could
 // differ from the home setting and must not override it.
 const key = "wff-home-location";
-let inMemory = null;
+const selectedPrefix = "selected:";
+let inMemory = "";
 let pendingDetection;
 let storageWritable = true;
 
-export function readHomeLocation() {
-  if (!storageWritable) return inMemory;
-  try {
-    const code = sessionStorage.getItem(key) || "";
-    const [country, region = "", ...extra] = code.split("-");
-    const place = { country, region };
-    return !extra.length && validPlace(place) ? place : null;
-  } catch {
-    return inMemory;
+export function readHomeLocation({confirmedOnly = false} = {}) {
+  let value = inMemory;
+  if (storageWritable) {
+    try { value = sessionStorage.getItem(key) || ""; } catch { /* Use this tab's in-memory choice. */ }
   }
+  // Older tabs stored both guesses and explicit choices as a bare code.
+  const confirmed = value.startsWith(selectedPrefix);
+  if (confirmedOnly && !confirmed) return null;
+  const [country, region = "", ...extra] = (confirmed ? value.slice(selectedPrefix.length) : value).split("-");
+  const place = {country, region};
+  return !extra.length && validPlace(place) ? place : null;
 }
 
-export function setHomeLocation(place) {
+export function setHomeLocation(place, {confirmed = true} = {}) {
   if (!validPlace(place)) throw Error("Unknown jurisdiction");
-  inMemory = { country: place.country, region: place.region };
+  const code = place.region ? place.country + "-" + place.region : place.country;
+  inMemory = (confirmed ? selectedPrefix : "") + code;
   try {
-    sessionStorage.setItem(key, place.region ? place.country + "-" + place.region : place.country);
+    sessionStorage.setItem(key, inMemory);
   } catch {
     storageWritable = false;
   }
-  return inMemory;
+  return {country: place.country, region: place.region};
 }
 
 export async function detectLocation(fetcher = fetch, timeout = 2600) {
@@ -58,7 +61,7 @@ export function resolveHomeLocation() {
       const chosen = readHomeLocation();
       if (chosen) return chosen;
       // A country without a required region is only a hint for the home dialog.
-      return validPlace(guess) ? setHomeLocation(guess) : guess;
+      return validPlace(guess) ? setHomeLocation(guess, {confirmed: false}) : guess;
     });
   }
   return pendingDetection;

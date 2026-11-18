@@ -1,4 +1,23 @@
-import {languages, currentLanguage, savedLanguage, setLanguage, languagePreference, hasCopy, display} from "./locale.js";
+import {languages, currentLanguage, detectLanguage, savedLanguage, setLanguage, languagePreference, hasCopy, display} from "./locale.js";
+import {readDownloadTermsLink} from "./download-notice.js";
+import {publicKitHost} from "./release-target.js";
+import "./navigation-feedback.js";
+import "./traffic.js";
+
+// Page links start at the top, including when Safari restores a document from its cache.
+// Links to a specific section keep the browser's fragment positioning.
+history.scrollRestoration = "manual";
+window.addEventListener("pageshow", () => {
+  if (!location.hash) window.scrollTo({top:0, behavior:"instant"});
+});
+
+// Every visitor page loads this entry. Firebase's built-in links should open the same site
+// as its custom domain so the interview, location preference and AI cookie share one origin.
+if (publicKitHost && ["willforfree.web.app", "willforfree.firebaseapp.com"].includes(location.hostname)) {
+  const url = new URL(location.href);
+  url.host = url.pathname.startsWith("/partner-portal/") ? "partners." + publicKitHost : publicKitHost;
+  location.replace(url.href);
+}
 
 // Copy transcript display nodes with their authored text so earlier turns follow a later language switch.
 export function cloneOriginal(node) {
@@ -107,7 +126,8 @@ function paintMenu(host){
   const badge=host.querySelector("[data-code]"), code=currentLanguage()==="zh-Hans"?"中文":currentLanguage().toUpperCase();
   if(badge.textContent!==code)badge.textContent=code;
   select.title=display("Language")+" · "+languages[currentLanguage()];
-  select.options[0].textContent=display("Automatic (browser language)")+" · "+languages[currentLanguage()];
+  const browserLanguage=detectLanguage(navigator.languages || [navigator.language]);
+  select.options[0].textContent=display("Automatic (browser language)")+" · "+languages[browserLanguage];
   select.value=languagePreference();
 }
 function mount() {
@@ -120,7 +140,7 @@ function mount() {
   const select=document.createElement("select");select.add(new Option("Automatic (browser language)",""));
   for(const [code,name] of Object.entries(languages)){const option=new Option(name,code);option.lang=code;select.add(option);}
   host.append(select);nav.append(host);paintMenu(host);
-  const links = nav.querySelectorAll(':scope > :is(.mast-privacy, .fine-link, .contact-icon)');
+  const links = nav.querySelectorAll(":scope > a[data-menu-label]");
   if (!links.length) return;
   const details=document.createElement("details");details.className="mobile-navigation";
   const summary=document.createElement("summary");summary.setAttribute("aria-label","Menu");summary.title="Menu";
@@ -130,15 +150,9 @@ function mount() {
     const copy = link.cloneNode(false);
     copy.removeAttribute("class");
     copy.removeAttribute("id");
-    if (link.matches(".contact-icon")) {
-      copy.removeAttribute("aria-label");
-      copy.textContent = "Contact";
-    } else if (link.matches('.mast-privacy, [href="/"]')) {
-      copy.className = "compact-nav-link";
-      copy.textContent = link.matches(".mast-privacy") ? "Is this private?" : "Back to chat";
-    } else {
-      copy.textContent = "Fine print";
-    }
+    copy.removeAttribute("aria-label");
+    copy.removeAttribute("data-menu-label");
+    copy.textContent = link.dataset.menuLabel;
     list.append(copy);
   }
   details.append(summary,list);nav.append(details);walk(details);
@@ -165,4 +179,5 @@ observer=new MutationObserver(records=>{
   mount();watch();
 });
 watch();
-await setLanguage(savedLanguage(),{remember:false}).catch(()=>{});
+const linkedTerms = document.getElementById("responsibility") && readDownloadTermsLink(location.hash);
+await setLanguage(linkedTerms?.language || savedLanguage(),{remember:false}).catch(()=>{});

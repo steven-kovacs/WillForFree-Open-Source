@@ -4,16 +4,16 @@
   <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex,nofollow"><meta name="referrer" content="no-referrer">
   <title>Partner Portal · WillForFree</title>
-  <link rel="stylesheet" href="/styles.css">
+  <link rel="stylesheet" href="/styles.css?v=navigation-3">
   <link rel="stylesheet" href="/partner-portal/portal.css"><script type="module" src="/partner-portal/portal.js"></script>
   <script type="module" src="/language-menu.js"></script>
     <script type="module" src="/contact.js"></script>
   </head>
 <body><a class="skip" href="#main">Skip to portal</a><div class="site-frame">
-<header class="mast"><a class="brand" href="/" aria-label="WillForFree home"><strong>WillForFree</strong></a><nav aria-label="Main navigation"><span class="portal-word">Partner Portal</span><a class="contact-icon" href="mailto:info@willforfree.com" data-contact="support" aria-label="Contact WillForFree" aria-haspopup="dialog" title="Contact WillForFree"><svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="2.5" y="4.5" width="19" height="15" rx="3"/><path d="m3.5 6 7.3 5.7a2 2 0 0 0 2.4 0L20.5 6"/></svg></a></nav></header>
+<header class="mast"><a class="brand" href="/" aria-label="WillForFree home"><strong>WillForFree</strong></a><nav aria-label="Main navigation"><span class="portal-word">Partner Portal</span><a class="contact-icon" data-menu-label="Contact" href="mailto:info@willforfree.com" data-contact="support" aria-label="Contact WillForFree" aria-haspopup="dialog" title="Contact WillForFree"><svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="2.5" y="4.5" width="19" height="15" rx="3"/><path d="m3.5 6 7.3 5.7a2 2 0 0 0 2.4 0L20.5 6"/></svg></a></nav></header>
 <main id="main" class="portal-main">
   <section id="entry" class="portal-entry">
-    <div><h1>Partner <em>Portal.</em></h1><p>See how many kit downloads were reported during your campaign.</p></div>
+    <div><h1 id="portal-title" tabindex="-1">Partner <em>Portal.</em></h1><p>See how many kit downloads were reported during your campaign.</p></div>
     <div class="portal-card"><h2>Sign in</h2>
       <p id="availability" role="status">Checking sign-in availability…</p>
       <form id="sign-in" hidden>
@@ -31,7 +31,7 @@
     <div class="report-total"><span>Attributed kit downloads</span><strong id="total">0</strong></div>
     <div id="campaign-list"></div><p id="empty" hidden>Your first campaign will appear here once it’s scheduled.</p>
     <div class="portal-tools"><button id="refresh" type="button" class="outline-btn">Refresh totals</button><span id="report-status" role="status"></span></div>
-    <details><summary>What counts as a download?</summary><p>A kit counts when a visitor sees your placement, their browser starts the ZIP download and the reporting service receives confirmation during the campaign. A retry using the same receipt counts once. A person can start a new kit. Blocked confirmations and campaign limits can cause undercounts. Reports show estimated campaign totals. Dates use UTC.</p></details>
+    <details><summary>What counts as a download?</summary><p>A download counts when a visitor sees your offer, their browser starts downloading the ZIP and the reporting service receives confirmation during the campaign. A retry with the same receipt counts once. The same person can start another kit. Blocked confirmations and campaign limits can cause undercounts. Reports show estimated downloads per campaign. Dates use UTC.</p></details>
   </section>
   <noscript><p>Enable JavaScript to sign in to the Partner Portal.</p></noscript>
 </main><footer class="foot"><p>WillForFree</p><a href="/partners/brief/">Read the sponsorship brief</a></footer>

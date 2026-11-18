@@ -3,6 +3,7 @@ import { currentLanguage, display, sentence, sourceChoice, translatedList, wordi
 // advance the interview. This module never sends message text or saves a transcript.
 import { questionWhileAnswering, topicsFor } from "./flow.js";
 import {localControl, questionMark, questionSubjects} from "./help-language.js";
+import {noteAction} from "./planning.js";
 export { chooseLocalTopic } from "./flow.js";
 import { giftIntents, itemOwnershipIssue, giftCurrency, item, cash, personal, noExtra, doneGifts } from "./extras.js";
 import { businessWords, noBusiness, ownsBusiness } from "./business.js";
@@ -30,13 +31,20 @@ export const termMeanings = [
 const smallTalk = /^(?:hi|hey|hello)(?: there| again)?$|^(?:(?:i (?:need|want|could use)|can i (?:get|have)) (?:some |a little |more )?help|help(?: me)?(?: please| with this)?|(?:please |can you )?help me|what now|what next|next|continue|not today|not now|no thank you|never mind|nevermind|please continue|all good|makes sense|who knows|looks good|thank you(?: so much)?|thanks(?: very much| a lot)?)$/i;
 const nameIntro=/^(?:my (?:full |legal )?name is|i (?:choose|nominate)|my (?:sister|brother|mother|father|partner|spouse|wife|husband|daughter|son)(?:['’]s name is| is))\s+(.+)$/iu;
 const contexts = {amount:"gift",item:"gift",charity:"gift",notes:"notes",noteName:"notes",name:"people",names:"people",town:"location"};
-export function contextOf(q) {return q.giftField || q.giftMenu ? "gift" : contexts[q.kind] || (q.id==="execution"?"signing":"choice");}
-const binaryChoices={descendants:[0,1],caBond:[1,0],caExtras:[1,0],txSpecific:[1,0],txLiving:[0,1],txAdditional:[1,0],formNotes:[1,0],adviceOverride:[0,1]};
+export function contextOf(q) {return q.giftField || q.giftMenu || /^org/.test(q.id) ? "gift" : contexts[q.kind] || (q.id==="execution"?"signing":"choice");}
+export function canSkipQuestion(q,card) {
+  return Boolean(q?.kind && !q.optional && !card.options.length);
+}
+const binaryChoices={priorWill:[1,0],priorContinue:[0,1],pets:[1,0],descendants:[0,1],caBond:[1,0],caExtras:[1,0],txSpecific:[1,0],txLiving:[0,1],txAdditional:[1,0],formNotes:[1,0],adviceOverride:[0,1]};
 export function resolveTyped(card,q,input) {
   if(questionMark(input))return null;
   const s=norm(input), opts=card.options;
   const exact=sourceChoice(input,opts) || opts.find(o=>norm(o.label)===s);
   if (exact) return exact;
+  if (q.id === "mainePaperChoice") {
+    const letter = /^(?:(?:i (?:want|choose|prefer)|use) )?(?:(?:choice|option) )?([abc])$/.exec(s)?.[1];
+    if (letter) return opts.find(o => o.value.startsWith(letter.toUpperCase() + " · "));
+  }
   if (q.id==="businessOwnership") {
     if (yes.test(s) || /^(?:yes,? )?i (?:own|have|run|co-own) (?:a|my own|part of a) (?:small |side )?(?:business|company)$/.test(s) || /^i(?:'m| am) (?:a freelancer|self[- ]employed|a sole (?:trader|proprietor))$/.test(s)) return opts.find(o=>o.value===ownsBusiness);
     if (no.test(s) || /^i (?:don't|do not) (?:have|own|run) a business$/.test(s)) return opts.find(o=>o.value===noBusiness);
@@ -54,6 +62,12 @@ export function resolveTyped(card,q,input) {
     if(yes.test(s) || no.test(s)) return opts[yes.test(s)?y:n];
     if(q.id==="descendants" && unsure.test(s)) return opts[2];
   }
+  if(/^orgGift\d+$/.test(q.id)){
+    if(no.test(s) || /^(?:done|finished|nothing else|no more gifts)$/.test(s))return opts.find(o=>o.value==="I’m done");
+    if(["Money","A cash gift"].some(k=>norm(display(k))===s) || /^(?:cash|money)$/.test(s))return opts.find(o=>o.value==="Give money");
+    if(["A keepsake","My ring","My car"].some(k=>norm(display(k))===s) || /^(?:an? )?(?:item|keepsake)$/.test(s))return opts.find(o=>o.value==="Give an item");
+  }
+  if(q.id==="funeral" && no.test(s))return opts.find(o=>o.value==="No preference");
   if(q.giftField==="extraFit") {
     if(yes.test(s)) return opts[0];
     if(no.test(s) || unsure.test(s)) return opts[1];
@@ -77,8 +91,12 @@ export function manageTurn(input,q,card,place) {
   const command=localControl(input), marked=questionMark(input), asking=questionWhileAnswering(input,q.kind);
   const context=contextOf(q);
   const helpTurn=()=>({type:"help",topics:topicsFor(input),context});
+  if(!marked && norm(input)===norm(display(noteAction)))return {type:"reviewNote"};
+  if(!marked && canSkipQuestion(q,card) && norm(input)===norm(display("Skip this question")))return {type:"skip"};
   // A note can be a literal question or command. Only its author may choose to save it.
   if(q.kind==="notes") {
+    const skip=q.optional && !marked && (sourceChoice(input,card.options) || resolveTyped(card,q,input));
+    if(skip)return {type:"answer",value:skip.value,label:skip.label};
     if(asking || command || confused.test(norm(input)) || smallTalk.test(norm(input)) || /^(?:start over|go back|restart)$/i.test(input.trim()))
       return {...helpTurn(),type:"noteOrHelp"};
     return {type:"field",value:input};
@@ -105,6 +123,8 @@ export function manageTurn(input,q,card,place) {
     return {type:"guide",text:sentence("You’re in the right place. {0}", wording(card.title))};
   if(/^(?:thank(?:s| you)|got it|that makes sense|okay|ok)$/.test(s)) return {type:"guide",text:sentence("Here’s the next thing I need from you: {0}", wording(card.title))};
   if(q.id==="businessOwnership" && selected) return {type:"answer",value:selected.value,label:selected.label};
+  if(q.planStep && selected) return {type:"answer",value:selected.value,label:selected.label};
+  if(q.id==="priorWill" && unsure.test(s))return {type:"answer",value:"I’m not sure",label:"I’m not sure"};
   if(card.yesPass===undefined && unsure.test(s) && !["notes","noteName"].includes(q.kind)) return {type:"guide",text:q.optional?"You can skip this one and come back to it on the review screen.":q.giftMenu?"You don’t have to add a gift right now. You can add one on the review screen if you decide later.":sentence("You can leave this tab open while you check. {0}", wording(currentHelp(q,card)))};
   if(selected) return {type:"answer",value:selected.value,label:selected.label};
   if(smallTalk.test(s) || (["name","names","noteName","town","item","charity","amount"].includes(q.kind) && (yes.test(s) || no.test(s) || s==="no thanks"))) {
@@ -142,7 +162,7 @@ export function manageTurn(input,q,card,place) {
     if(/(?:my |a |an |the )\S/.test(s) && !qualifications.test(s) && q.values.includes(item))
       return {type:"guide",text:"Do you mean a physical item you own? Choose “Give an item” and I’ll ask what it is and who should get it."};
   }
-  if(!q.giftField && !q.giftMenu && !["notes","noteName"].includes(q.kind) && intents.length && (propertyLead.test(s) || knownObjects.test(s) && !/\s/.test(s))) {
+  if(!q.giftField && !q.giftMenu && !/^org/.test(q.id) && !["notes","noteName"].includes(q.kind) && intents.length && (propertyLead.test(s) || knownObjects.test(s) && !/\s/.test(s))) {
     return {type:"later",cue:intents.length===1?intents[0]:"several",text:"We’ll get to gifts in a separate step. I haven’t added a gift or changed this answer."};
   }
   if(card.yesPass!==undefined) return {type:"clarify"};

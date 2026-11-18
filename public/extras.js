@@ -1,4 +1,5 @@
 import { currentLanguage, sentence, wholeNumber, wording } from "./locale.js";
+import {organizationEntries, planningReview, skipped} from "./planning.js";
 import {survivalHelp} from "./survival.js";
 // Supported gifts use the jurisdiction’s currency and distinguish an heir’s duty from an outright disposition.
 // Free text about care or family wishes is always a separate file, never a will clause.
@@ -8,6 +9,8 @@ export const keepForAdvice = "Keep it for local advice";
 export const cancelAdvice = "Keep my recorded choices";
 export const correctCash = "Change this gift";
 export const confirmCash = (currency,total) => sentence("Yes, {0} {1} in total", currency, wholeNumber(total));
+export const combinedGiftHint = "Confirm only if these entries are for the same recipient and the name shown here is the name to use for their combined cash gift.";
+export const giftEntryLimit = "You have reached the interview limit for gift entries on this form.";
 export const noExtra = "Nothing else";
 export const personal = "Add personal notes";
 export const bespoke = "I need another gift or different terms";
@@ -28,7 +31,7 @@ const topics = {
 };
 const choice = (id, label, prompt, values) => ({ id, label, prompt, values });
 const field = (id, label, prompt, kind) => ({ id, label, prompt, kind, values: [] });
-export const giftCurrency = p => ({US:"USD",CA:"CAD",GB:"GBP",IE:"EUR",AT:"EUR",BE:"EUR",DE:"EUR",EE:"EUR",FI:"EUR",HR:"EUR",LU:"EUR",CH:"CHF",CZ:"CZK",DK:"DKK",IS:"ISK",NO:"NOK",PL:"PLN",SE:"SEK",AU:"AUD",NZ:"NZD",SG:"SGD"})[p.country];
+export const giftCurrency = p => ({US:"USD",CA:"CAD",GB:"GBP",IE:"EUR",NL:"EUR",MT:"EUR",PT:"EUR",SK:"EUR",AT:"EUR",BE:"EUR",DE:"EUR",EE:"EUR",FI:"EUR",HR:"EUR",LU:"EUR",CH:"CHF",CZ:"CZK",DK:"DKK",IS:"ISK",NO:"NOK",PL:"PLN",SE:"SEK",AU:"AUD",NZ:"NZD",SG:"SGD"})[p.country];
 const isGift = value => value === item || value === cash;
 export const giftLimit = p => p.key === "US-CA" ? 5 : p.key === "US-TX" ? 8 : Infinity;
 // Keep the original first-gift keys. For later gifts, the previous “anything else?” is the type choice.
@@ -51,14 +54,45 @@ function* itinerary(a) {
 }
 const giftAt = (a,step) => ({ n:step.n, type:step.value, start:step.slot,
   description:a[giftKey("extraItem",step.n)], amount:a[giftKey("extraAmount",step.n)],
-  recipient:a[giftKey("extraRecipient",step.n)], who:a[giftKey("extraWho",step.n)] });
-export function giftList(a) {
+  recipient:a[giftKey("extraRecipient",step.n)], who:a[giftKey("extraWho",step.n)],
+  confirmedTotal:a[giftKey("extraTotal",step.n)] });
+export function ordinaryGifts(a) {
   const gifts=[];
   for (const step of itinerary(a)) if (step.kind==="gift") {
     const g=giftAt(a,step);
-    if (g.recipient && (g.type===item ? g.description : g.amount)) gifts.push(g);
+    if (g.recipient && g.recipient!==skipped && ![undefined,skipped].includes(g.type===item ? g.description : g.amount)) gifts.push(g);
   }
   return gifts;
+}
+export function giftList(a) {
+  const first=ordinaryGifts(a);
+  return [...first,...organizationEntries(a).filter(g=>g.recipient && g.recipient!==skipped && ![undefined,skipped].includes(g.amount || g.description)).map(g=>({...g,n:first.length+g.n,organization:true,type:g.kind==="item"?item:cash,confirmedTotal:a["orgTotal"+g.n]}))];
+}
+const cashRecipientKey = gift => (gift.organization || gift.who === "A charity" ? "charity|" : "person|") + giftIdentity(gift.recipient);
+
+// The receipt keeps the individual entries. A will uses the total and name the visitor confirmed.
+export function instrumentGifts(p, answers) {
+  const result = [];
+  const cashByRecipient = new Map();
+  const currency = giftCurrency(p);
+  for (const gift of giftList(answers)) {
+    const row = {...gift, n: result.length + 1};
+    if (gift.type === cash) {
+      const key = cashRecipientKey(gift);
+      const previous = cashByRecipient.get(key);
+      if (previous) {
+        const total = Number(previous.amount) + Number(gift.amount);
+        if (gift.confirmedTotal === confirmCash(currency,total)) {
+          previous.amount = String(total);
+          previous.recipient = gift.recipient;
+          continue;
+        }
+      }
+      cashByRecipient.set(key,row);
+    }
+    result.push(row);
+  }
+  return result;
 }
 export function courtDeferred(a) {
   for (const step of itinerary(a)) if (step.kind==="court") return true;
@@ -86,13 +120,13 @@ export function giftIntents(v) {
   return types;
 }
 export const giftText = (p,g) => g.type === item ? g.description : giftCurrency(p)+" "+Number(g.amount).toLocaleString(currentLanguage());
-export function wishesProfile(p, a) {
-  return needsAdvice(a) && !["planning","professional"].includes(p.route)
+export function wishesProfile(p, a, issues={}) {
+  return (needsAdvice(a) || Object.keys(issues).length || planningReview(p,a,ordinaryGifts(a).length)) && !["planning","professional"].includes(p.route)
     ? { ...p, route: "planning", use: "planning" } : p;
 }
 export function notesEntries(a) {
   return Object.keys(topics).flatMap(t => {
-    const i = [1,2,3,4].find(n => a["noteTopic"+n] === t && a["noteText"+n]);
+    const i = [1,2,3,4].find(n => a["noteTopic"+n] === t && a["noteText"+n] && a["noteText"+n]!==skipped);
     return i ? [[t, a["noteText"+i]]] : [];
   });
 }
@@ -102,7 +136,7 @@ function appendNotes(list,a) {
       const id="noteTopic"+i;
       list.push(choice(id, i===1?"Personal notes":"Another personal note", i===1?"What would you like to leave a note about? You can pick more than one, one at a time.":"Want to add another kind of note?",[...left, finishNotes]));
       if (!left.includes(a[id])) break;
-      list.push(field("noteText"+i,sentence("Note: {0}", a[id]),topics[a[id]],"notes"));
+      list.push(field("noteText"+i,sentence("Note: {0}", wording(a[id])),topics[a[id]],"notes"));
       left.splice(left.indexOf(a[id]),1);
       if (!left.length) break;
     }
@@ -133,8 +167,8 @@ export function extraQuestions(p, a) {
       if (!step.notes && notes) appendNotes(list,a);
       if (a.noteCheck===bespoke || !supported) break;
       const id=step.kind==="notes" ? "afterPersonal" : "afterCourt";
-      const cap=n>limit ? sentence(" All {0} gift rows are full; choose local advice for anything that does not fit.", limit) : "";
-      list.push({...choice(id,"Anything else?", sentence("Anything else? Your earlier gifts are on the list.{0}", wording(cap)),menu(n,notes,court)),giftMenu:true});
+      const prompt=n>limit ? giftEntryLimit : sentence("Anything else? Your earlier gifts are on the list.{0}", "");
+      list.push({...choice(id,"Anything else?",prompt,menu(n,notes,court)),giftMenu:true});
       continue;
     }
     if (!supported || n>limit) break;
@@ -156,7 +190,7 @@ export function extraQuestions(p, a) {
     if (ca) opt("extraWho","Recipient type","Who should receive this cash gift?",["An adult","A charity"]);
     input("extraRecipient","Recipient",ca && g.who==="A charity" ? "Enter the charity’s full registered name exactly as you verified it." : "What is the full legal name of the adult receiving this gift? A relationship like “my sister” alone is not enough.",ca && g.who==="A charity" ? "charity":"name");
     if (g.type===cash && g.recipient && g.amount) {
-      const key=(g.who || "An adult")+"|"+giftIdentity(g.recipient);
+      const key=cashRecipientKey(g);
       const earlier=totals.get(key) || 0, total=earlier+Number(g.amount);
       if (earlier) opt("extraTotal","Combined cash gifts",sentence("{0} already has a cash gift. Together these entries give them {1} {2}. Is that the total you intend?", g.recipient, currency, wholeNumber(total)),[confirmCash(currency,total),correctCash]);
       totals.set(key,total);
@@ -164,7 +198,7 @@ export function extraQuestions(p, a) {
     const full=n===limit;
     const summary=g.recipient && (g.description || g.amount) ? sentence("Gift {0}: {1} → {2}. ", n, giftText(p,g), g.recipient) : "";
     let prompt=sentence("{0}Anything else?", wording(summary));
-    if (full) prompt+=sentence(" All {0} gift rows in this form are filled. If you need another gift, choose local advice. We’ll keep every gift in a planning kit.", limit);
+    if (full) prompt=giftEntryLimit;
     else prompt+=" Add another gift or choose “I’m done”.";
     opt("extraAfter","Anything else?",prompt,menu(n+1,step.notes,step.court));
   }

@@ -24,6 +24,7 @@ async function checkLocale(browser,lang,{guidance,helpMenu}) {
     await p.waitForFunction(code=>document.documentElement.lang===code,lang);
     await p.locator("[data-start=start]").click();
     await p.locator("#country").selectOption("CA");await p.locator("#region").selectOption("ON");await p.locator("#use-place").click();
+    await p.locator('#quick button[data-value="No"]').click();
     const sameStep=p.locator('#conversation[data-stage="chat"][data-question="eligible"][data-part="0"]');
     await sameStep.waitFor();
     const replies=p.locator("#messages .assistant"),field=p.locator("#reply");

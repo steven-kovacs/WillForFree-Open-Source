@@ -4,7 +4,7 @@ import {fixture} from "./fixtures.mjs";
 import {profile} from "../public/markets.js";
 import {validateState, readAnswer, questions} from "../public/will.js";
 import {sections} from "../public/document.js";
-import {cash,item,noExtra,doneGifts,finishNotes,finishForm,adviceOption,personal,confirmCash,giftList,giftKey,giftLimit,needsAdvice,notesEntries,giftIntents,keepForAdvice} from "../public/extras.js";
+import {cash,item,noExtra,doneGifts,finishNotes,finishForm,adviceOption,personal,confirmCash,giftList,instrumentGifts,giftEntryLimit,giftKey,giftLimit,needsAdvice,notesEntries,giftIntents,keepForAdvice} from "../public/extras.js";
 const on={country:"CA",region:"ON"},cal={country:"US",region:"CA"},tx={country:"US",region:"TX"};
 const ring={extra:item,extraItem:"gold wedding ring",extraRecipient:"Sara Reed",extraAfter:cash,extraAmount2:"1500",extraRecipient2:"Ben Reed"};
 function many(count,kind=cash){
@@ -42,6 +42,54 @@ test("repeated cash requires assent to the actual combined amount; duplicate obj
  // It is fine to leave different items, or cash and an item, to the same person.
  assert.deepEqual(giftList(fixture(on,{...ring,extraRecipient2:"Sara Reed"}).answers).map(g=>g.recipient),["Sara Reed","Sara Reed"]);
 });
+test("a confirmed cash total is one operative gift while the receipt preserves every entry",()=>{
+ const overrides={
+  extra:cash, extraAmount:"500", extraRecipient:"Jules Reed", extraAfter:item,
+  extraItem2:"brass compass", extraRecipient2:"Jules Reed", extraAfter2:cash,
+  extraAmount3:"500", extraRecipient3:"Jules Reed", extraAfter3:cash,
+  extraAmount4:"379", extraRecipient4:"Rory Ash", extraAfter4:cash,
+  extraAmount5:"620", extraRecipient5:"Jules Reed",
+  orgGift1:"Give money",orgName1:"Elm Museum",orgAmount1:"999999",
+  orgGift2:"Give money",orgName2:"Elm Museum",orgAmount2:"999999",
+ };
+ for(const place of [on,{country:"US",region:"NY"},{country:"DE",region:""}]){
+  const p=profile(place), state=fixture(place,overrides);
+  const saved=structuredClone(state);
+  const raw=giftList(state.answers);
+  assert.equal(raw.length,7);
+  const rows=instrumentGifts(p,state.answers);
+  assert.deepEqual(rows.map(g=>[g.n,g.recipient,g.amount||g.description]),[
+   [1,"Jules Reed","1620"],[2,"Jules Reed","brass compass"],[3,"Rory Ash","379"],[4,"Elm Museum","1999998"]
+  ]);
+  const clauses=sections(p,state.answers).filter(([title])=>/^Separate gift \d+$/.test(title));
+  assert.equal(clauses.length,4);
+  assert.match(clauses[0][1],/1620(?: from my estate)? to Jules Reed if they survive me/);
+  assert.match(clauses[3][1],/1999998(?: from my estate)? to Elm Museum for its general purposes/);
+  assert.deepEqual(state,saved);
+  assert.deepEqual(validateState(saved,true),state);
+ }
+});
+
+test("cash consolidation follows the confirmed person or charity, including across California gift menus",()=>{
+ const p=profile(cal), state=fixture(cal,{
+  extra:cash,extraAmount:"500",extraWho:"An adult",extraRecipient:"Sage Finch",
+  extraAfter:cash,extraAmount2:"500",extraWho2:"A charity",extraRecipient2:"Sage Finch",
+  orgGift1:"Give money",orgName1:"Sage Finch",orgAmount1:"500",
+ });
+ assert.equal(state.answers.extraTotal2,undefined);
+ assert.equal(state.answers.orgTotal1,confirmCash("USD",1000));
+ assert.deepEqual(instrumentGifts(p,state.answers).map(g=>[g.who,g.recipient,g.amount]),[
+  ["An adult","Sage Finch","500"],["A charity","Sage Finch","1000"]
+ ]);
+ const otherName=fixture(on,{extra:cash,extraAmount:"500",extraRecipient:"Sage Finch",extraAfter:cash,extraAmount2:"500",extraRecipient2:"Sage French"});
+ assert.equal(instrumentGifts(profile(on),otherName.answers).length,2);
+ const confirmed=fixture(on,{extra:cash,extraAmount:"500",extraRecipient:"Anne-Marie Reed",extraAfter:cash,extraAmount2:"500",extraRecipient2:"Anne Marie Reed"});
+ assert.equal(confirmed.answers.extraTotal2,confirmCash("CAD",1000));
+ assert.deepEqual(instrumentGifts(profile(on),confirmed.answers).map(g=>[g.recipient,g.amount]),[["Anne Marie Reed","1000"]]);
+ delete confirmed.answers.extraTotal2;
+ assert.equal(instrumentGifts(profile(on),confirmed.answers).length,2);
+ assert.throws(()=>validateState(confirmed,true));
+});
 test("notes can go between gifts; court deferrals, old single-gift saves and repeated finish choices round-trip",()=>{
  for(const [place,over] of [[on,{...ring,extraAfter:personal,noteTopic1:"Pet care",noteText1:"Mira knows the vet.",noteTopic2:finishNotes,afterPersonal:cash}],
  [tx,{...ring,extraAfter:finishForm,formNotes:personal,noteTopic1:"Pet care",noteText1:"Mira knows the vet.",noteTopic2:finishNotes,afterCourt:cash}]]){
@@ -60,7 +108,7 @@ test("full official rows stop without truncating: an extra request keeps all slo
  for(const [place,limit] of [[cal,5],[tx,8]]){
   const s=fixture(place,many(limit));assert.equal(giftLimit(profile(place)),limit);assert.deepEqual(validateState(s,true),s);
   const last=giftKey("extraAfter",limit),q=questions(profile(place),s.answers).find(x=>x.id===last);
-  assert.ok(!q.values.includes(cash) && !q.values.includes(item));assert.match(q.prompt,/rows in this form are filled/);
+  assert.ok(!q.values.includes(cash) && !q.values.includes(item));assert.equal(q.prompt,giftEntryLimit);
   s.answers[last]=cash;assert.throws(()=>validateState(s,true));s.answers[last]=adviceOption;s.answers.extraRequest="I have another gift for a friend.";
   assert.deepEqual(validateState(s,true),s);assert.ok(needsAdvice(s.answers));assert.equal(giftList(s.answers).length,limit);
  }

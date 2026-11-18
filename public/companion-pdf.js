@@ -1,22 +1,21 @@
 import {currentLanguage, display} from "./locale.js";
 // The will and publisher forms have their own layout. This layout is for the kit's reading copies.
-export async function renderCompanion({pdf, doc, regular, bold}, place, title, build) {
+export async function renderCompanion({pdf, doc, regular, bold, wordmark}, place, title, build) {
   title=display(title);
   const [width,height] = ["CA","US"].includes(place.country) ? [612,792] : [595.28,841.89];
   const margin=49, usable=width-2*margin, bottom=61;
   const navy=pdf.rgb(.08,.16,.35), teal=pdf.rgb(.10,.34,.39), pale=pdf.rgb(.84,.90,.87);
-  const dot=pdf.rgb(.28,.59,.74);
+  // Embed the vector page once per document; reuse its outlines on every sheet.
+  const logoSize=wordmark?.scale(Math.min(112/wordmark.width,20/wordmark.height));
   const supported=new Set(regular.getCharacterSet());
   const nativeContext=document.createElement("canvas").getContext("2d");
   const nativeFont=size=>size+"px system-ui, sans-serif";
   const fallback=createSearchLayer(pdf,doc);
   const images=[];
   let page,y;
-  // Match the site wordmark and colours using embedded type so the PDF also works offline.
   function newPage(){
     page=doc.addPage([width,height]);
-    page.drawText("WillForFree",{x:margin,y:height-42,size:16,font:bold,color:navy});
-    page.drawCircle({x:margin+bold.widthOfTextAtSize("WillForFree",16)+5,y:height-39,size:2.3,color:dot});
+    if(wordmark)page.drawPage(wordmark,{x:margin,y:height-43,...logoSize});
     page.drawLine({start:{x:margin,y:height-54},end:{x:width-margin,y:height-54},thickness:1,color:pale});
     y=height-88;
   }

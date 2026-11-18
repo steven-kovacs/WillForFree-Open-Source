@@ -84,8 +84,6 @@ export function locationUI(onSelect, suggest = true) {
     cancel.textContent = afterSelect ? "Back" : "Cancel";
     fillDialog();
     dialog.showModal();
-    if (afterSelect && !region.disabled && !region.value) region.focus();
-    else country.focus();
   }
   country.addEventListener("change", () => {
     dialogEdited = true;

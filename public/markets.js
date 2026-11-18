@@ -111,7 +111,7 @@ export function profile(place) {
   };
 }
 export function planDescription(p) {
-  if (p.route === "statutory") return "Your kit includes Maine’s unchanged statutory will and its instructions. Fill it in yourself using your own handwriting or a typewriter, including the family choices you select. No names or estate answers are collected for this form.";
+  if (p.route === "statutory") return "Your planning answers stay separate from the blank form. They do not fill in or change it.";
   if (p.route === "planning")
     return "You chose private notes. Save what matters to you and the questions you want to resolve before making a will.";
   if (p.route === "fixed") return sentence("Choose our free, fixed simple will form for {0}. Fill in the names on the printed form yourself, then sign with two eligible witnesses. This form leaves the residue to one adult, then a backup. It does not provide for minor children, appoint a guardian or create a trust. Select a different form if you need those provisions.", wording(p.name));

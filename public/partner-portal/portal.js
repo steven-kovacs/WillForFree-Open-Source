@@ -1,4 +1,4 @@
-import { currentLanguage, sentence, wording } from "../locale.js";
+import { currentLanguage, sentence, translatedList, wording } from "../locale.js";
 import { partnerConfig, readReport } from "../partner-api.js";
 
 const $ = id=>document.getElementById(id);
@@ -23,7 +23,7 @@ function showReport(report) {
   $("campaign-list").replaceChildren(...report.campaigns.map(c=>{
     const card=node("article",""), detail=node("div",""); card.className="campaign";
     const name=node("h2",c.title);name.dataset.verbatim="";
-    detail.append(name,node("p",c.areas.join(" · ")),node("p",sentence("{0} to {1} UTC · {2}", c.start, c.end, wording(c.status))));
+    detail.append(name,node("p",translatedList(c.areas," · ")),node("p",sentence("{0} to {1} UTC · {2}", c.start, c.end, wording(c.status))));
     card.append(detail,node("strong",sentence(c.downloads===1?"{0} download":"{0} downloads",fmt.format(c.downloads))));return card;
   }));
 }
@@ -61,7 +61,7 @@ $("refresh").addEventListener("click",async()=>{
   catch(e){if(version===epoch){if([401,403].includes(e.status)) signedOut(e.message); else $("report-status").textContent="Couldn’t refresh. Try again.";}}
   finally {$("refresh").disabled=false;}
 });
-$("logout").addEventListener("click",()=>{signedOut("You’re signed out.");$("email").focus();});
+$("logout").addEventListener("click",()=>{signedOut("You’re signed out.");$("portal-title").focus({preventScroll:true});});
 $("reset-password").addEventListener("click",async()=>{
   if (!$("email").value || !$("email").reportValidity()) {$("email").focus();return;}
   $("reset-password").disabled=true;

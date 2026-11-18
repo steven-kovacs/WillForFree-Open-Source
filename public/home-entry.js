@@ -8,31 +8,60 @@ if (location.hostname === "partners.willforfree.com") {
   const delayed = setTimeout(() => {
     root.classList.replace("preparing-home", "home-loading");
   }, 1600);
-  function sizeTranslatedHeadline(title) {
+  function sizeHeadline(title) {
     if (!title.querySelector("br")) return;
-    // A visitor can switch languages while the chat or a reading page hides the title.
-    const whenVisible = new ResizeObserver(() => {
-      if (title.getClientRects().length) requestAnimationFrame(measure);
-    });
+    const desktop = matchMedia("(min-width: 901px)");
+    const footer = document.querySelector(".foot");
+    const consent = document.querySelector(".traffic-choice");
+    let textChanged = true;
     function measure() {
-      if (root.lang !== "en" && !title.getClientRects().length) {
-        whenVisible.observe(title.parentElement);
-        return;
+      if (!desktop.matches && !textChanged && !title.style.fontSize) return;
+      if (!title.getClientRects().length) return; // Retry when the visitor returns from chat or a guide.
+      // Start at the design size so a taller window or a shorter translation can grow back.
+      title.style.removeProperty("font-size");
+      if (textChanged && root.lang !== "en") {
+        // Measure the longer line at 100px, leaving 1% of its container for rounding.
+        title.classList.add("measure-headline");
+        const longestLineInEm = title.getBoundingClientRect().width / 100;
+        title.classList.remove("measure-headline");
+        if (longestLineInEm > 0) title.style.setProperty("--headline-fit", (99 / longestLineInEm) + "cqi");
       }
-      whenVisible.disconnect();
-      if (root.lang === "en") return;
-      // Measure the longer line at 100px, leaving 1% of its container for rounding.
-      title.classList.add("measure-headline");
-      const longestLineInEm = title.getBoundingClientRect().width / 100;
-      title.classList.remove("measure-headline");
-      if (longestLineInEm > 0) title.style.setProperty("--headline-fit", (99 / longestLineInEm) + "cqi");
+      textChanged = false;
+      if (!desktop.matches) return;
+      let pageBottom = footer.getBoundingClientRect().bottom + scrollY;
+      if (consent?.offsetHeight) {
+        const spacing = getComputedStyle(consent);
+        pageBottom += consent.offsetHeight + parseFloat(spacing.marginTop) + parseFloat(spacing.marginBottom);
+      }
+      const overflow = pageBottom - root.clientHeight;
+      if (overflow > 0) {
+        const natural = parseFloat(getComputedStyle(title).fontSize);
+        const height = title.getBoundingClientRect().height;
+        const fit = natural * (height - Math.ceil(overflow)) / height;
+        // Take just the overflowing height out of the two lines. Allow normal scrolling
+        // if the window is too short to keep the headline readable.
+        title.style.fontSize = `min(${natural}px, max(2rem, ${fit}px))`;
+      }
     }
-    document.addEventListener("wff:language", measure);
-    document.fonts.addEventListener("loadingdone", measure);
+    // ResizeObserver runs before paint. Deferring its work to another frame
+    // would show the old size for a frame when the surrounding copy wraps.
+    const surrounding = new ResizeObserver(measure);
+    for (const node of document.querySelectorAll(".mast, #info-status, #place-chip, .hero-lead, .welcome .promises, .hero-chat, .foot, .traffic-choice")) {
+      surrounding.observe(node);
+    }
+    // A guide can change the language or window size while the home is hidden.
+    // Refit in the same turn that restores it, before its first visible frame.
+    new MutationObserver(measure).observe(title.closest("#welcome"), {attributes:true, attributeFilter:["hidden"]});
+    window.addEventListener("resize", measure);
+    window.addEventListener("pageshow", measure);
+    const remeasureText = () => { textChanged = true; measure(); };
+    document.addEventListener("wff:language", remeasureText);
+    document.fonts.addEventListener("loadingdone", remeasureText);
     measure();
   }
   document.addEventListener("wff:home-ready", async () => {
-    const fonts = [400, 500, 700, 900].map(weight => document.fonts.load(weight + ' 1em "Reddit Sans"', "Will"));
+    const copy = [...document.querySelectorAll(".mast nav > a, #welcome, .foot")].map(node => node.textContent).join(" ");
+    const fonts = [400, 500, 700, 900].map(weight => document.fonts.load(weight + ' 1em "Reddit Sans"', copy));
     const pictures = [...document.querySelectorAll(".mast img, #welcome img")].map(img => img.decode());
     let limit;
     const timeout = new Promise(resolve => {
@@ -43,7 +72,10 @@ if (location.hostname === "partners.willforfree.com") {
     clearTimeout(limit);
     clearTimeout(delayed);
     if (!complete) root.classList.add("home-lightweight");
-    root.classList.remove("preparing-home", "home-loading");
-    sizeTranslatedHeadline(document.getElementById("hero-title"));
+    // The slow-load view uses display:none on the hero. Put it back into layout
+    // under visibility:hidden so the very first paint uses its fitted size.
+    root.classList.replace("home-loading", "preparing-home");
+    try { sizeHeadline(document.getElementById("hero-title")); }
+    finally { root.classList.remove("preparing-home"); }
   }, {once:true});
 }

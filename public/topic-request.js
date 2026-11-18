@@ -4,8 +4,10 @@ import { networkTicketURL } from "./release-target.js";
 // opaque, two-minute proof in memory and sends its cookie only to its own site.
 export function createTopicRequest(ticketURL = networkTicketURL, fetcher = fetch) {
   let ticket = "", refreshAt = 0;
-  return async (topics, context, enabled) => {
-    const signal = AbortSignal.timeout(8000);
+  return async (topics, context, enabled, permission) => {
+    if (!enabled()) throw Error("Remote topic help is off.");
+    const timeout = AbortSignal.timeout(8000);
+    const signal = permission ? AbortSignal.any([timeout, permission]) : timeout;
     const headers = {"Content-Type":"application/json"};
     if (ticketURL) {
       if (!ticket || Date.now() >= refreshAt) {

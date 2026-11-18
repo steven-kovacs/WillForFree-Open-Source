@@ -1,6 +1,10 @@
+import {trafficEvent} from "./traffic.js";
+import { focusDownloadTerms } from "./will-guide.js";
+import { navigationLanded } from "./navigation-feedback.js";
+
 // Same-document navigation keeps an unfinished will and its text field in memory.
 // The URL and browser history contain only public page paths and the AI preference.
-const pages = new Set(["/why-do-i-need-a-will/", "/free-and-private/", "/partners/", "/partners/brief/", "/partners/ideas/", "/fine-print/", "/open-source/"]);
+const pages = new Set(["/why-do-i-need-a-will/", "/why-do-i-need-a-will/after-the-will/", "/our-mission/", "/free-and-private/", "/partners/", "/partners/brief/", "/partners/ideas/", "/fine-print/", "/open-source/"]);
 
 export function setUpInformationNavigation({main, welcome, panel, isHome, confirmReset, disableAI, setupContent, readingChanged}) {
   const mast = document.querySelector(".mast nav");
@@ -8,33 +12,52 @@ export function setUpInformationNavigation({main, welcome, panel, isHome, confir
   const footer = document.querySelector(".footer-nav");
   const status = document.getElementById("info-status");
   const homeTitle = "WillForFree — A little chat about your will";
+  const pageHead = 'meta[name="description"], link[rel="canonical"]';
+  const homeHead = [...document.head.querySelectorAll(pageHead)];
   const cache = new Map();
   let mounted = null;
   let version = 0;
   let returning = false;
+  let returnHash = "";
   let originFocus = null;
-  let originScroll = 0;
 
-  function backToChat() {
+  function replacePageHead(nodes) {
+    for (const node of document.head.querySelectorAll(pageHead)) node.remove();
+    document.head.append(...nodes);
+  }
+
+  function backToChat(hash = "") {
     const depth = history.state?.wffPageDepth;
     if (Number.isSafeInteger(depth) && depth > 0 && !returning) {
       returning = true;
+      returnHash = hash;
       history.go(-depth);
     }
   }
 
-  function showBase() {
+  function showBase(explicitReturn = false) {
     if (!mounted) return;
     mounted.remove();
     mounted = null;
-    readingChanged(false);
     mast.replaceChildren(...homeLinks);
     for (const link of footer.querySelectorAll("[aria-current]")) link.removeAttribute("aria-current");
     document.title = homeTitle;
+    replacePageHead(homeHead);
+    trafficEvent("page_view");
     welcome.hidden = !isHome();
     panel.hidden = isHome();
-    window.scrollTo({top:originScroll, behavior:"instant"});
-    if (originFocus?.isConnected) originFocus.focus({preventScroll:true});
+    readingChanged(false);
+    navigationLanded();
+    if (explicitReturn || !originFocus?.isConnected) {
+      const destination = isHome() ? welcome.querySelector("h1") : panel;
+      destination.tabIndex = -1;
+      destination.focus({preventScroll:true});
+    } else {
+      originFocus.focus({preventScroll:true});
+    }
+    window.scrollTo({top:0, behavior:"instant"});
+    if (returnHash === "#place-chip" && isHome()) document.getElementById("place-chip").click();
+    returnHash = "";
   }
 
   async function getPage(path) {
@@ -45,26 +68,28 @@ export function setUpInformationNavigation({main, welcome, panel, isHome, confir
     const content = html.querySelector("main[data-info-page]");
     const navigation = html.querySelector(".mast nav");
     if (!content || !navigation) throw Error("Page unavailable");
-    const page = {content, navigation, title:html.title};
+    const page = {content, navigation, title:html.title, head:[...html.head.querySelectorAll(pageHead)]};
     cache.set(path, page);
     return page;
   }
 
   function focusSection(section, hash) {
-    const id = hash.slice(1);
-    const target = id && section.querySelector("#" + CSS.escape(id));
+    navigationLanded();
+    if (focusDownloadTerms(section, hash)) return;
+    const id = CSS.escape(hash.slice(1));
+    const target = id && (section.querySelector("#" + id) || section.querySelector(`a[name="${id}"]`)?.closest("section[id]"));
     if (target) {
       if (target.tagName === "DETAILS") target.open = true;
-      const focus = target.querySelector("summary, h2") || target;
+      const focus = target.querySelector("summary, h2, h3") || target;
       if (focus.tagName !== "SUMMARY") focus.tabIndex = -1;
       focus.focus({preventScroll:true});
       target.scrollIntoView({block:"start",behavior:"instant"});
       return;
     }
-    window.scrollTo({top:0, behavior:"instant"});
     const heading = section.querySelector("h1");
     heading.tabIndex = -1;
     heading.focus({preventScroll:true});
+    window.scrollTo({top:0, behavior:"instant"});
   }
 
   async function navigate(url, trigger, push) {
@@ -75,7 +100,6 @@ export function setUpInformationNavigation({main, welcome, panel, isHome, confir
       if (current !== version) return;
       if (!mounted && push) {
         originFocus = trigger?.closest(".mobile-navigation")?.querySelector("summary") || trigger;
-        originScroll = window.scrollY;
       }
       if (push) {
         const depth = Number(history.state?.wffPageDepth || 0) + 1;
@@ -102,7 +126,9 @@ export function setUpInformationNavigation({main, welcome, panel, isHome, confir
         link.rel = "noopener noreferrer";
       }
       document.title = page.title;
+      replacePageHead(page.head.map(node => node.cloneNode(true)));
       setupContent(section, url.pathname);
+      trafficEvent("page_view");
       focusSection(section,url.hash);
     } catch {
       if (current !== version) return;
@@ -121,7 +147,7 @@ export function setUpInformationNavigation({main, welcome, panel, isHome, confir
     if (mounted && url.pathname === "/") {
       event.preventDefault();
       if (link.hasAttribute("data-no-ai")) disableAI();
-      backToChat();
+      backToChat(url.hash);
     } else if (pages.has(url.pathname)) {
       event.preventDefault();
       if (mounted && location.pathname === url.pathname && location.hash === url.hash) {
@@ -135,11 +161,12 @@ export function setUpInformationNavigation({main, welcome, panel, isHome, confir
     }
   });
   window.addEventListener("popstate", () => {
+    const explicitReturn = returning;
     returning = false;
     version++;
     status.hidden = true;
     if (pages.has(location.pathname)) void navigate(new URL(location.href),null,false);
-    else showBase();
+    else showBase(explicitReturn);
   });
 
   return function clearInfoOnRestore() {
