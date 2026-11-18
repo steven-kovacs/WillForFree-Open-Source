@@ -40,6 +40,15 @@
         ]
       },
       {
+        "source": "/downloads/sponsors/**",
+        "headers": [
+          {
+            "key": "Content-Disposition",
+            "value": "attachment"
+          }
+        ]
+      },
+      {
         "source": "/fonts/**.v2.*",
         "headers": [
           {

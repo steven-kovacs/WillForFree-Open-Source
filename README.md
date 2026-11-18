@@ -38,6 +38,8 @@ The optional contact form uses an invisible Cloudflare Turnstile widget and a pr
 
 The original code in this edition uses the [MIT License](LICENSE). [Third-party notices](NOTICE.md) identify the fonts, browser libraries and publisher forms. The distribution uses a plain text identity and omits the company's logos, campaign artwork and photographs.
 
+The company's sponsor brochures and their download card are omitted from this source distribution. Their published PDFs retain WillForFree's branding and are not part of the MIT-licensed code. The download implementation and country manifest remain available for inspection; substitute your own documents and card when reusing them.
+
 The site includes 19 language choices. Translations are local files. The browser inserts the maker’s own words after it selects the document language. The four Texas English–Spanish originals have their own field map. California and Maine keep their publisher’s English form, with a signing guide in the selected language.
 
 Seven project-authored fixed forms are included. The ten publisher PDFs for California, Texas and Maine are acquired separately. Follow [the source list and hashes](docs/forms.md). Where you have the applicable rights, run `node scripts/import-forms.mjs /path/to/originals` to install matching copies. The interview checks availability before using those forms. Ontario and the other independent templates run without this step.

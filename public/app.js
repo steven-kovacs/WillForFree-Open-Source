@@ -17,6 +17,7 @@ import { profile, planDescription, executionProfile } from "./markets.js";
 import { locationUI } from "./geo.js";
 import {guideResources} from "./guide-sources.js";
 import { setupLocationGuidance } from "./will-guide.js";
+import { setupSponsorDownload } from "./sponsor-download.js";
 import {trafficEvent} from "./traffic.js";
 import { downloadAgreement } from "./download-notice.js";
 import { completionSummary } from "./legal-locations.js";
@@ -1328,6 +1329,7 @@ const clearInfoOnRestore = setUpInformationNavigation({
     // An interview already has a jurisdiction. Its reader can return to the same draft.
     if (stage !== "home") section.querySelector("[data-after-picker]")?.setAttribute("hidden", "");
     if (path === "/free-and-private/") setupConnectionInfo(section);
+    if (path === "/partners/") setupSponsorDownload(section);
   },
   readingChanged(value) {
     reading = value;

@@ -26,6 +26,7 @@ const mime = {
   ".txt": "text/plain; charset=utf-8",
   ".md": "text/plain; charset=utf-8",
   ".pdf": "application/pdf",
+  ".zip": "application/zip",
   ".gz": "application/gzip",
   ".sha256": "text/plain; charset=utf-8",
   ".json": "application/json",
@@ -104,6 +105,7 @@ export function makeServer({
         return send(404, "Not found");
       }
       return send(200, await readFile(absolute), mime[path.extname(file)], {
+        ...(file.startsWith("downloads/sponsors/") ? {"Content-Disposition":"attachment"} : {}),
         "Content-Security-Policy": (file === "partner-portal/index.html"
           ? common["Content-Security-Policy"].replace("https://get.geojs.io","https://identitytoolkit.googleapis.com")
           : common["Content-Security-Policy"]).replace("https://firestore.googleapis.com",
