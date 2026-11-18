@@ -38,13 +38,13 @@ function setUp(footer) {
   panel.className = "traffic-choice";
   panel.setAttribute("aria-label", "Analytics settings");
   const copy = document.createElement("p");
-  copy.textContent = "Can Google Analytics measure visits, site activity and will kit downloads? Your will answers stay private.";
+  copy.textContent = "With your permission, we count visits and will kit downloads to help improve WillForFree. Your answers and messages stay out of Google Analytics.";
   const controls = document.createElement("div");
   controls.className = "traffic-actions";
   const details = document.createElement("div");
   details.id = "analytics-details";
   details.className = "traffic-details";
-  for (const text of [choiceDetails, "If you allow analytics, Google receives device and connection data, including your IP address, and may store cookies. You can change your choice in Analytics settings at the foot of the page."]) {
+  for (const text of [choiceDetails, "Google receives your IP address and basic information about your device. It may save cookies in your browser. You can change your choice anytime in Analytics settings at the bottom of the page."]) {
     const paragraph = document.createElement("p");
     paragraph.textContent = text;
     details.append(paragraph);

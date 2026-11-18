@@ -946,10 +946,11 @@ dialog p {
     padding: 8px 12px;
     min-height: 35px;
   }
+  /* Match the phone layout even when the browser reports extra height behind its toolbar. */
   .welcome {
     min-height: 0;
     justify-content: flex-start;
-    padding: 12px 0;
+    padding: clamp(26px, 8.5vw, 34px) 0 clamp(28px, 11vw, 43px);
   }
   .site-frame > main:has(> #welcome:not([hidden])) { flex: none; }
   .hero-meta {
@@ -957,14 +958,14 @@ dialog p {
     padding: 6px 10px;
   }
   .hero-titlewrap {
-    margin: 8px 0 0;
+    margin: 12px 0 0;
   }
   .welcome h1 {
     font-size: clamp(41px, 12.7vw, 74px);
     line-height: 0.93;
   }
   .hero-lead {
-    margin: 9px auto 0;
+    margin: 15px auto 0;
     max-width: 320px;
     font-size: 15px;
   }
@@ -973,7 +974,7 @@ dialog p {
   }
   .first-box {
     border-radius: 16px;
-    padding: 5px 12px 6px 16px;
+    padding: 7px 12px 9px 16px;
     box-shadow: 3px 4px 0 var(--ink);
   }
   .first-box label {
@@ -982,14 +983,13 @@ dialog p {
   .first-row textarea {
     font-size: 16px;
   }
-  .first-row { min-height: 44px; }
   .send {
     width: 40px;
     height: 40px;
   }
   .starter-row {
     gap: 5px;
-    margin-top: 9px;
+    margin-top: 13px;
   }
   .starter {
     padding: 6px 9px;
@@ -999,13 +999,13 @@ dialog p {
   .edges {
     position: relative;
     inset: auto;
-    width: 161px;
-    height: 59px;
-    margin: 6px 0 11px;
+    width: 185px;
+    height: 79px;
+    margin: 11px 0 12px;
     z-index: 0;
   }
   .scrap {
-    width: 43px;
+    width: 54px;
     padding: 2px 2px 6px;
     box-shadow: 0 2px 4px #19233030;
   }
@@ -1826,19 +1826,18 @@ body:has(#conversation:not([hidden])) { min-height: 0; }
 
 .traffic-choice {
   --bottom-gap: max(8px, env(safe-area-inset-bottom));
-  position: sticky;
+  position: fixed;
+  inset-inline: 0;
   bottom: var(--bottom-gap);
-  z-index: 3;
-  flex: none;
-  align-self: center;
+  z-index: 11;
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
   gap: 6px 14px;
-  width: min(100%, 42rem);
+  width: min(calc(100% - 16px), 42rem);
   max-height: calc(100dvh - var(--bottom-gap) - 12px);
   overflow: auto;
-  margin: 8px 0 var(--bottom-gap);
+  margin: 0 auto;
   padding: 8px 12px;
   color: var(--ink);
   background: #fffdf7;
@@ -1861,15 +1860,11 @@ body:has(#conversation:not([hidden])) { min-height: 0; }
 @media (prefers-reduced-motion: no-preference) {
   .traffic-choice:not([hidden]) { animation: traffic-arrive .2s ease-out; }
 }
-@media (min-width: 681px) {
-  .site-frame:has(> .traffic-choice:not([hidden])) .welcome { min-height: 0; padding-block: clamp(12px, 2vh, 24px); }
-}
 @media (max-width: 680px) {
   .traffic-choice {
     grid-template-columns: minmax(0, 1fr);
     width: min(42rem, calc(100vw - max(8px, env(safe-area-inset-left)) - max(8px, env(safe-area-inset-right))));
     gap: 3px;
-    margin-block-start: auto;
     padding-block: 6px;
   }
   .traffic-choice > p { text-wrap: pretty; }

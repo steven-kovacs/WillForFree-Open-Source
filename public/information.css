@@ -157,7 +157,7 @@
 .home-education h2 span { color: #3d6676; }
 .home-education p { margin: 0 auto; font-size: .91rem; line-height: 1.38; color: var(--muted); text-wrap: balance; }
 @media (max-width: 680px) {
-  .home-education { margin-top: 8px; }
+  .home-education { margin-top: clamp(10px, 4.1vw, 17px); }
 }
 @media (max-width: 360px) {
   .home-education { width: auto; margin-inline: -.25rem; }

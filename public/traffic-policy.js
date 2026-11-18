@@ -11,7 +11,7 @@ export const pages = new Map([
   ["/partners/ideas/", "Partnership ideas by industry"], ["/open-source/", "Open source"],
 ]);
 const actions = new Set(["page_view", "interview_start", "kit_download_start", "sponsor_inquiry_sent"]);
-export const choiceDetails = "With your permission, Google Analytics uses a browser identifier to measure visits, traffic sources, interview starts, kit downloads and sponsor inquiries. Your answers and messages stay out of Analytics.";
+export const choiceDetails = "We give your browser a random ID. It helps us see how people find the site, which pages they use and how many start a will or ask about sponsorship.";
 const campaigns = {
   source: ["google", "bing", "newsletter", "partner", "linkedin", "facebook", "instagram", "reddit", "minddrive"],
   medium: ["organic", "email", "referral", "social", "cpc", "print", "qr"],

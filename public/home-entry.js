@@ -12,7 +12,6 @@ if (location.hostname === "partners.willforfree.com") {
     if (!title.querySelector("br")) return;
     const desktop = matchMedia("(min-width: 901px)");
     const footer = document.querySelector(".foot");
-    const consent = document.querySelector(".traffic-choice");
     let textChanged = true;
     function measure() {
       if (!desktop.matches && !textChanged && !title.style.fontSize) return;
@@ -28,12 +27,7 @@ if (location.hostname === "partners.willforfree.com") {
       }
       textChanged = false;
       if (!desktop.matches) return;
-      let pageBottom = footer.getBoundingClientRect().bottom + scrollY;
-      if (consent?.offsetHeight) {
-        const spacing = getComputedStyle(consent);
-        pageBottom += consent.offsetHeight + parseFloat(spacing.marginTop) + parseFloat(spacing.marginBottom);
-      }
-      const overflow = pageBottom - root.clientHeight;
+      const overflow = footer.getBoundingClientRect().bottom + scrollY - root.clientHeight;
       if (overflow > 0) {
         const natural = parseFloat(getComputedStyle(title).fontSize);
         const height = title.getBoundingClientRect().height;
@@ -46,7 +40,7 @@ if (location.hostname === "partners.willforfree.com") {
     // ResizeObserver runs before paint. Deferring its work to another frame
     // would show the old size for a frame when the surrounding copy wraps.
     const surrounding = new ResizeObserver(measure);
-    for (const node of document.querySelectorAll(".mast, #info-status, #place-chip, .hero-lead, .welcome .promises, .hero-chat, .foot, .traffic-choice")) {
+    for (const node of document.querySelectorAll(".mast, #info-status, #place-chip, .hero-lead, .welcome .promises, .hero-chat, .foot")) {
       surrounding.observe(node);
     }
     // A guide can change the language or window size while the home is hidden.
