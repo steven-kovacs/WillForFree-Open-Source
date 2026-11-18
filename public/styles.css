@@ -1531,6 +1531,10 @@ body:has(#conversation:not([hidden])) { min-height: 0; }
   .thread-tools .tool-short { display: inline; }
   #quick { margin-left: 0; }
 }
+@media (max-width: 360px) {
+  .conversation .thread-tools { gap: 4px; }
+  .conversation .thread-tools .text-btn { padding-inline: 0; }
+}
 @media (max-height: 460px) {
   .mast { --mast-height: 44px; }
   .site-frame:has(#conversation:not([hidden])) :is(.foot, .traffic-choice) { display: none; }
