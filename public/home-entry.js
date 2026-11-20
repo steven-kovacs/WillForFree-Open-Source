@@ -56,7 +56,14 @@ if (location.hostname === "partners.willforfree.com") {
   document.addEventListener("wff:home-ready", async () => {
     const copy = [...document.querySelectorAll(".mast nav > a, #welcome, .foot")].map(node => node.textContent).join(" ");
     const fonts = [400, 500, 700, 900].map(weight => document.fonts.load(weight + ' 1em "Reddit Sans"', copy));
-    const pictures = [...document.querySelectorAll(".mast img, #welcome img")].map(img => img.decode());
+    const pictures = [...document.querySelectorAll(".mast img")].map(img => img.decode());
+    for (const frame of document.querySelectorAll("#welcome .scrap")) {
+      const portrait = getComputedStyle(frame, "::before").backgroundImage.match(/^url\("([^"]+)"\)$/)?.[1];
+      if (!portrait) continue;
+      const image = new Image();
+      image.src = portrait;
+      pictures.push(image.decode());
+    }
     let limit;
     const timeout = new Promise(resolve => {
       limit = setTimeout(() => resolve(false), 2600);

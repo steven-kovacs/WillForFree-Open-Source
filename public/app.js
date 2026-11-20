@@ -37,7 +37,6 @@ import {
   isQuestion,
   topicsFor,
 } from "./flow.js";
-import { createKit, save, makeAnswerPDF } from "./kit.js";
 import {hasPublisherForm, mainePreviewUrl} from "./publisher-forms.js";
 import {lookupOffer,countDownload} from "./partner-api.js";
 import { partnerOffersEnabled, topicHelpEnabled, placeForSession, serviceOpen } from "./release.js";
@@ -76,6 +75,7 @@ const receipts=new Set();
 const deliberate=[];
 const openForKits = await serviceOpen();
 if (!openForKits) {
+  $("welcome").setAttribute("data-closed", "");
   $("welcome").querySelector(".hero-titlewrap h1").textContent = "WillForFree.";
   $("welcome").querySelector(".hero-lead").textContent = "WillForFree is not open for public downloads yet.";
   $("welcome").querySelector(".hero-chat").hidden = true;
@@ -484,6 +484,8 @@ function showHelpRoute(reason, {returnable=false, choice="", pressure=false, com
       const epoch=generation;
       download.disabled=true;
       try {
+        const {makeAnswerPDF, save} = await import("./kit.js");
+        if(epoch!==generation || !download.isConnected)return;
         const partial={...data};
         if(was)saveDetail(partial,details);
         const matters=mattersForReview(current,data.answers,undefined,all,undefined,partial.reviewNotes);
@@ -1142,6 +1144,8 @@ async function generateZip(status, receipt) {
   status.textContent = "Preparing your files…";
   const valid = () => attempt === downloadAttempt && acceptTerms.checked && stage === "finished" && (!receipt || sponsorDialog.open);
   try {
+    const {createKit, save} = await import("./kit.js");
+    if (!valid()) return;
     const sponsored = receipt && receipt.until > Date.now() ? receipt : null;
     let kit = await createKit(data,sponsored?.offer);
     let attributed = sponsored;
@@ -1256,7 +1260,12 @@ function homeInfo(trigger) {
       "Tell us who matters to you and what you’d like them to receive.",
       "Check the names and gifts, download your kit and follow the signing instructions inside.",
     ]) list.append(el("li", step));
-    guideCopy.replaceChildren(list, el("p","You can ask what something means at any step."));
+    const more = link("Read more about the free will kit", "#free-will-kit", "inline-link");
+    more.addEventListener("click", () => {
+      guideTrigger = null;
+      homeGuide.close();
+    });
+    guideCopy.replaceChildren(list, el("p","You can ask what something means at any step."), more);
   } else {
     guideTitle.textContent = "Making a will when you have children";
     guideCopy.replaceChildren(el("p","You can tell us who should inherit, who you’d like to care for your children and who should look after their money. The options depend on where you live."));

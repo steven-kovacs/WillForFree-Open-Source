@@ -572,13 +572,6 @@ svg {
     0 15px 25px #17202e16;
   border: 1px solid #dedccd;
 }
-.scrap img {
-  width: 100%;
-  height: auto;
-  display: block;
-  aspect-ratio: 3/4;
-  object-fit: cover;
-}
 .scrap-left {
   left: 3.1%;
   top: 34%;
@@ -670,7 +663,7 @@ svg {
   margin: 0 0 7px;
   color: #377183;
 }
-.thread-title h1,
+.thread-title h2,
 .fine-page h1 {
   font-weight: 900;
   letter-spacing: -0.06em;
@@ -1341,7 +1334,7 @@ body:has(#conversation:not([hidden])) { min-height: 0; }
 }
 #chat-fullscreen:focus-visible { outline-offset: -3px; }
 .conversation:not([data-fullscreen]) .exit-fullscreen,
-.conversation[data-fullscreen] :is(.enter-fullscreen, #back-home, .thread-title h1, .thread-title .overline) {
+.conversation[data-fullscreen] :is(.enter-fullscreen, #back-home, .thread-title h2, .thread-title .overline) {
   display: none;
 }
 .site-frame:has(.conversation[data-fullscreen]:not([hidden])) { padding-inline: clamp(10px, 2vw, 32px); }
@@ -1366,7 +1359,7 @@ body:has(#conversation:not([hidden])) { min-height: 0; }
 .conversation[data-fullscreen] :is(#chat-scroll, #review, #complete) { contain: size; min-height: 7rem; }
 .conversation .thread-title { margin: 0; }
 .thread-title .overline { margin-bottom: 4px; }
-.thread-title h1 { font-size: clamp(1.2rem, 3.2vw, 2.125rem); }
+.thread-title h2 { font-size: clamp(1.2rem, 3.2vw, 2.125rem); }
 .journey { grid-row: 3; padding: 13px 0 12px; }
 .journey-label { display: flex; justify-content: space-between; gap: 12px; align-items: baseline; font-size: .82rem; font-weight: 700; }
 #journey-count { color: var(--muted); font-weight: 500; }
@@ -1513,7 +1506,7 @@ body:has(#conversation:not([hidden])) { min-height: 0; }
   .conversation:not([data-fullscreen]) :is(#chat-scroll, #review, #complete) { contain: size; min-height: 4rem; }
   .conversation .thread-top { gap: 8px; }
   .conversation:not([data-fullscreen]):not([data-compact]) .thread-title { padding-top: 3px; }
-  .conversation .thread-title h1 { font-size: 1.25rem; }
+  .conversation .thread-title h2 { font-size: 1.25rem; }
   .conversation .journey { padding-block: 5px; }
   .thread-context .thread-loc { justify-content: start; gap: 5px; }
   #reply-form { padding: 3px 5px 3px 12px; border-radius: 13px; box-shadow: 2px 3px 0 var(--ink); }
@@ -1538,11 +1531,11 @@ body:has(#conversation:not([hidden])) { min-height: 0; }
 @media (max-height: 460px) {
   .mast { --mast-height: 44px; }
   .site-frame:has(#conversation:not([hidden])) :is(.foot, .traffic-choice) { display: none; }
-  .conversation .thread-title h1, .conversation .thread-title .overline { display: none; }
+  .conversation .thread-title h2, .conversation .thread-title .overline { display: none; }
   .conversation:not([hidden]) { padding: 0 0 4px; }
 }
 .site-frame:has(.conversation[data-compact]:not([hidden])) :is(.foot, .traffic-choice) { display: none; }
-.conversation[data-compact] .thread-title h1, .conversation[data-compact] .thread-title .overline { display: none; }
+.conversation[data-compact] .thread-title h2, .conversation[data-compact] .thread-title .overline { display: none; }
 .review-notice { border-left: 3px solid #26809b; padding: 6px 10px; background: #eff6ef; }
 
 @media (max-height: 460px) { .chat-page { --choice-limit: 3rem; gap: 3px; } }

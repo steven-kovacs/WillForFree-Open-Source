@@ -1,6 +1,7 @@
 import {trafficEvent} from "./traffic.js";
 import { focusDownloadTerms } from "./will-guide.js";
 import { navigationLanded } from "./navigation-feedback.js";
+import { cloneOriginal } from "./language-menu.js";
 
 // Same-document navigation keeps an unfinished will and its text field in memory.
 // The URL and browser history contain only public page paths and the AI preference.
@@ -11,8 +12,8 @@ export function setUpInformationNavigation({main, welcome, panel, isHome, confir
   const homeLinks = [...mast.children];
   const footer = document.querySelector(".footer-nav");
   const status = document.getElementById("info-status");
-  const homeTitle = "WillForFree — A little chat about your will";
-  const pageHead = 'meta[name="description"], link[rel="canonical"]';
+  const homeTitle = cloneOriginal(document.querySelector("title")).textContent;
+  const pageHead = 'meta[name="description"], link[rel="canonical"], meta[property^="og:"], meta[name^="twitter:"], script[type="application/ld+json"]';
   const homeHead = [...document.head.querySelectorAll(pageHead)];
   const cache = new Map();
   let mounted = null;
@@ -48,14 +49,15 @@ export function setUpInformationNavigation({main, welcome, panel, isHome, confir
     panel.hidden = isHome();
     readingChanged(false);
     navigationLanded();
+    window.scrollTo({top:0, behavior:"instant"});
     if (explicitReturn || !originFocus?.isConnected) {
       const destination = isHome() ? welcome.querySelector("h1") : panel;
       destination.tabIndex = -1;
       destination.focus({preventScroll:true});
     } else {
       originFocus.focus({preventScroll:true});
+      if (originFocus.closest(".home-kit")) originFocus.scrollIntoView({block:"nearest",behavior:"instant"});
     }
-    window.scrollTo({top:0, behavior:"instant"});
     if (returnHash === "#place-chip" && isHome()) document.getElementById("place-chip").click();
     returnHash = "";
   }

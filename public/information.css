@@ -164,8 +164,42 @@
 }
 .home-education h2 span { color: #3d6676; }
 .home-education p { margin: 0 auto; font-size: .91rem; line-height: 1.38; color: var(--muted); text-wrap: balance; }
+.home-kit {
+  width: min(calc(100% - 2 * clamp(20px, 5vw, 84px)), 960px);
+  padding-top: clamp(25px, 5vw, 66px);
+  border-top: 1px solid var(--line);
+  overflow-wrap: anywhere;
+}
+.preparing-home .home-kit,
+body:has(#welcome[hidden], #welcome[data-closed]) .home-kit { display: none; }
+.home-kit ol { padding-inline-start: 1.45em; margin: 1rem 0 0; }
+.home-kit ol li { padding-block: .2em; }
+.home-kit-topics {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(24px, 4vw, 52px);
+  margin-block: clamp(28px, 5vw, 54px);
+}
+.home-kit-topics section, .home-kit-actions {
+  border-top: 1px solid var(--line);
+  padding-top: 1.15rem;
+}
+.home-kit-topics .quiet-link { display: inline-block; margin-block: .75em; }
+.home-kit-sources { color: var(--muted); }
+.home-kit-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .25em 1em;
+  list-style: none;
+  margin: .25em 0 0;
+  padding: 0;
+}
+.home-kit-links a { text-underline-offset: .2em; }
+.home-kit-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 1.25rem 2rem; }
+.not-found .guide-paths { margin-top: 1.5rem; }
 @media (max-width: 680px) {
   .home-education { margin-top: clamp(10px, 4.1vw, 17px); }
+  .home-kit-topics { grid-template-columns: 1fr; }
 }
 @media (max-width: 360px) {
   .home-education { width: auto; margin-inline: -.25rem; }

@@ -19,6 +19,8 @@ const mime = {
   ".js": "text/javascript; charset=utf-8",
   ".css": "text/css; charset=utf-8",
   ".png": "image/png",
+  ".svg": "image/svg+xml",
+  ".jpg": "image/jpeg",
   ".webp": "image/webp",
   ".woff2": "font/woff2",
   ".ttf": "font/ttf",
@@ -54,6 +56,7 @@ export function makeServer({
       });
       res.end(req.method === "HEAD" ? undefined : body);
     };
+    const notFound = async () => send(404, await readFile(path.join(pub, "404.html")), mime[".html"]);
     try {
       const host = req.headers.host || "";
       if (!/^(?:localhost|127\.0\.0\.1|\[::1\])(?::[0-9]+)?$/i.test(host))
@@ -92,7 +95,7 @@ export function makeServer({
           .some((s) => !s || s.startsWith(".") || s.includes("\\")) ||
         !mime[path.extname(file)]
       )
-        return send(404, "Not found");
+        return await notFound();
       let absolute;
       try {
         absolute = await realpath(path.join(pub, file));
@@ -100,9 +103,9 @@ export function makeServer({
           !absolute.startsWith((await realpath(pub)) + path.sep) ||
           !(await stat(absolute)).isFile()
         )
-          return send(404, "Not found");
+          return await notFound();
       } catch {
-        return send(404, "Not found");
+        return await notFound();
       }
       return send(200, await readFile(absolute), mime[path.extname(file)], {
         ...(file.startsWith("downloads/sponsors/") ? {"Content-Disposition":"attachment"} : {}),
