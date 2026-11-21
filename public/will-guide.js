@@ -87,14 +87,15 @@ export function focusDownloadTerms(root, hash) {
 }
 
 if (typeof document !== "undefined") {
-  if (document.getElementById("responsibility")) {
+  const terms = document.getElementById("responsibility");
+  if (terms) {
     window.addEventListener("hashchange", () => {
       setupLocationGuidance(document);
-      focusDownloadTerms(document, location.hash);
+      if (location.hash) focusDownloadTerms(document, location.hash);
+      else terms.querySelector("details").open = false;
     });
     if (focusDownloadTerms(document, location.hash)) {
       // Loading the kit's language can move the section before the first interaction.
-      const terms = document.getElementById("responsibility");
       document.addEventListener("wff:language", () => requestAnimationFrame(() => {
         if (document.activeElement === terms) terms.scrollIntoView({block: "start", behavior: "instant"});
       }), {once: true});

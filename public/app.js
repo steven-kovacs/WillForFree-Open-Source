@@ -77,7 +77,7 @@ const openForKits = await serviceOpen();
 if (!openForKits) {
   $("welcome").setAttribute("data-closed", "");
   $("welcome").querySelector(".hero-titlewrap h1").textContent = "WillForFree.";
-  $("welcome").querySelector(".hero-lead").textContent = "WillForFree is not open for public downloads yet.";
+  $("home-closed-message").hidden = false;
   $("welcome").querySelector(".hero-chat").hidden = true;
   $("welcome").querySelector(".promises").hidden = true;
 }
@@ -1260,12 +1260,7 @@ function homeInfo(trigger) {
       "Tell us who matters to you and what you’d like them to receive.",
       "Check the names and gifts, download your kit and follow the signing instructions inside.",
     ]) list.append(el("li", step));
-    const more = link("Read more about the free will kit", "#free-will-kit", "inline-link");
-    more.addEventListener("click", () => {
-      guideTrigger = null;
-      homeGuide.close();
-    });
-    guideCopy.replaceChildren(list, el("p","You can ask what something means at any step."), more);
+    guideCopy.replaceChildren(list, el("p","You can ask what something means at any step."));
   } else {
     guideTitle.textContent = "Making a will when you have children";
     guideCopy.replaceChildren(el("p","You can tell us who should inherit, who you’d like to care for your children and who should look after their money. The options depend on where you live."));

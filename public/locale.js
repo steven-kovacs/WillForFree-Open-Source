@@ -31,7 +31,8 @@ export function savedLanguage() {
     return Object.hasOwn(languages,value) ? value : "";
   } catch { return ""; }
 }
-export async function setLanguage(preference, {remember = true} = {}) {
+export async function setLanguage(preference, {remember = true, signal} = {}) {
+  if (signal?.aborted) return;
   if(generating)throw Error("Wait for the download to finish.");
   const explicit = Object.hasOwn(languages,preference) ? preference : "";
   const requested = explicit || detectLanguage(globalThis.navigator?.languages || [globalThis.navigator?.language]);
@@ -42,7 +43,7 @@ export async function setLanguage(preference, {remember = true} = {}) {
       .catch(error => { catalogCache.delete(requested); throw error; }));
   }
   const next = requested === "en" ? {} : await catalogCache.get(requested);
-  if (revision !== version) return;
+  if (revision !== version || signal?.aborted) return;
   if (generating)throw Error("Wait for the download to finish.");
   locale = requested; catalog = next; choice = explicit;
   if (remember) try {

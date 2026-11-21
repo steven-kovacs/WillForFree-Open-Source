@@ -1,6 +1,7 @@
 import {languages, currentLanguage, detectLanguage, savedLanguage, setLanguage, languagePreference, hasCopy, display} from "./locale.js";
 import {readDownloadTermsLink} from "./download-notice.js";
 import {publicKitHost} from "./release-target.js";
+import {installChoicePicker} from "./choice-picker.js";
 import "./navigation-feedback.js";
 import "./traffic.js";
 
@@ -126,6 +127,8 @@ function paintMenu(host){
   const badge=host.querySelector("[data-code]"), code=currentLanguage()==="zh-Hans"?"中文":currentLanguage().toUpperCase();
   if(badge.textContent!==code)badge.textContent=code;
   select.title=display("Language")+" · "+languages[currentLanguage()];
+  const trigger=host.querySelector(".language-trigger");
+  if(trigger){trigger.setAttribute("aria-label",select.title);trigger.title=select.title;}
   const browserLanguage=detectLanguage(navigator.languages || [navigator.language]);
   select.options[0].textContent=display("Automatic (browser language)")+" · "+languages[browserLanguage];
   select.value=languagePreference();
@@ -135,11 +138,14 @@ function mount() {
   if(!nav)return;
   const existing=nav.querySelector("[data-language-control]");
   if(existing){paintMenu(existing);return;}
-  const host=document.createElement("label");host.className="language-control";host.dataset.languageControl="";
-  host.innerHTML='<svg width="17" height="17" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><ellipse cx="12" cy="12" rx="4.2" ry="9"/><path d="M3 12h18"/></svg><span data-code></span><span aria-hidden="true" class="language-caret">▾</span>';
+  const host=document.createElement("div");host.className="language-control";host.dataset.languageControl="";
+  host.innerHTML='<svg width="17" height="17" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><ellipse cx="12" cy="12" rx="4.2" ry="9"/><path d="M3 12h18"/></svg><span data-code aria-hidden="true"></span><span aria-hidden="true" class="language-caret">▾</span>';
   const select=document.createElement("select");select.add(new Option("Automatic (browser language)",""));
   for(const [code,name] of Object.entries(languages)){const option=new Option(name,code);option.lang=code;select.add(option);}
-  host.append(select);nav.append(host);paintMenu(host);
+  host.append(select);
+  const trigger=document.createElement("button");trigger.type="button";trigger.className="language-trigger";
+  if(installChoicePicker(select,trigger,()=>display("Language"),pickLanguage))host.append(trigger);
+  nav.append(host);paintMenu(host);
   const links = nav.querySelectorAll(":scope > a[data-menu-label]");
   if (!links.length) return;
   const details=document.createElement("details");details.className="mobile-navigation";
@@ -157,10 +163,17 @@ function mount() {
   }
   details.append(summary,list);nav.append(details);walk(details);
 }
+async function pickLanguage(value,signal){
+  try{await setLanguage(value,{signal});}
+  catch(error){throw Error(display(error.message==="Wait for the download to finish." ? error.message : "This language could not be loaded. Please try again."));}
+}
 document.addEventListener("change",async event=>{
   const select=event.target.closest("[data-language-control] select");if(!select)return;
-  try{await setLanguage(select.value);select.setCustomValidity("");}
-  catch(error){select.value=languagePreference();select.setCustomValidity(display(error.message==="Wait for the download to finish." ? error.message : "This language could not be loaded. Please try again."));select.reportValidity();}
+  try{await pickLanguage(select.value);select.setCustomValidity("");}
+  catch(error){
+    select.value=languagePreference();
+    if(!select.classList.contains("picker-select")){select.setCustomValidity(error.message);select.reportValidity();}
+  }
 });
 document.addEventListener("click",e=>{for(const item of document.querySelectorAll(".mobile-navigation[open]"))if(!item.querySelector("summary").contains(e.target))item.open=false;});
 document.addEventListener("keydown",e=>{if(e.key==="Escape"){const open=document.querySelector(".mobile-navigation[open]");if(open){open.open=false;open.querySelector("summary").focus();}}});

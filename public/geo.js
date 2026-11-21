@@ -1,5 +1,6 @@
 import { readHomeLocation, resolveHomeLocation, setHomeLocation } from "./home-location.js";
 import { currentLanguage, display, sentence, wording } from "./locale.js";
+import { installChoicePicker } from "./choice-picker.js";
 import {
   markets,
   regions,
@@ -29,6 +30,35 @@ export function locationUI(onSelect, suggest = true) {
     hint, // A completed lookup returns null if it could not suggest a country.
     dialogEdited = false,
     afterSelect = null;
+
+  function fieldPicker(select, prompt) {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.id = select.id + "-picker";
+    button.className = "place-picker";
+    if (!installChoicePicker(select, button, () => display(prompt))) return () => {};
+    const label = select.labels[0];
+    label.id = select.id + "-label";
+    label.htmlFor = button.id;
+    const value = document.createElement("span");
+    value.id = select.id + "-value";
+    value.dataset.verbatim = "";
+    button.setAttribute("aria-labelledby", label.id + " " + value.id);
+    button.append(value);
+    select.after(button);
+    button.addEventListener("click", () => { dialogEdited = true; });
+    return text => {
+      button.disabled = select.disabled;
+      value.textContent = display(text || prompt);
+    };
+  }
+  const paintCountry = fieldPicker(country, "Choose a country");
+  const paintRegion = fieldPicker(region, "Choose a region");
+  function paintFields() {
+    paintCountry(markets[country.value]);
+    paintRegion(regions[country.value]?.[region.value]);
+  }
+
   function listCountries() {
     const selected = country.value;
     const collator = new Intl.Collator(currentLanguage());
@@ -37,6 +67,7 @@ export function locationUI(onSelect, suggest = true) {
     const options = [...firstCountries, ...remaining].map(code => new Option(markets[code], code));
     country.replaceChildren(country.options[0], ...options);
     country.value = selected;
+    paintFields();
   }
   listCountries();
   document.addEventListener("wff:language", listCountries);
@@ -58,6 +89,7 @@ export function locationUI(onSelect, suggest = true) {
     regionField.hidden = !regions[c];
     region.disabled = !regions[c];
     submit.disabled = !validPlace({ country: c, region: region.value });
+    paintFields();
     updateHelp();
   };
   function paint() {
@@ -95,6 +127,7 @@ export function locationUI(onSelect, suggest = true) {
       country: country.value,
       region: region.value,
     });
+    paintFields();
     updateHelp();
   });
   dialog.addEventListener("close", () => {

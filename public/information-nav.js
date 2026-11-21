@@ -56,7 +56,6 @@ export function setUpInformationNavigation({main, welcome, panel, isHome, confir
       destination.focus({preventScroll:true});
     } else {
       originFocus.focus({preventScroll:true});
-      if (originFocus.closest(".home-kit")) originFocus.scrollIntoView({block:"nearest",behavior:"instant"});
     }
     if (returnHash === "#place-chip" && isHome()) document.getElementById("place-chip").click();
     returnHash = "";
@@ -96,10 +95,24 @@ export function setUpInformationNavigation({main, welcome, panel, isHome, confir
 
   async function navigate(url, trigger, push) {
     const current = ++version;
+    const dialog = trigger?.closest("dialog[open]");
+    const cancel = () => {
+      if (current === version) version++;
+    };
+    dialog?.addEventListener("close", cancel, {once:true});
     status.hidden = true;
+
+    const page = await getPage(url.pathname).catch(() => null);
+    dialog?.removeEventListener("close", cancel);
+    if (current !== version || (dialog && !dialog.open)) return;
+
+    // Keep the modal visible until the destination can replace the chat in the same render.
+    if (dialog) {
+      dialog.close();
+      trigger = document.activeElement;
+    }
     try {
-      const page = await getPage(url.pathname);
-      if (current !== version) return;
+      if (!page) throw Error("Page unavailable");
       if (!mounted && push) {
         originFocus = trigger?.closest(".mobile-navigation")?.querySelector("summary") || trigger;
       }
@@ -153,6 +166,7 @@ export function setUpInformationNavigation({main, welcome, panel, isHome, confir
     } else if (pages.has(url.pathname)) {
       event.preventDefault();
       if (mounted && location.pathname === url.pathname && location.hash === url.hash) {
+        link.closest("dialog[open]")?.close();
         focusSection(mounted,url.hash);
         return;
       }

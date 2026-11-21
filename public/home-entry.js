@@ -40,7 +40,7 @@ if (location.hostname === "partners.willforfree.com") {
     // ResizeObserver runs before paint. Deferring its work to another frame
     // would show the old size for a frame when the surrounding copy wraps.
     const surrounding = new ResizeObserver(measure);
-    for (const node of document.querySelectorAll(".mast, #info-status, #place-chip, .hero-lead, .welcome .promises, .hero-chat, .foot")) {
+    for (const node of document.querySelectorAll(".mast, #info-status, #place-chip, #home-closed-message, .welcome .promises, .hero-chat, .foot")) {
       surrounding.observe(node);
     }
     // A guide can change the language or window size while the home is hidden.

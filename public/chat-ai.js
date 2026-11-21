@@ -50,6 +50,7 @@ export function setupChatAI() {
     const turnOn = permission.signal.aborted;
     confirm.value = turnOn ? "on" : "off";
     confirm.textContent = turnOn ? "Turn On" : "Turn Off";
+    opener.focus({preventScroll:true});
     dialog.showModal();
     dialog.scrollTop = 0;
     document.getElementById("chat-ai-title").focus({preventScroll:true});
